@@ -152,35 +152,58 @@ function RegistrationPage() {
         style={{ background: "var(--gradient-hero)" }}
       >
         {/* Animated orbs */}
-        <div className="pointer-events-none absolute -top-32 -left-32 h-96 w-96 rounded-full opacity-30 blur-3xl animate-float-slow"
-             style={{ background: "var(--gradient-brand)" }} />
-        <div className="pointer-events-none absolute -bottom-40 -right-20 h-[28rem] w-[28rem] rounded-full opacity-25 blur-3xl animate-float-slower"
-             style={{ background: "radial-gradient(circle, oklch(0.62 0.22 295), transparent 70%)" }} />
-        <div className="pointer-events-none absolute inset-0 opacity-[0.04]"
-             style={{ backgroundImage: "linear-gradient(oklch(1 0 0) 1px, transparent 1px), linear-gradient(90deg, oklch(1 0 0) 1px, transparent 1px)", backgroundSize: "44px 44px" }} />
+        <div
+          className="pointer-events-none absolute -top-32 -left-32 h-96 w-96 rounded-full opacity-30 blur-3xl animate-float-slow"
+          style={{ background: "var(--gradient-brand)" }}
+        />
+        <div
+          className="pointer-events-none absolute -bottom-40 -right-20 h-[28rem] w-[28rem] rounded-full opacity-25 blur-3xl animate-float-slower"
+          style={{ background: "radial-gradient(circle, oklch(0.62 0.22 295), transparent 70%)" }}
+        />
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.04]"
+          style={{
+            backgroundImage:
+              "linear-gradient(oklch(1 0 0) 1px, transparent 1px), linear-gradient(90deg, oklch(1 0 0) 1px, transparent 1px)",
+            backgroundSize: "44px 44px",
+          }}
+        />
 
         <div className="relative mx-auto max-w-5xl px-6 py-16 sm:py-24 text-center">
           <div className="animate-fade-in">
             <div className="relative inline-block">
-              <div className="absolute -inset-3 rounded-3xl opacity-60 blur-2xl animate-pulse-glow"
-                   style={{ background: "var(--gradient-brand)" }} />
+              <div
+                className="absolute -inset-3 rounded-3xl opacity-60 blur-2xl animate-pulse-glow"
+                style={{ background: "var(--gradient-brand)" }}
+              />
               <img src={logo} alt="Uget Technologies" className="relative mx-auto h-24 w-24 rounded-2xl shadow-2xl" />
             </div>
           </div>
 
-          <p className="mt-7 text-xs font-semibold uppercase tracking-[0.35em] text-primary animate-fade-in" style={{ animationDelay: "80ms", animationFillMode: "backwards" }}>
+          <p
+            className="mt-7 text-xs font-semibold uppercase tracking-[0.35em] text-primary animate-fade-in"
+            style={{ animationDelay: "80ms", animationFillMode: "backwards" }}
+          >
             Uget Academy · Cohort Applications Open
           </p>
-          <h1 className="mt-4 text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight animate-fade-in" style={{ animationDelay: "160ms", animationFillMode: "backwards" }}>
+          <h1
+            className="mt-4 text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight animate-fade-in"
+            style={{ animationDelay: "160ms", animationFillMode: "backwards" }}
+          >
             Tech Scholarship{" "}
-            <span className="bg-clip-text text-transparent" style={{ backgroundImage: "var(--gradient-brand)" }}>
+            <span
+              className="bg-clip-text text-transparent"
+              style={{ backgroundImage: "var(--gradient-brand)" }}
+            >
               Cohort
             </span>
           </h1>
-          <p className="mx-auto mt-5 max-w-2xl text-base sm:text-lg text-muted-foreground animate-fade-in" style={{ animationDelay: "240ms", animationFillMode: "backwards" }}>
-            A 12-week online program equipping aspiring professionals with practical,
-            in-demand digital skills — through expert-led training, mentorship and
-            real-world projects.
+          <p
+            className="mx-auto mt-5 max-w-2xl text-base sm:text-lg text-muted-foreground animate-fade-in"
+            style={{ animationDelay: "240ms", animationFillMode: "backwards" }}
+          >
+            A 12-week online program equipping aspiring professionals with practical, in-demand
+            digital skills — through expert-led training, mentorship and real-world projects.
           </p>
 
           <div className="mt-10 grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-3xl mx-auto">
@@ -190,18 +213,40 @@ function RegistrationPage() {
                 className="group rounded-xl border border-border/60 bg-card/40 backdrop-blur px-4 py-3 text-left transition-all duration-300 hover:-translate-y-1 hover:border-primary/60 hover:shadow-[var(--shadow-glow)] animate-fade-in"
                 style={{ animationDelay: `${320 + i * 80}ms`, animationFillMode: "backwards" }}
               >
-                <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{h.label}</div>
-                <div className="mt-1 text-sm font-semibold transition-colors group-hover:text-primary">{h.value}</div>
+                <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                  {h.label}
+                </div>
+                <div className="mt-1 text-sm font-semibold transition-colors group-hover:text-primary">
+                  {h.value}
+                </div>
               </div>
             ))}
           </div>
 
+          {/* <a
+            href="/referral/signup"
+            className="mt-10 inline-flex items-center justify-center rounded-full px-20 py-3.5 text-sm font-semibold text-primary-foreground shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-[var(--shadow-glow)] animate-fade-in"
+            style={{
+              background: "var(--gradient-brand)",
+              boxShadow: "var(--shadow-glow)",
+              animationDelay: "640ms",
+              animationFillMode: "backwards",
+            }}
+          >
+            Refer 
+          </a> */}
           <a
             href="#apply"
             className="mt-10 inline-flex items-center justify-center rounded-full px-8 py-3.5 text-sm font-semibold text-primary-foreground shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-[var(--shadow-glow)] animate-fade-in"
-            style={{ background: "var(--gradient-brand)", boxShadow: "var(--shadow-glow)", animationDelay: "640ms", animationFillMode: "backwards" }}
+            style={{
+              background: "var(--gradient-brand)",
+              boxShadow: "var(--shadow-glow)",
+              animationDelay: "640ms",
+              animationFillMode: "backwards",
+            }}
           >
-            Begin Application <span className="ml-2 transition-transform group-hover:translate-x-1">→</span>
+            Begin Application{" "}
+            <span className="ml-2 transition-transform group-hover:translate-x-1">→</span>
           </a>
         </div>
       </header>
@@ -210,8 +255,8 @@ function RegistrationPage() {
       {!supabaseConfigured && (
         <div className="mx-auto max-w-3xl px-6 mt-6">
           <div className="rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm animate-fade-in">
-            <strong>Supabase not connected.</strong> Add your project URL and
-            publishable key to <code>.env</code> and run the provided SQL.
+            <strong>Supabase not connected.</strong> Add your project URL and publishable key to{" "}
+            <code>.env</code> and run the provided SQL.
           </div>
         </div>
       )}
@@ -221,7 +266,15 @@ function RegistrationPage() {
         {status === "success" && (
           <div className="mb-8 rounded-2xl border border-primary/40 bg-primary/10 p-6 text-center animate-scale-in">
             <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-primary/20">
-              <svg className="h-6 w-6 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+              <svg
+                className="h-6 w-6 text-primary"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="3"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
             </div>
             <p className="text-base font-semibold">{message}</p>
           </div>
@@ -234,33 +287,112 @@ function RegistrationPage() {
             <form onSubmit={goNext} className="space-y-8">
               <Section title="Scholarship Track" subtitle="Choose what you want to master.">
                 <Field label="Track" required>
-                  <select name="track" required defaultValue={str(formData.track)} className={selectCls}>
+                  <select
+                    name="track"
+                    required
+                    defaultValue={str(formData.track)}
+                    className={selectCls}
+                  >
                     <option value="">Choose a track…</option>
-                    {TRACKS.map((t) => <option key={t} value={t}>{t}</option>)}
+                    {TRACKS.map((t) => (
+                      <option key={t} value={t}>
+                        {t}
+                      </option>
+                    ))}
                   </select>
                 </Field>
-                <Field label="Why did you choose this track?" required>
-                  <textarea name="track_reason" required defaultValue={str(formData.track_reason)} rows={3} className={inputCls} />
+                <Field label="Why should you be chosen for this Scholarship?" required>
+                  <textarea
+                    name="track_reason"
+                    required
+                    defaultValue={str(formData.track_reason)}
+                    rows={3}
+                    className={inputCls}
+                  />
                 </Field>
               </Section>
 
               <Section title="Personal Information">
                 <Grid>
-                  <Field label="Full Name" required><input name="full_name" required defaultValue={str(formData.full_name)} className={inputCls} /></Field>
-                  <Field label="Email Address" required><input type="email" name="email" required defaultValue={str(formData.email)} className={inputCls} /></Field>
-                  <Field label="Phone (WhatsApp Preferred)" required><input name="phone" required defaultValue={str(formData.phone)} className={inputCls} /></Field>
+                  <Field label="Full Name" required>
+                    <input
+                      name="full_name"
+                      required
+                      defaultValue={str(formData.full_name)}
+                      className={inputCls}
+                    />
+                  </Field>
+                  <Field label="Email Address" required>
+                    <input
+                      type="email"
+                      name="email"
+                      required
+                      defaultValue={str(formData.email)}
+                      className={inputCls}
+                    />
+                  </Field>
+                  <Field label="Phone (WhatsApp Preferred)" required>
+                    <input
+                      name="phone"
+                      required
+                      defaultValue={str(formData.phone)}
+                      className={inputCls}
+                    />
+                  </Field>
                   <Field label="Gender" required>
-                    <select name="gender" required defaultValue={str(formData.gender)} className={selectCls}>
-                      <option value="">Select…</option><option>Male</option><option>Female</option><option>Prefer not to say</option>
+                    <select
+                      name="gender"
+                      required
+                      defaultValue={str(formData.gender)}
+                      className={selectCls}
+                    >
+                      <option value="">Select…</option>
+                      <option>Male</option>
+                      <option>Female</option>
+                      <option>Prefer not to say</option>
                     </select>
                   </Field>
-                  <Field label="Date of Birth"><input type="date" name="date_of_birth" defaultValue={str(formData.date_of_birth)} className={inputCls} /></Field>
-                  <Field label="State / Region" required><input name="state_region" required defaultValue={str(formData.state_region)} className={inputCls} /></Field>
-                  <Field label="Country" required><input name="country" required defaultValue={str(formData.country)} className={inputCls} /></Field>
-                  <Field label="LinkedIn (optional)"><input name="linkedin_url" type="url" defaultValue={str(formData.linkedin_url)} className={inputCls} /></Field>
+                  <Field label="Date of Birth">
+                    <input
+                      type="date"
+                      name="date_of_birth"
+                      defaultValue={str(formData.date_of_birth)}
+                      className={inputCls}
+                    />
+                  </Field>
+                  <Field label="State / Region" required>
+                    <input
+                      name="state_region"
+                      required
+                      defaultValue={str(formData.state_region)}
+                      className={inputCls}
+                    />
+                  </Field>
+                  <Field label="Country" required>
+                    <input
+                      name="country"
+                      required
+                      defaultValue={str(formData.country)}
+                      className={inputCls}
+                    />
+                  </Field>
+                  <Field label="LinkedIn (optional)">
+                    <input
+                      name="linkedin_url"
+                      type="url"
+                      defaultValue={str(formData.linkedin_url)}
+                      className={inputCls}
+                    />
+                  </Field>
                 </Grid>
-                <Field label="Residential Address" required>
-                  <textarea name="residential_address" required defaultValue={str(formData.residential_address)} rows={2} className={inputCls} />
+                <Field label="Residential Address">
+                  <textarea
+                    name="residential_address"
+                    required
+                    defaultValue={str(formData.residential_address)}
+                    rows={2}
+                    className={inputCls}
+                  />
                 </Field>
               </Section>
 
@@ -273,56 +405,154 @@ function RegistrationPage() {
               <Section title="Educational Background">
                 <Grid>
                   <Field label="Highest Qualification" required>
-                    <select name="highest_qualification" required defaultValue={str(formData.highest_qualification)} className={selectCls}>
+                    <select
+                      name="highest_qualification"
+                      required
+                      defaultValue={str(formData.highest_qualification)}
+                      className={selectCls}
+                    >
                       <option value="">Select…</option>
-                      {["Secondary School","Diploma","Undergraduate","Graduate","Postgraduate","Other"].map(o => <option key={o}>{o}</option>)}
+                      {[
+                        "Secondary School",
+                        "Diploma",
+                        "Undergraduate",
+                        "Graduate",
+                        "Postgraduate",
+                        "Other",
+                      ].map((o) => (
+                        <option key={o}>{o}</option>
+                      ))}
                     </select>
                   </Field>
                   <Field label="Current Status" required>
-                    <select name="current_status" required defaultValue={str(formData.current_status)} className={selectCls}>
+                    <select
+                      name="current_status"
+                      required
+                      defaultValue={str(formData.current_status)}
+                      className={selectCls}
+                    >
                       <option value="">Select…</option>
-                      {["Student","Employed","Self-Employed","Unemployed","Other"].map(o => <option key={o}>{o}</option>)}
+                      {["Student", "Employed", "Self-Employed", "Unemployed", "Other"].map((o) => (
+                        <option key={o}>{o}</option>
+                      ))}
                     </select>
                   </Field>
-                  <Field label="Name of Institution" required><input name="institution" required defaultValue={str(formData.institution)} className={inputCls} /></Field>
-                  <Field label="Course of Study (if applicable)"><input name="course_of_study" defaultValue={str(formData.course_of_study)} className={inputCls} /></Field>
+                  <Field label="Name of Institution">
+                    <input
+                      name="institution"
+                      required
+                      defaultValue={str(formData.institution)}
+                      className={inputCls}
+                    />
+                  </Field>
+                  <Field label="Course of Study (if applicable)">
+                    <input
+                      name="course_of_study"
+                      defaultValue={str(formData.course_of_study)}
+                      className={inputCls}
+                    />
+                  </Field>
                 </Grid>
               </Section>
 
               <Section title="Experience & Motivation">
                 <Grid>
                   <Field label="Studied this field before?" required>
-                    <select name="studied_before" required defaultValue={str(formData.studied_before)} className={selectCls}>
-                      <option value="">Select…</option><option>Yes</option><option>No</option>
+                    <select
+                      name="studied_before"
+                      required
+                      defaultValue={str(formData.studied_before)}
+                      className={selectCls}
+                    >
+                      <option value="">Select…</option>
+                      <option>Yes</option>
+                      <option>No</option>
                     </select>
                   </Field>
                   <Field label="Experience Level" required>
-                    <select name="experience_level" required defaultValue={str(formData.experience_level)} className={selectCls}>
-                      <option value="">Select…</option><option>Beginner</option><option>Intermediate</option><option>Advanced</option>
+                    <select
+                      name="experience_level"
+                      required
+                      defaultValue={str(formData.experience_level)}
+                      className={selectCls}
+                    >
+                      <option value="">Select…</option>
+                      <option>Beginner</option>
+                      <option>Intermediate</option>
+                      <option>Advanced</option>
                     </select>
                   </Field>
                 </Grid>
                 <Field label="Why are you applying for this scholarship?" required>
-                  <textarea name="why_apply" required defaultValue={str(formData.why_apply)} rows={3} className={inputCls} />
+                  <textarea
+                    name="why_apply"
+                    required
+                    defaultValue={str(formData.why_apply)}
+                    rows={3}
+                    className={inputCls}
+                  />
                 </Field>
                 <Field label="What do you hope to achieve after this program?" required>
-                  <textarea name="goals" required defaultValue={str(formData.goals)} rows={3} className={inputCls} />
+                  <textarea
+                    name="goals"
+                    required
+                    defaultValue={str(formData.goals)}
+                    rows={3}
+                    className={inputCls}
+                  />
                 </Field>
                 <Field label="Where do you see yourself in the next 2 years?" required>
-                  <textarea name="two_year_vision" required defaultValue={str(formData.two_year_vision)} rows={3} className={inputCls} />
+                  <textarea
+                    name="two_year_vision"
+                    required
+                    defaultValue={str(formData.two_year_vision)}
+                    rows={3}
+                    className={inputCls}
+                  />
                 </Field>
               </Section>
 
               <Section title="Technical Readiness">
                 <Grid>
                   <Field label="Access to a laptop/desktop?" required>
-                    <select name="has_computer" required defaultValue={str(formData.has_computer)} className={selectCls}><option value="">Select…</option><option>Yes</option><option>No</option></select>
+                    <select
+                      name="has_computer"
+                      required
+                      defaultValue={str(formData.has_computer)}
+                      className={selectCls}
+                    >
+                      <option value="">Select…</option>
+                      <option>Yes</option>
+                      <option>No</option>
+                    </select>
                   </Field>
                   <Field label="Reliable internet?" required>
-                    <select name="has_internet" required defaultValue={str(formData.has_internet)} className={selectCls}><option value="">Select…</option><option>Yes</option><option>No</option></select>
+                    <select
+                      name="has_internet"
+                      required
+                      defaultValue={str(formData.has_internet)}
+                      className={selectCls}
+                    >
+                      <option value="">Select…</option>
+                      <option>Yes</option>
+                      <option>No</option>
+                    </select>
                   </Field>
-                  <Field label="Willing to commit to all 12 weeks?" required className="md:col-span-2">
-                    <select name="can_commit" required defaultValue={str(formData.can_commit)} className={selectCls}><option value="">Select…</option><option>Yes</option><option>No</option></select>
+                  <Field
+                    label="Willing to commit to all 12 weeks?"
+                    required
+                    className="md:col-span-2"
+                  >
+                    <select
+                      name="can_commit"
+                      required
+                      defaultValue={str(formData.can_commit)}
+                      className={selectCls}
+                    >
+                      <option value="">Select…</option>
+                      <option>Yes</option>
+                      <option>No</option>
+                    </select>
                   </Field>
                 </Grid>
               </Section>
@@ -335,31 +565,99 @@ function RegistrationPage() {
             <form onSubmit={handleSubmit} className="space-y-8">
               <Section title="Portfolio & Social (Optional)">
                 <Grid>
-                  <Field label="Portfolio Link"><input name="portfolio_url" type="url" defaultValue={str(formData.portfolio_url)} className={inputCls} /></Field>
-                  <Field label="GitHub (technical tracks)"><input name="github_url" type="url" defaultValue={str(formData.github_url)} className={inputCls} /></Field>
-                  <Field label="Behance / Dribbble (design)"><input name="design_profile_url" type="url" defaultValue={str(formData.design_profile_url)} className={inputCls} /></Field>
-                  <Field label="Other Relevant Links"><input name="other_links" defaultValue={str(formData.other_links)} className={inputCls} /></Field>
+                  <Field label="Portfolio Link">
+                    <input
+                      name="portfolio_url"
+                      type="url"
+                      defaultValue={str(formData.portfolio_url)}
+                      className={inputCls}
+                    />
+                  </Field>
+                  <Field label="GitHub (technical tracks)">
+                    <input
+                      name="github_url"
+                      type="url"
+                      defaultValue={str(formData.github_url)}
+                      className={inputCls}
+                    />
+                  </Field>
+                  <Field label="Behance / Dribbble (design)">
+                    <input
+                      name="design_profile_url"
+                      type="url"
+                      defaultValue={str(formData.design_profile_url)}
+                      className={inputCls}
+                    />
+                  </Field>
+                  <Field label="Other Relevant Links">
+                    <input
+                      name="other_links"
+                      defaultValue={str(formData.other_links)}
+                      className={inputCls}
+                    />
+                  </Field>
                 </Grid>
               </Section>
 
-              <Section title="Emergency Contact">
+              {/* <Section title="Emergency Contact">
                 <Grid>
-                  <Field label="Full Name" required><input name="emergency_name" required defaultValue={str(formData.emergency_name)} className={inputCls} /></Field>
-                  <Field label="Relationship" required><input name="emergency_relationship" required defaultValue={str(formData.emergency_relationship)} className={inputCls} /></Field>
-                  <Field label="Phone Number" required className="md:col-span-2"><input name="emergency_phone" required defaultValue={str(formData.emergency_phone)} className={inputCls} /></Field>
+                  <Field label="Full Name" required>
+                    <input
+                      name="emergency_name"
+                      required
+                      defaultValue={str(formData.emergency_name)}
+                      className={inputCls}
+                    />
+                  </Field>
+                  <Field label="Relationship" required>
+                    <input
+                      name="emergency_relationship"
+                      required
+                      defaultValue={str(formData.emergency_relationship)}
+                      className={inputCls}
+                    />
+                  </Field>
+                  <Field label="Phone Number" required className="md:col-span-2">
+                    <input
+                      name="emergency_phone"
+                      required
+                      defaultValue={str(formData.emergency_phone)}
+                      className={inputCls}
+                    />
+                  </Field>
                 </Grid>
-              </Section>
+              </Section> */}
 
               <Section title="Referral">
                 <Grid>
                   <Field label="How did you hear about us?" required>
-                    <select name="heard_from" required defaultValue={str(formData.heard_from)} className={selectCls}>
+                    <select
+                      name="heard_from"
+                      required
+                      defaultValue={str(formData.heard_from)}
+                      className={selectCls}
+                    >
                       <option value="">Select…</option>
-                      {["Facebook","Instagram","LinkedIn","WhatsApp","Friend/Referral","Website","Other"].map(o => <option key={o}>{o}</option>)}
+                      {[
+                        "Facebook",
+                        "Instagram",
+                        "LinkedIn",
+                        "WhatsApp",
+                        "Friend/Referral",
+                        "Website",
+                        "Other",
+                      ].map((o) => (
+                        <option key={o}>{o}</option>
+                      ))}
                     </select>
                   </Field>
-                  <Field label="Referral Code (required)" required>
-                    <input name="referral_code" required defaultValue={str(formData.referral_code)} className={inputCls} />
+                  <Field label="Referral Code">
+                    <input
+                      name="referral_code"
+                      required
+                      defaultValue={str(formData.referral_code)}
+                      className={inputCls}
+                    />
                   </Field>
                 </Grid>
               </Section>
@@ -376,15 +674,31 @@ function RegistrationPage() {
                   </ul>
                 </div>
                 <label className="flex items-start gap-3 text-sm cursor-pointer group">
-                  <input type="checkbox" name="agreed_to_terms" required className="mt-1 h-4 w-4 accent-primary" />
-                  <span className="transition-colors group-hover:text-foreground">I agree to the terms and conditions of the Uget Academy Tech Scholarship Cohort.</span>
+                  <input
+                    type="checkbox"
+                    name="agreed_to_terms"
+                    required
+                    className="mt-1 h-4 w-4 accent-primary"
+                  />
+                  <span className="transition-colors group-hover:text-foreground">
+                    I agree to the terms and conditions of the Uget Academy Tech Scholarship Cohort.
+                  </span>
                 </label>
                 <Grid>
                   <Field label="Applicant Signature (full name)" required>
-                    <input name="signature" required defaultValue={str(formData.signature)} className={inputCls} />
+                    <input
+                      name="signature"
+                      required
+                      defaultValue={str(formData.signature)}
+                      className={inputCls}
+                    />
                   </Field>
                   <Field label="Date">
-                    <input value={new Date().toLocaleDateString()} readOnly className={inputCls + " opacity-70"} />
+                    <input
+                      value={new Date().toLocaleDateString()}
+                      readOnly
+                      className={inputCls + " opacity-70"}
+                    />
                   </Field>
                 </Grid>
               </Section>
@@ -395,7 +709,12 @@ function RegistrationPage() {
                 </div>
               )}
 
-              <NavButtons step={step} onBack={goBack} submitting={status === "submitting"} isFinal />
+              <NavButtons
+                step={step}
+                onBack={goBack}
+                submitting={status === "submitting"}
+                isFinal
+              />
             </form>
           )}
         </div>
@@ -424,19 +743,41 @@ function Stepper({ currentStep }: { currentStep: number }) {
                         ? "border-primary/70 text-primary-foreground"
                         : "border-border text-muted-foreground"
                   }`}
-                  style={isCurrent || isDone ? { background: "var(--gradient-brand)", boxShadow: isCurrent ? "var(--shadow-glow)" : undefined } : undefined}
+                  style={
+                    isCurrent || isDone
+                      ? {
+                          background: "var(--gradient-brand)",
+                          boxShadow: isCurrent ? "var(--shadow-glow)" : undefined,
+                        }
+                      : undefined
+                  }
                 >
                   {isDone ? (
-                    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                    <svg
+                      className="h-5 w-5"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
                   ) : (
                     s.id
                   )}
                   {isCurrent && (
-                    <span className="absolute inset-0 rounded-full animate-ping opacity-40" style={{ background: "var(--gradient-brand)" }} />
+                    <span
+                      className="absolute inset-0 rounded-full animate-ping opacity-40"
+                      style={{ background: "var(--gradient-brand)" }}
+                    />
                   )}
                 </div>
                 <div className="mt-2 hidden sm:block">
-                  <div className={`text-xs font-semibold transition-colors ${isCurrent || isDone ? "text-foreground" : "text-muted-foreground"}`}>{s.title}</div>
+                  <div
+                    className={`text-xs font-semibold transition-colors ${isCurrent || isDone ? "text-foreground" : "text-muted-foreground"}`}
+                  >
+                    {s.title}
+                  </div>
                   <div className="text-[10px] text-muted-foreground">{s.hint}</div>
                 </div>
               </div>
@@ -457,13 +798,25 @@ function Stepper({ currentStep }: { currentStep: number }) {
       </div>
       <div className="mt-3 sm:hidden text-center">
         <div className="text-xs font-semibold text-foreground">{STEPS[currentStep - 1].title}</div>
-        <div className="text-[10px] text-muted-foreground">Step {currentStep} of {STEPS.length}</div>
+        <div className="text-[10px] text-muted-foreground">
+          Step {currentStep} of {STEPS.length}
+        </div>
       </div>
     </div>
   );
 }
 
-function NavButtons({ step, onBack, submitting, isFinal }: { step: number; onBack?: () => void; submitting?: boolean; isFinal?: boolean }) {
+function NavButtons({
+  step,
+  onBack,
+  submitting,
+  isFinal,
+}: {
+  step: number;
+  onBack?: () => void;
+  submitting?: boolean;
+  isFinal?: boolean;
+}) {
   return (
     <div className="flex flex-col-reverse sm:flex-row items-center justify-between gap-3 pt-2">
       {step > 1 ? (
@@ -474,7 +827,9 @@ function NavButtons({ step, onBack, submitting, isFinal }: { step: number; onBac
         >
           ← Back
         </button>
-      ) : <span className="hidden sm:block" />}
+      ) : (
+        <span className="hidden sm:block" />
+      )}
       <button
         type="submit"
         disabled={submitting}
@@ -489,28 +844,61 @@ function NavButtons({ step, onBack, submitting, isFinal }: { step: number; onBac
 
 function Footer() {
   const socials = [
-    { name: "Instagram", href: "https://instagram.com/ugettechnologies", icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4 w-4"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>
-    )},
-    { name: "LinkedIn", href: "https://linkedin.com/company/ugettechnologies", icon: (
-      <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4"><path d="M4.98 3.5C4.98 4.88 3.87 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM.22 8h4.56v14H.22V8zm7.5 0h4.37v1.92h.06c.61-1.15 2.1-2.36 4.32-2.36 4.62 0 5.47 3.04 5.47 7v7.44h-4.56v-6.6c0-1.57-.03-3.6-2.2-3.6-2.2 0-2.54 1.72-2.54 3.49V22H7.72V8z"/></svg>
-    )},
-    { name: "Facebook", href: "https://facebook.com/ugettechnologies", icon: (
-      <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4"><path d="M22 12.07C22 6.51 17.52 2 12 2S2 6.51 2 12.07c0 5.02 3.66 9.18 8.44 9.93v-7.03H7.9v-2.9h2.54V9.84c0-2.52 1.5-3.92 3.78-3.92 1.1 0 2.24.2 2.24.2v2.48h-1.26c-1.24 0-1.63.78-1.63 1.57v1.88h2.77l-.44 2.9h-2.33V22c4.78-.75 8.43-4.91 8.43-9.93z"/></svg>
-    )},
-    { name: "X / Twitter", href: "https://twitter.com/ugettech", icon: (
-      <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-    )},
-    { name: "WhatsApp", href: "https://wa.me/2340000000000", icon: (
-      <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4"><path d="M17.5 14.4c-.3-.1-1.7-.8-2-.9-.3-.1-.5-.1-.7.1-.2.3-.7.9-.9 1.1-.2.2-.3.2-.6.1-1.7-.9-2.9-1.5-4-3.5-.3-.5.3-.5.8-1.5.1-.2 0-.4 0-.5 0-.1-.7-1.6-.9-2.2-.2-.5-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.5s1.1 2.9 1.2 3.1c.1.2 2.1 3.2 5.1 4.5 1.9.8 2.6.9 3.5.7.6-.1 1.7-.7 1.9-1.4.2-.7.2-1.3.2-1.4-.1-.1-.3-.2-.6-.4zM12 2C6.5 2 2 6.5 2 12c0 1.7.4 3.4 1.3 4.9L2 22l5.2-1.4c1.4.8 3.1 1.2 4.8 1.2 5.5 0 10-4.5 10-10S17.5 2 12 2z"/></svg>
-    )},
+    {
+      name: "Instagram",
+      href: "https://www.instagram.com/ugettech?igsh=MXNqN2R0cjVqNDMwZw%3D%3D&utm_source=qr",
+      icon: (
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          className="h-4 w-4"
+        >
+          <rect x="3" y="3" width="18" height="18" rx="5" />
+          <circle cx="12" cy="12" r="4" />
+          <circle cx="17.5" cy="6.5" r="1" fill="currentColor" />
+        </svg>
+      ),
+    },
+    {
+      name: "LinkedIn",
+      href: "https://www.linkedin.com/in/uget-technologies-562b46416?utm_source=share_via&utm_content=profile&utm_medium=member_ios",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4">
+          <path d="M4.98 3.5C4.98 4.88 3.87 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM.22 8h4.56v14H.22V8zm7.5 0h4.37v1.92h.06c.61-1.15 2.1-2.36 4.32-2.36 4.62 0 5.47 3.04 5.47 7v7.44h-4.56v-6.6c0-1.57-.03-3.6-2.2-3.6-2.2 0-2.54 1.72-2.54 3.49V22H7.72V8z" />
+        </svg>
+      ),
+    },
+    {
+      name: "Facebook",
+      href: "https://www.facebook.com/share/1L1nmxPii2/?mibextid=wwXIfr",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4">
+          <path d="M22 12.07C22 6.51 17.52 2 12 2S2 6.51 2 12.07c0 5.02 3.66 9.18 8.44 9.93v-7.03H7.9v-2.9h2.54V9.84c0-2.52 1.5-3.92 3.78-3.92 1.1 0 2.24.2 2.24.2v2.48h-1.26c-1.24 0-1.63.78-1.63 1.57v1.88h2.77l-.44 2.9h-2.33V22c4.78-.75 8.43-4.91 8.43-9.93z" />
+        </svg>
+      ),
+    },
+    {
+      name: "X / Twitter",
+      href: "https://x.com/uget_tech?s=21",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4">
+          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+        </svg>
+      ),
+    },
   ];
 
-  const cohortLinks = ["Cybersecurity","UI/UX Design","Full-Stack Development","Data Analysis","AI Automation"];
-
   return (
-    <footer className="relative mt-10 border-t border-border overflow-hidden" style={{ background: "var(--gradient-hero)" }}>
-      <div className="pointer-events-none absolute -top-20 left-1/2 h-72 w-[40rem] -translate-x-1/2 rounded-full opacity-20 blur-3xl" style={{ background: "var(--gradient-brand)" }} />
+    <footer
+      className="relative mt-10 border-t border-border overflow-hidden"
+      style={{ background: "var(--gradient-hero)" }}
+    >
+      <div
+        className="pointer-events-none absolute -top-20 left-1/2 h-72 w-[40rem] -translate-x-1/2 rounded-full opacity-20 blur-3xl"
+        style={{ background: "var(--gradient-brand)" }}
+      />
       <div className="relative mx-auto max-w-5xl px-6 py-14">
         <div className="grid gap-10 md:grid-cols-3">
           <div>
@@ -518,27 +906,20 @@ function Footer() {
               <img src={logo} alt="" className="h-10 w-10 rounded-lg" />
               <div>
                 <div className="text-sm font-bold tracking-wide">UGET TECHNOLOGIES</div>
-                <div className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Innovative Solutions</div>
               </div>
             </div>
             <p className="mt-4 text-sm text-muted-foreground max-w-xs">
-              Building Africa's next generation of digital professionals — one cohort at a time.
+              Innovative Solutions for a Connected World.
             </p>
           </div>
 
           <div>
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-foreground/80">Cohort Tracks</h4>
-            <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
-              {cohortLinks.map((t) => (
-                <li key={t}>
-                  <a href="#apply" className="transition-colors hover:text-primary">{t}</a>
-                </li>
-              ))}
-            </ul>
           </div>
 
           <div>
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-foreground/80">Connect</h4>
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-foreground/80">
+              Connect
+            </h4>
             <div className="mt-4 flex flex-wrap gap-2">
               {socials.map((s) => (
                 <a
@@ -548,23 +929,27 @@ function Footer() {
                   rel="noreferrer noopener"
                   aria-label={s.name}
                   className="group flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card/60 text-muted-foreground transition-all duration-300 hover:-translate-y-1 hover:border-primary/60 hover:text-primary-foreground"
-                  style={{ transitionProperty: "transform, color, background, border-color, box-shadow" }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "var(--gradient-brand)"; (e.currentTarget as HTMLElement).style.boxShadow = "var(--shadow-glow)"; }}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = ""; (e.currentTarget as HTMLElement).style.boxShadow = ""; }}
+                  style={{
+                    transitionProperty: "transform, color, background, border-color, box-shadow",
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLElement).style.background = "var(--gradient-brand)";
+                    (e.currentTarget as HTMLElement).style.boxShadow = "var(--shadow-glow)";
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLElement).style.background = "";
+                    (e.currentTarget as HTMLElement).style.boxShadow = "";
+                  }}
                 >
                   {s.icon}
                 </a>
               ))}
             </div>
-            <p className="mt-4 text-xs text-muted-foreground">
-              Questions? <a href="mailto:academy@ugettech.com" className="text-primary hover:underline">academy@ugettech.com</a>
-            </p>
           </div>
         </div>
 
         <div className="mt-12 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-border/60 pt-6 text-xs text-muted-foreground">
           <p>© {new Date().getFullYear()} Uget Technologies. All rights reserved.</p>
-          <p>Innovative Solutions for a Connected World.</p>
         </div>
       </div>
     </footer>
@@ -575,7 +960,15 @@ const inputCls =
   "w-full rounded-lg border border-border bg-input px-3.5 py-2.5 text-sm text-foreground outline-none transition-all duration-200 focus:border-ring focus:ring-2 focus:ring-ring/30 focus:bg-input/80 placeholder:text-muted-foreground hover:border-border/80";
 const selectCls = inputCls + " appearance-none cursor-pointer";
 
-function Section({ title, subtitle, children }: { title: string; subtitle?: string; children: ReactNode }) {
+function Section({
+  title,
+  subtitle,
+  children,
+}: {
+  title: string;
+  subtitle?: string;
+  children: ReactNode;
+}) {
   return (
     <section className="rounded-2xl border border-border bg-card/60 p-6 sm:p-8 shadow-sm backdrop-blur-sm transition-all duration-300 hover:border-border/80 hover:shadow-lg">
       <h2 className="text-lg sm:text-xl font-semibold tracking-tight">{title}</h2>
@@ -585,7 +978,17 @@ function Section({ title, subtitle, children }: { title: string; subtitle?: stri
   );
 }
 
-function Field({ label, required, children, className = "" }: { label: string; required?: boolean; children: ReactNode; className?: string }) {
+function Field({
+  label,
+  required,
+  children,
+  className = "",
+}: {
+  label: string;
+  required?: boolean;
+  children: ReactNode;
+  className?: string;
+}) {
   return (
     <label className={`block ${className}`}>
       <span className="mb-1.5 block text-xs font-medium text-foreground/90">
