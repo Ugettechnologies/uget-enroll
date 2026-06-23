@@ -162,14 +162,14 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
   };
 
   return (
-    <div className="container mx-auto py-10 px-4 max-w-[95vw]">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">Uget Academy — Admin</h1>
-        <div className="flex items-center gap-4">
-          <Button onClick={downloadCSV} className="bg-primary text-primary-foreground">
+    <div className="container mx-auto py-6 sm:py-10 px-4 max-w-[95vw]">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold">Uget Academy — Admin</h1>
+        <div className="flex items-center gap-4 w-full sm:w-auto">
+          <Button onClick={downloadCSV} className="bg-primary text-primary-foreground flex-1 sm:flex-none">
             Export CSV
           </Button>
-          <Button onClick={onLogout} variant="outline">
+          <Button onClick={onLogout} variant="outline" className="flex-1 sm:flex-none">
             Sign Out
           </Button>
         </div>
@@ -300,37 +300,39 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
 
           <div className="pt-6 border-t">
             <h2 className="text-xl font-semibold mb-4">Existing Referrers</h2>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Date Created</TableHead>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Code</TableHead>
-                  <TableHead className="text-right">Action</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {referrals.map((ref, i) => (
-                  <TableRow key={i}>
-                    <TableCell>{new Date(ref.created_at).toLocaleDateString()}</TableCell>
-                    <TableCell>{ref.referrer_name}</TableCell>
-                    <TableCell className="font-mono">{ref.code}</TableCell>
-                    <TableCell className="text-right">
-                      <Button 
-                        variant="destructive" 
-                        size="sm" 
-                        onClick={() => deleteReferral(ref.id)}
-                      >
-                        Delete
-                      </Button>
-                    </TableCell>
+            <div className="overflow-x-auto whitespace-nowrap">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Date Created</TableHead>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Code</TableHead>
+                    <TableHead className="text-right">Action</TableHead>
                   </TableRow>
-                ))}
-                {referrals.length === 0 && !loading && (
-                  <TableRow><TableCell colSpan={4} className="text-center py-4">No referrers generated yet.</TableCell></TableRow>
-                )}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {referrals.map((ref, i) => (
+                    <TableRow key={i}>
+                      <TableCell>{new Date(ref.created_at).toLocaleDateString()}</TableCell>
+                      <TableCell>{ref.referrer_name}</TableCell>
+                      <TableCell className="font-mono">{ref.code}</TableCell>
+                      <TableCell className="text-right">
+                        <Button 
+                          variant="destructive" 
+                          size="sm" 
+                          onClick={() => deleteReferral(ref.id)}
+                        >
+                          Delete
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  {referrals.length === 0 && !loading && (
+                    <TableRow><TableCell colSpan={4} className="text-center py-4">No referrers generated yet.</TableCell></TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
           </div>
         </TabsContent>
       </Tabs>
