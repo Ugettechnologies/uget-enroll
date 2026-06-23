@@ -102,32 +102,90 @@ function AdminDashboard() {
         </TabsList>
 
         <TabsContent value="applications" className="border rounded-lg shadow-sm">
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto whitespace-nowrap">
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Date</TableHead>
-                  <TableHead>Name</TableHead>
+                  <TableHead>Track</TableHead>
+                  <TableHead>Full Name</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Phone</TableHead>
-                  <TableHead>Track</TableHead>
+                  <TableHead>Gender</TableHead>
+                  <TableHead>Date of Birth</TableHead>
+                  <TableHead>State/Region</TableHead>
+                  <TableHead>Country</TableHead>
+                  <TableHead>Highest Qual.</TableHead>
+                  <TableHead>Institution</TableHead>
+                  <TableHead>Course of Study</TableHead>
+                  <TableHead>Current Status</TableHead>
+                  <TableHead>Studied Before</TableHead>
+                  <TableHead>Experience Level</TableHead>
+                  <TableHead>Has Computer</TableHead>
+                  <TableHead>Has Internet</TableHead>
+                  <TableHead>Can Commit</TableHead>
+                  <TableHead>Heard From</TableHead>
                   <TableHead>Referral Code</TableHead>
+                  <TableHead>Signature</TableHead>
+                  <TableHead>Agreed to Terms</TableHead>
+                  <TableHead>Track Reason</TableHead>
+                  <TableHead>Why Apply</TableHead>
+                  <TableHead>Goals</TableHead>
+                  <TableHead>2 Year Vision</TableHead>
+                  <TableHead>Residential Address</TableHead>
+                  <TableHead>LinkedIn</TableHead>
+                  <TableHead>Portfolio</TableHead>
+                  <TableHead>GitHub</TableHead>
+                  <TableHead>Design Profile</TableHead>
+                  <TableHead>Other Links</TableHead>
+                  <TableHead>Emergency Name</TableHead>
+                  <TableHead>Emergency Rel.</TableHead>
+                  <TableHead>Emergency Phone</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {loading ? (
-                  <TableRow><TableCell colSpan={6} className="text-center py-4">Loading...</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={35} className="text-center py-4">Loading...</TableCell></TableRow>
                 ) : applications.length === 0 ? (
-                  <TableRow><TableCell colSpan={6} className="text-center py-4">No applications found.</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={35} className="text-center py-4">No applications found.</TableCell></TableRow>
                 ) : (
                   applications.map((app, i) => (
                     <TableRow key={i}>
                       <TableCell>{new Date(app.created_at).toLocaleDateString()}</TableCell>
+                      <TableCell>{app.track}</TableCell>
                       <TableCell className="font-medium">{app.full_name}</TableCell>
                       <TableCell>{app.email}</TableCell>
                       <TableCell>{app.phone}</TableCell>
-                      <TableCell>{app.track}</TableCell>
+                      <TableCell>{app.gender}</TableCell>
+                      <TableCell>{app.date_of_birth || "-"}</TableCell>
+                      <TableCell>{app.state_region}</TableCell>
+                      <TableCell>{app.country}</TableCell>
+                      <TableCell>{app.highest_qualification}</TableCell>
+                      <TableCell>{app.institution || "-"}</TableCell>
+                      <TableCell>{app.course_of_study || "-"}</TableCell>
+                      <TableCell>{app.current_status}</TableCell>
+                      <TableCell>{app.studied_before ? "Yes" : "No"}</TableCell>
+                      <TableCell>{app.experience_level}</TableCell>
+                      <TableCell>{app.has_computer ? "Yes" : "No"}</TableCell>
+                      <TableCell>{app.has_internet ? "Yes" : "No"}</TableCell>
+                      <TableCell>{app.can_commit ? "Yes" : "No"}</TableCell>
+                      <TableCell>{app.heard_from}</TableCell>
                       <TableCell>{app.referral_code || "-"}</TableCell>
+                      <TableCell>{app.signature}</TableCell>
+                      <TableCell>{app.agreed_to_terms ? "Yes" : "No"}</TableCell>
+                      <TableCell className="max-w-xs truncate" title={app.track_reason}>{app.track_reason}</TableCell>
+                      <TableCell className="max-w-xs truncate" title={app.why_apply}>{app.why_apply}</TableCell>
+                      <TableCell className="max-w-xs truncate" title={app.goals}>{app.goals}</TableCell>
+                      <TableCell className="max-w-xs truncate" title={app.two_year_vision}>{app.two_year_vision}</TableCell>
+                      <TableCell className="max-w-xs truncate" title={app.residential_address}>{app.residential_address || "-"}</TableCell>
+                      <TableCell>{app.linkedin_url || "-"}</TableCell>
+                      <TableCell>{app.portfolio_url || "-"}</TableCell>
+                      <TableCell>{app.github_url || "-"}</TableCell>
+                      <TableCell>{app.design_profile_url || "-"}</TableCell>
+                      <TableCell>{app.other_links || "-"}</TableCell>
+                      <TableCell>{app.emergency_name || "-"}</TableCell>
+                      <TableCell>{app.emergency_relationship || "-"}</TableCell>
+                      <TableCell>{app.emergency_phone || "-"}</TableCell>
                     </TableRow>
                   ))
                 )}
