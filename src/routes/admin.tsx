@@ -82,7 +82,7 @@ function AdminDashboard() {
       setRefCode(code);
     } else {
       console.error(error);
-      alert("Error generating referral code. Ensure the referral_codes table exists.");
+      alert("Error generating referral code: " + (error?.message || "Unknown error"));
     }
   };
 
