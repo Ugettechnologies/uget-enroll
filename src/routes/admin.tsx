@@ -8,10 +8,72 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export const Route = createFileRoute("/admin")({
-  component: AdminDashboard,
+  component: AdminWrapper,
 });
 
-function AdminDashboard() {
+function AdminWrapper() {
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return sessionStorage.getItem("adminAuth") === "true";
+  });
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (email === "uget@admin" && password === "admin@10717") {
+      setIsAuthenticated(true);
+      sessionStorage.setItem("adminAuth", "true");
+      setError("");
+    } else {
+      setError("Invalid email or password");
+    }
+  };
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background/50">
+        <div className="w-full max-w-md p-8 space-y-6 bg-card border rounded-xl shadow-lg">
+          <div className="text-center space-y-2">
+            <h1 className="text-2xl font-bold tracking-tight">Admin Login</h1>
+            <p className="text-sm text-muted-foreground">Enter your credentials to access the dashboard</p>
+          </div>
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input 
+                id="email" 
+                type="text" 
+                value={email} 
+                onChange={(e) => setEmail(e.target.value)} 
+                required 
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input 
+                id="password" 
+                type="password" 
+                value={password} 
+                onChange={(e) => setPassword(e.target.value)} 
+                required 
+              />
+            </div>
+            {error && <p className="text-sm font-medium text-destructive">{error}</p>}
+            <Button type="submit" className="w-full">Sign In</Button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
+  return <AdminDashboard onLogout={() => {
+    setIsAuthenticated(false);
+    sessionStorage.removeItem("adminAuth");
+  }} />;
+}
+
+function AdminDashboard({ onLogout }: { onLogout: () => void }) {
   const [applications, setApplications] = useState<any[]>([]);
   const [referrals, setReferrals] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -103,9 +165,14 @@ function AdminDashboard() {
     <div className="container mx-auto py-10 px-4 max-w-[95vw]">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">Uget Academy — Admin</h1>
-        <Button onClick={downloadCSV} className="bg-primary text-primary-foreground">
-          Export CSV
-        </Button>
+        <div className="flex items-center gap-4">
+          <Button onClick={downloadCSV} className="bg-primary text-primary-foreground">
+            Export CSV
+          </Button>
+          <Button onClick={onLogout} variant="outline">
+            Sign Out
+          </Button>
+        </div>
       </div>
 
       <Tabs defaultValue="applications" className="w-full">
