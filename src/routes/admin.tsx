@@ -86,8 +86,21 @@ function AdminDashboard() {
     }
   };
 
+  const deleteReferral = async (id: string) => {
+    if (!supabase) return;
+    if (!confirm("Are you sure you want to delete this referral code?")) return;
+    
+    const { error } = await supabase.from("referral_codes").delete().eq("id", id);
+    if (!error) {
+      setReferrals(referrals.filter(ref => ref.id !== id));
+    } else {
+      console.error(error);
+      alert("Error deleting referral code: " + (error?.message || "Unknown error"));
+    }
+  };
+
   return (
-    <div className="container mx-auto py-10 px-4 max-w-6xl">
+    <div className="container mx-auto py-10 px-4 max-w-[95vw]">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">Uget Academy — Admin</h1>
         <Button onClick={downloadCSV} className="bg-primary text-primary-foreground">
@@ -226,6 +239,7 @@ function AdminDashboard() {
                   <TableHead>Date Created</TableHead>
                   <TableHead>Name</TableHead>
                   <TableHead>Code</TableHead>
+                  <TableHead className="text-right">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -234,10 +248,19 @@ function AdminDashboard() {
                     <TableCell>{new Date(ref.created_at).toLocaleDateString()}</TableCell>
                     <TableCell>{ref.referrer_name}</TableCell>
                     <TableCell className="font-mono">{ref.code}</TableCell>
+                    <TableCell className="text-right">
+                      <Button 
+                        variant="destructive" 
+                        size="sm" 
+                        onClick={() => deleteReferral(ref.id)}
+                      >
+                        Delete
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 ))}
                 {referrals.length === 0 && !loading && (
-                  <TableRow><TableCell colSpan={3} className="text-center py-4">No referrers generated yet.</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={4} className="text-center py-4">No referrers generated yet.</TableCell></TableRow>
                 )}
               </TableBody>
             </Table>
