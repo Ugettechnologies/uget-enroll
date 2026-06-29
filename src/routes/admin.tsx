@@ -857,14 +857,27 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
       const [appsRes, refsRes] = await Promise.all([
         supabase
           .from("scholarship_applications")
-          .select("*")
+          .select("*, payments(payment_status, payment_sender, payment_amount, payment_date, payment_ref)")
           .order("created_at", { ascending: false }),
         supabase
           .from("referral_codes")
           .select("*")
           .order("created_at", { ascending: false }),
       ]);
-      if (appsRes.data) setApplications(appsRes.data);
+      if (appsRes.data) {
+        const mapped = appsRes.data.map((app: any) => {
+          const p = Array.isArray(app.payments) ? app.payments[0] : app.payments;
+          return {
+            ...app,
+            payment_status: p?.payment_status || "Unpaid",
+            payment_sender: p?.payment_sender || null,
+            payment_amount: p?.payment_amount || null,
+            payment_date: p?.payment_date || null,
+            payment_ref: p?.payment_ref || null,
+          };
+        });
+        setApplications(mapped);
+      }
       if (refsRes.data) setReferrals(refsRes.data);
       setLoading(false);
     }
@@ -934,9 +947,8 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
   async function updatePaymentStatus(id: string, status: string) {
     if (!supabase) return;
     const { error } = await supabase
-      .from("scholarship_applications")
-      .update({ payment_status: status })
-      .eq("id", id);
+      .from("payments")
+      .upsert({ application_id: id, payment_status: status }, { onConflict: "application_id" });
     if (!error) {
       setApplications((prev) =>
         prev.map((a) => (a.id === id ? { ...a, payment_status: status } : a)),

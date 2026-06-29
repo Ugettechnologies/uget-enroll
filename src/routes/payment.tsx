@@ -85,12 +85,19 @@ function PaymentPage() {
 
     const { data } = await supabase
       .from("scholarship_applications")
-      .select("id, full_name, email, track, payment_status")
+      .select("id, full_name, email, track, payments(payment_status)")
       .ilike("email", email.trim())
       .maybeSingle();
 
     if (data) {
-      setApplicant(data as Applicant);
+      const p = Array.isArray(data.payments) ? data.payments[0] : (data.payments as any);
+      setApplicant({
+        id: data.id,
+        full_name: data.full_name,
+        email: data.email,
+        track: data.track,
+        payment_status: p?.payment_status || "Unpaid",
+      });
       setLookupStatus("found");
     } else {
       setLookupStatus("not_found");
@@ -103,6 +110,7 @@ function PaymentPage() {
 
     const fd = new FormData(e.currentTarget);
     const payload = {
+      application_id: applicant.id,
       payment_status: "Pending Verification",
       payment_sender: fd.get("sender_name") as string,
       payment_amount: Number(fd.get("amount_paid")),
@@ -114,9 +122,8 @@ function PaymentPage() {
     setSubmitError("");
 
     const { error } = await supabase
-      .from("scholarship_applications")
-      .update(payload)
-      .eq("id", applicant.id);
+      .from("payments")
+      .upsert(payload, { onConflict: "application_id" });
 
     if (error) {
       setSubmitStatus("error");
