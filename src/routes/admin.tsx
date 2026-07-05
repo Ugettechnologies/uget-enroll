@@ -139,12 +139,13 @@ function buildEmailHtml(name: string, track: string, fee: number, paymentUrl: st
               </p>
 
               <!-- CTA button -->
-              <table cellpadding="0" cellspacing="0" style="margin:20px 0;width:100%;">
+              <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="margin: 24px auto; width: 100%; text-align: center;">
                 <tr>
-                  <td align="center" style="border-radius:12px;background:linear-gradient(135deg,#06b6d4,#3b82f6);padding:14px 20px;">
+                  <td align="center">
                     <a href="${paymentUrl}"
-                       style="display:block;font-size:14px;font-weight:800;color:#ffffff;text-decoration:none;letter-spacing:0.05em;text-transform:uppercase;">
-                      VALIDATE YOUR SCHOLARSHIP HERE
+                       target="_blank"
+                       style="display: inline-block; background-color: #06b6d4; background-image: linear-gradient(135deg, #06b6d4, #3b82f6); padding: 14px 36px; font-family: Arial, sans-serif; font-size: 14px; font-weight: 800; color: #ffffff; text-decoration: none; letter-spacing: 0.05em; text-transform: uppercase; border-radius: 9999px; box-shadow: 0 4px 12px rgba(6,182,212,0.35);">
+                      PROCEED TO PAYMENT & VALIDATE
                     </a>
                   </td>
                 </tr>
