@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState, Fragment } from "react";
 import { supabase } from "@/lib/supabase";
+import { sendEmailFn } from "@/lib/email";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,7 +14,7 @@ import {
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { COURSE_FEES, fmt } from "./payment";
+import { COURSE_FEES, fmt, fmtUsd, getFeeDetails } from "./payment";
 import {
   Sheet,
   SheetContent,
@@ -29,97 +30,157 @@ export const Route = createFileRoute("/admin")({
 
 // ─── Email template ──────────────────────────────────────────────────────────
 function buildEmailHtml(name: string, track: string, fee: number, paymentUrl: string) {
-  const feeStr = fmt(fee);
+  const feeDetails = getFeeDetails(track);
   return `
 <!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Complete Your Enrollment — Uget Academy</title>
+  <title>Validate Your Scholarship — Tech4Africans</title>
 </head>
-<body style="margin:0;padding:0;background:#1a1529;font-family:Inter,Arial,sans-serif;color:#f0eeff;">
+<body style="margin:0;padding:0;background:#13111c;font-family:Inter,Arial,sans-serif;color:#f0eeff;">
   <table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:40px auto;">
     <tr>
-      <td style="background:linear-gradient(135deg,#1a1529 0%,#251e40 50%,#1e1830 100%);border-radius:16px;padding:0;overflow:hidden;border:1px solid rgba(120,100,220,0.25);">
+      <td style="background:linear-gradient(135deg,#13111c 0%,#1f1a30 50%,#181424 100%);border-radius:16px;padding:0;overflow:hidden;border:1px solid rgba(120,100,220,0.25);">
         <!-- Header -->
         <table width="100%" cellpadding="0" cellspacing="0">
           <tr>
-            <td style="padding:32px 36px 24px;background:linear-gradient(135deg,rgba(120,80,220,0.15),rgba(100,60,200,0.08));border-bottom:1px solid rgba(120,100,220,0.2);">
-              <p style="margin:0 0 4px;font-size:11px;font-weight:700;letter-spacing:0.3em;text-transform:uppercase;color:#a78bfa;">Uget Academy</p>
-              <h1 style="margin:0;font-size:22px;font-weight:800;color:#f0eeff;">Action Required: <span style="color:#a78bfa;">Complete Your Enrollment</span></h1>
+            <td style="padding:32px 36px 24px;background:linear-gradient(135deg,rgba(120,80,220,0.15),rgba(100,60,200,0.08));border-bottom:1px solid rgba(120,100,220,0.25);text-align:center;">
+              <p style="margin:0 0 4px;font-size:11px;font-weight:700;letter-spacing:0.3em;text-transform:uppercase;color:#06b6d4;">Tech4Africans</p>
+              <h1 style="margin:0;font-size:22px;font-weight:800;color:#ffffff;text-transform:uppercase;letter-spacing:0.05em;">
+                CLAIM YOUR SCHOLARSHIP HERE
+              </h1>
             </td>
           </tr>
           <!-- Body -->
           <tr>
             <td style="padding:28px 36px;">
               <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-                Hi <strong style="color:#f0eeff;">${name}</strong>,
+                Hey <strong style="color:#ffffff;">${name}</strong>,
               </p>
               <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-                🎉 Congratulations! Your application for the <strong style="color:#f0eeff;">Uget Academy Tech Scholarship Cohort</strong> has been received and reviewed. You've been selected!
+                We are pleased to inform you that you have been selected as a recipient of the <strong style="color:#ffffff;">Tech4Africans Cohort 8 Scholarship</strong> for the <strong style="color:#ffffff;">${track}</strong> track.
               </p>
-              <!-- Course + Fee card -->
-              <table width="100%" cellpadding="0" cellspacing="0" style="margin:20px 0;border-radius:12px;overflow:hidden;border:1px solid rgba(120,100,220,0.3);background:rgba(120,80,220,0.08);">
+              <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
+                Out of over <strong style="color:#ffffff;">33,000 African applicants</strong> from <strong style="color:#ffffff;">38+ countries</strong>, you have emerged as one of the selected applicants for this huge opportunity of a <strong style="color:#ffffff;">90% fee waiver</strong> to make your tech dream a reality.
+              </p>
+              <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
+                We are excited to welcome you into a community of future tech leaders across Africa, as this marks the beginning of your transformative journey in tech!
+              </p>
+              <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
+                This scholarship grants you access to a <strong style="color:#ffffff;">3-month Bootcamp</strong> with direct one-on-one access to your tutors, LMS dashboard, and the opportunity to participate in a hands-on capstone project to test your industry knowledge after 8 weeks of learning.
+              </p>
+              <p style="margin:0 0 20px;font-size:15px;line-height:1.7;color:#d0c8f0;">
+                Additionally, this scholarship opportunity gives you access to free training on LinkedIn and CV optimization, an official certificate accredited by the American Council of Training and Development (USA), and valuable networking opportunities within and beyond the community, connecting you with fellow African students.
+              </p>
+
+              <!-- Pricing breakdown card -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin:24px 0;border-radius:12px;overflow:hidden;border:1px solid rgba(120,100,220,0.35);background:rgba(120,80,220,0.06);font-size:14px;color:#d0c8f0;">
                 <tr>
-                  <td style="padding:16px 20px;border-bottom:1px solid rgba(120,100,220,0.15);">
-                    <p style="margin:0;font-size:10px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:#a78bfa;">Your Course</p>
-                    <p style="margin:4px 0 0;font-size:16px;font-weight:700;color:#f0eeff;">${track}</p>
+                  <td style="padding:16px 20px;background:rgba(120,80,220,0.12);border-bottom:1px solid rgba(120,100,220,0.2);">
+                    <strong style="color:#ffffff;font-size:15px;">Scholarship Fee Breakdown</strong>
                   </td>
                 </tr>
                 <tr>
+                  <td style="padding:12px 20px;border-bottom:1px solid rgba(120,100,220,0.1);">
+                    <table width="100%">
+                      <tr>
+                        <td>Full Tuition (100%):</td>
+                        <td align="right" style="text-decoration:line-through;color:#8b83b0;">${fmt(feeDetails.ngn.full)} / ${fmtUsd(feeDetails.usd.full)}</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:12px 20px;border-bottom:1px solid rgba(120,100,220,0.1);">
+                    <table width="100%">
+                      <tr>
+                        <td>Scholarship Waiver (90%):</td>
+                        <td align="right" style="color:#34d399;">-${fmt(feeDetails.ngn.scholarship)} / -${fmtUsd(feeDetails.usd.scholarship)}</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:12px 20px;border-bottom:1px solid rgba(120,100,220,0.1);">
+                    <table width="100%">
+                      <tr>
+                        <td>Your 10% Commitment Fee:</td>
+                        <td align="right" style="color:#ffffff;font-weight:600;">${fmt(feeDetails.ngn.base)} / ${fmtUsd(feeDetails.usd.base)}</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:12px 20px;border-bottom:1px solid rgba(120,100,220,0.15);">
+                    <table width="100%">
+                      <tr>
+                        <td>Tax/VAT (5% Inclusive):</td>
+                        <td align="right" style="color:#c4b5fd;">${fmt(feeDetails.ngn.tax)} / ${fmtUsd(feeDetails.usd.tax)}</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                <tr style="background:rgba(120,80,220,0.15);">
                   <td style="padding:16px 20px;">
-                    <p style="margin:0;font-size:10px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:#a78bfa;">Course Fee</p>
-                    <p style="margin:4px 0 0;font-size:22px;font-weight:800;color:#c4b5fd;">${feeStr}</p>
+                    <table width="100%">
+                      <tr>
+                        <td><strong style="color:#ffffff;font-size:15px;">Total to Pay:</strong></td>
+                        <td align="right"><strong style="color:#06b6d4;font-size:22px;">${fmt(feeDetails.ngn.total)} / ${fmtUsd(feeDetails.usd.total)}</strong></td>
+                      </tr>
+                    </table>
                   </td>
                 </tr>
               </table>
-              <!-- Bank details -->
-              <p style="margin:0 0 12px;font-size:14px;font-weight:600;color:#f0eeff;">Transfer to:</p>
-              <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 20px;border-radius:10px;overflow:hidden;border:1px solid rgba(120,100,220,0.2);background:rgba(26,21,41,0.6);">
-                <tr>
-                  <td style="padding:10px 16px;border-bottom:1px solid rgba(120,100,220,0.1);">
-                    <span style="font-size:11px;color:#8b83b0;">Bank</span><br/>
-                    <strong style="color:#f0eeff;">Moniepoint</strong>
-                  </td>
-                  <td style="padding:10px 16px;border-bottom:1px solid rgba(120,100,220,0.1);">
-                    <span style="font-size:11px;color:#8b83b0;">Account Name</span><br/>
-                    <strong style="color:#f0eeff;">Uget Technologies</strong>
-                  </td>
-                </tr>
-                <tr>
-                  <td colspan="2" style="padding:10px 16px;">
-                    <span style="font-size:11px;color:#8b83b0;">Account Number</span><br/>
-                    <strong style="color:#c4b5fd;font-size:20px;letter-spacing:0.1em;font-family:monospace;">6743620799</strong>
-                  </td>
-                </tr>
-              </table>
-              <p style="margin:0 0 20px;font-size:14px;line-height:1.7;color:#d0c8f0;">
-                After making your transfer, visit the link below to confirm your payment so we can verify it:
+
+              <p style="margin:24px 0 12px;font-size:15px;line-height:1.7;color:#d0c8f0;">
+                Remember your scholarship slot is <strong>NOT</strong> yet valid until when you consent by claiming and validating it below:
               </p>
+
               <!-- CTA button -->
-              <table cellpadding="0" cellspacing="0" style="margin:0 0 24px;">
+              <table cellpadding="0" cellspacing="0" style="margin:20px 0;width:100%;">
                 <tr>
-                  <td style="border-radius:50px;background:linear-gradient(135deg,#7c3aed,#6d28d9);">
+                  <td align="center" style="border-radius:12px;background:linear-gradient(135deg,#06b6d4,#3b82f6);padding:14px 20px;">
                     <a href="${paymentUrl}"
-                       style="display:inline-block;padding:14px 32px;font-size:14px;font-weight:700;color:#ffffff;text-decoration:none;border-radius:50px;letter-spacing:0.02em;">
-                      👉 Confirm My Payment
+                       style="display:block;font-size:14px;font-weight:800;color:#ffffff;text-decoration:none;letter-spacing:0.05em;text-transform:uppercase;">
+                      VALIDATE YOUR SCHOLARSHIP HERE
                     </a>
                   </td>
                 </tr>
               </table>
-              <p style="margin:0 0 8px;font-size:13px;line-height:1.7;color:#8b83b0;">
-                Or copy this link: <span style="color:#c4b5fd;">${paymentUrl}</span>
+
+              <p style="margin:20px 0;padding:16px;border-radius:10px;background:rgba(234,179,8,0.08);border:1px solid rgba(234,179,8,0.25);font-size:13px;line-height:1.6;color:#eab308;">
+                <strong>NB:</strong> Due to the high number of applicants, it's important that you secure your spot as quickly as possible. Our system automatically reallocates any unclaimed scholarship slots to the next qualified applicant on our consideration list and once that happens the <strong>only way</strong> to join the TechCrush Cohort 8 program will be through the full fees payment route of <strong>${fmt(feeDetails.ngn.full)} / ${fmtUsd(feeDetails.usd.full)}</strong>.
               </p>
-              <p style="margin:16px 0 0;font-size:13px;line-height:1.7;color:#8b83b0;">
-                Our team will verify your payment within <strong style="color:#d0c8f0;">24–48 hours</strong> and you'll receive your official enrollment confirmation.
+
+              <p style="margin:24px 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
+                ${name.split(' ')[0]}, your selection into the #Tech4Africans scholarship program is a win that is worth celebrating, and sharing the good news with your network is a great way to start.
+              </p>
+              <p style="margin:0 0 24px;font-size:15px;line-height:1.7;color:#d0c8f0;">
+                Click <a href="https://wa.me/2347043620799?text=Hello%20TechCrush,%20I%20have%20been%20selected%20for%20the%20scholarship.%20How%20do%20I%20get%20my%20flyer?" style="color:#06b6d4;text-decoration:underline;font-weight:600;">HERE</a> to get your official <strong>Tech4Africans Scholar flyer</strong> and ensure to tag <strong>@TechCrushHQ</strong> when you post on your socials.
+              </p>
+
+              <p style="margin:24px 0 8px;font-size:14px;color:#8b83b0;border-top:1px solid rgba(120,100,220,0.2);padding-top:20px;">
+                🌍 <strong>International Applicants & Other African Countries:</strong><br/>
+                If you are applying from outside Nigeria, please contact our coordinator on WhatsApp at <a href="https://wa.me/2347043620799" style="color:#c4b5fd;text-decoration:none;font-weight:600;">+234 704 362 0799</a> to make manual payment in USD or your country's local currency.
+              </p>
+
+              <p style="margin:24px 0 0;font-size:15px;line-height:1.7;color:#d0c8f0;">
+                Once again, Congratulations!<br/>
+                We look forward to seeing you thrive as a #Tech4Africans Scholar.
+              </p>
+              <p style="margin:20px 0 0;font-size:14px;line-height:1.5;color:#8b83b0;">
+                Warm regards,<br/>
+                <strong>Favour Babarinde</strong><br/>
+                Head of Learning & Programs, TechCrush
               </p>
             </td>
           </tr>
           <!-- Footer -->
           <tr>
-            <td style="padding:16px 36px;background:rgba(26,21,41,0.5);border-top:1px solid rgba(120,100,220,0.15);">
-              <p style="margin:0;font-size:12px;color:#635d7a;">© ${new Date().getFullYear()} Uget Technologies. All rights reserved.</p>
+            <td style="padding:16px 36px;background:rgba(26,21,41,0.5);border-top:1px solid rgba(120,100,220,0.15);text-align:center;">
+              <p style="margin:0;font-size:12px;color:#635d7a;">© ${new Date().getFullYear()} TechCrush / Uget Technologies. All rights reserved.</p>
             </td>
           </tr>
         </table>
@@ -132,25 +193,40 @@ function buildEmailHtml(name: string, track: string, fee: number, paymentUrl: st
 }
 
 function buildEmailText(name: string, track: string, fee: number, paymentUrl: string) {
-  return `Hi ${name},
+  const feeDetails = getFeeDetails(track);
+  return `Hey ${name},
 
-Congratulations! Your application for the Uget Academy Tech Scholarship Cohort has been received and reviewed. You've been selected!
+We are pleased to inform you that you have been selected as a recipient of the Tech4Africans Cohort 8 Scholarship for the ${track} track.
+
+Out of over 33,000 African applicants from 38+ countries, you have emerged as one of the selected applicants for this huge opportunity of a 90% fee waiver to make your tech dream a reality.
 
 Your Course: ${track}
-Course Fee: ${fmt(fee)}
+Full Tuition (100%): ${fmt(feeDetails.ngn.full)} / ${fmtUsd(feeDetails.usd.full)}
+90% Scholarship Waiver: -${fmt(feeDetails.ngn.scholarship)} / -${fmtUsd(feeDetails.usd.scholarship)}
+Your 10% Commitment Fee: ${fmt(feeDetails.ngn.base)} / ${fmtUsd(feeDetails.usd.base)}
+Tax/VAT (5% Inclusive): ${fmt(feeDetails.ngn.tax)} / ${fmtUsd(feeDetails.usd.tax)}
+Total Commitment Fee to Pay: ${fmt(feeDetails.ngn.total)} / ${fmtUsd(feeDetails.usd.total)}
 
-Please make your payment to:
-  Bank: Moniepoint
-  Account Number: 6743620799
-  Account Name: Uget Technologies
-
-After transferring, confirm your payment here:
+To officially claim your scholarship, secure your spot, and begin your learning journey, validate your scholarship by visiting this payment link:
   ${paymentUrl}
 
-Our team will verify your payment within 24–48 hours.
+NB: Due to the high number of applicants, it's important that you secure your spot as quickly as possible. Our system automatically reallocates any unclaimed scholarship slots to the next qualified applicant on our consideration list, and once that happens, the only way to join the TechCrush Cohort 8 program will be through the full fees payment route of ${fmt(feeDetails.ngn.full)} / ${fmtUsd(feeDetails.usd.full)}.
 
-Regards,
-Uget Technologies Team`.trim();
+Share the good news: Click here to request your official flyer: https://wa.me/2347043620799?text=Hello%20TechCrush,%20I%20need%20my%20flyer.
+
+🌍 International & Other African Countries:
+If you are from outside Nigeria, please message our coordinator on WhatsApp at +234 704 362 0799 to receive manual payment details.
+
+Congratulations! We look forward to seeing you thrive as a #Tech4Africans Scholar.
+
+Warm regards,
+Favour Babarinde
+Head of Learning & Programs, TechCrush`.trim();
+}
+
+function getWhatsAppMessage(app: any, paymentUrl: string) {
+  const feeDetails = getFeeDetails(app.track);
+  return `Hello ${app.full_name},\n\nCongratulations! 🎉 Your selection for the Tech4Africans Cohort 8 Scholarship for ${app.track} is confirmed.\n\nOut of 33,000+ applicants from 38+ countries, you received a 90% fee waiver!\n\nFee Breakdown:\n- Full Tuition: ${fmt(feeDetails.ngn.full)} / ${fmtUsd(feeDetails.usd.full)}\n- 90% Scholarship Waiver: -${fmt(feeDetails.ngn.scholarship)} / -${fmtUsd(feeDetails.usd.scholarship)}\n- 10% Commitment Fee: ${fmt(feeDetails.ngn.base)} / ${fmtUsd(feeDetails.usd.base)}\n- 5% Tax/VAT: ${fmt(feeDetails.ngn.tax)} / ${fmtUsd(feeDetails.usd.tax)}\n- *Total to Pay (Tax Inclusive)*: *${fmt(feeDetails.ngn.total)} / ${fmtUsd(feeDetails.usd.total)}*\n\nIf you are paying from Nigeria, transfer to:\nBank: Moniepoint\nAccount: 6743620799\nName: Uget Technologies\n\nConfirm payment & validate scholarship here:\n${paymentUrl}\n\n*Other African countries / International:* Contact WhatsApp coordinator at +234 704 362 0799 for localized options.\n\nWarm regards,\nFavour Babarinde\nTechCrush`;
 }
 
 // ─── Auth wrapper ─────────────────────────────────────────────────────────────
@@ -249,27 +325,22 @@ function NotifyModal({
     setSending(true);
     setSendResult("idle");
     try {
-      const res = await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${resendKey}`,
-        },
-        body: JSON.stringify({
+      const result = await sendEmailFn({
+        data: {
+          resendKey,
           from: senderEmail || "onboarding@resend.dev",
           to: [app.email],
           subject: "🎓 Uget Academy — Complete Your Enrollment",
           html,
           text,
-        }),
+        },
       });
-      if (res.ok) {
+      if (result.success) {
         setSendResult("ok");
         setSendMsg("Email sent successfully!");
       } else {
-        const body = await res.json();
         setSendResult("err");
-        setSendMsg(body?.message ?? "Failed to send. Check your Resend API key and sender domain.");
+        setSendMsg(result.error || "Failed to send. Check your Resend API key and sender domain.");
       }
     } catch (e: any) {
       setSendResult("err");
@@ -280,9 +351,7 @@ function NotifyModal({
   }
 
   const mailtoLink = `mailto:${app.email}?subject=${encodeURIComponent("🎓 Uget Academy — Complete Your Enrollment")}&body=${encodeURIComponent(text)}`;
-  const waText = encodeURIComponent(
-    `Hello ${app.full_name},\n\nCongratulations! 🎉 Your registration for the Uget Academy Tech Scholarship has been confirmed.\n\nCourse: ${app.track}\nFee: ${fmt(fee)}\n\nTransfer to:\nBank: Moniepoint\nAccount: 6743620799\nName: Uget Technologies\n\nThen confirm your payment here:\n${paymentUrl}\n\n— Uget Technologies`,
-  );
+  const waText = encodeURIComponent(getWhatsAppMessage(app, paymentUrl));
 
   return (
     <div
@@ -419,21 +488,17 @@ function BulkEmailModal({
     for (const app of targets) {
       const fee = COURSE_FEES[app.track] ?? 0;
       try {
-        const res = await fetch("https://api.resend.com/emails", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${resendKey}`,
-          },
-          body: JSON.stringify({
+        const result = await sendEmailFn({
+          data: {
+            resendKey,
             from: senderEmail || "onboarding@resend.dev",
             to: [app.email],
             subject: "🎓 Uget Academy — Complete Your Enrollment",
             html: buildEmailHtml(app.full_name, app.track, fee, paymentUrl),
             text: buildEmailText(app.full_name, app.track, fee, paymentUrl),
-          }),
+          },
         });
-        next[app.id] = res.ok ? "ok" : "err";
+        next[app.id] = result.success ? "ok" : "err";
       } catch {
         next[app.id] = "err";
       }
@@ -457,13 +522,12 @@ function BulkEmailModal({
     return cleaned;
   };
 
-  const getWhatsAppMessage = (app: any) => {
-    const fee = COURSE_FEES[app.track] ?? 0;
-    return `Hello ${app.full_name},\n\nCongratulations! 🎉 Your registration for the Uget Academy Tech Scholarship has been confirmed.\n\nCourse: ${app.track}\nFee: ${fmt(fee)}\n\nTransfer to:\nBank: Moniepoint\nAccount: 6743620799\nName: Uget Technologies\n\nThen confirm your payment here:\n${paymentUrl}\n\n— Uget Technologies`;
+  const getWhatsAppMsg = (app: any) => {
+    return getWhatsAppMessage(app, paymentUrl);
   };
 
   const handleCopyMsg = (app: any) => {
-    navigator.clipboard.writeText(getWhatsAppMessage(app)).then(() => {
+    navigator.clipboard.writeText(getWhatsAppMsg(app)).then(() => {
       setCopiedAppId(app.id);
       setTimeout(() => setCopiedAppId(null), 2000);
     });
@@ -473,7 +537,7 @@ function BulkEmailModal({
     const allMsgs = targets
       .map(
         (app) =>
-          `--- MESSAGE FOR ${app.full_name} (${app.phone || "No Phone"}) ---\n${getWhatsAppMessage(app)}`,
+          `--- MESSAGE FOR ${app.full_name} (${app.phone || "No Phone"}) ---\n${getWhatsAppMsg(app)}`,
       )
       .join("\n\n");
     navigator.clipboard.writeText(allMsgs).then(() => {
@@ -701,7 +765,7 @@ function BulkEmailModal({
 
                 <div className="max-h-60 overflow-y-auto border border-border bg-card/30 rounded-xl divide-y divide-border/40">
                   {targets.map((app) => {
-                    const waLink = `https://wa.me/${cleanPhone(app.phone)}?text=${encodeURIComponent(getWhatsAppMessage(app))}`;
+                    const waLink = `https://wa.me/${cleanPhone(app.phone)}?text=${encodeURIComponent(getWhatsAppMsg(app))}`;
                     return (
                       <div key={app.id} className="flex items-center justify-between p-3 text-xs">
                         <div className="truncate max-w-[50%] pr-2">
