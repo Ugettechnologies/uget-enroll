@@ -37,7 +37,7 @@ function buildEmailHtml(name: string, track: string, fee: number, paymentUrl: st
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Validate Your Scholarship — Tech4Africans</title>
+  <title>Validate Your Scholarship — Uget Academy</title>
 </head>
 <body style="margin:0;padding:0;background:#13111c;font-family:Inter,Arial,sans-serif;color:#f0eeff;">
   <table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:40px auto;">
@@ -47,7 +47,7 @@ function buildEmailHtml(name: string, track: string, fee: number, paymentUrl: st
         <table width="100%" cellpadding="0" cellspacing="0">
           <tr>
             <td style="padding:32px 36px 24px;background:linear-gradient(135deg,rgba(120,80,220,0.15),rgba(100,60,200,0.08));border-bottom:1px solid rgba(120,100,220,0.25);text-align:center;">
-              <p style="margin:0 0 4px;font-size:11px;font-weight:700;letter-spacing:0.3em;text-transform:uppercase;color:#06b6d4;">Tech4Africans</p>
+              <p style="margin:0 0 4px;font-size:11px;font-weight:700;letter-spacing:0.3em;text-transform:uppercase;color:#06b6d4;">Uget Academy</p>
               <h1 style="margin:0;font-size:22px;font-weight:800;color:#ffffff;text-transform:uppercase;letter-spacing:0.05em;">
                 CLAIM YOUR SCHOLARSHIP HERE
               </h1>
@@ -60,10 +60,10 @@ function buildEmailHtml(name: string, track: string, fee: number, paymentUrl: st
                 Hey <strong style="color:#ffffff;">${name}</strong>,
               </p>
               <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-                We are pleased to inform you that you have been selected as a recipient of the <strong style="color:#ffffff;">Tech4Africans Cohort 8 Scholarship</strong> for the <strong style="color:#ffffff;">${track}</strong> track.
+                Congratulations! 🎉 Your selection for the <strong style="color:#ffffff;">uget academy cohort 1</strong> for <strong style="color:#ffffff;">${track}</strong> is confirmed.
               </p>
               <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-                Out of over <strong style="color:#ffffff;">33,000 African applicants</strong> from <strong style="color:#ffffff;">38+ countries</strong>, you have emerged as one of the selected applicants for this huge opportunity of a <strong style="color:#ffffff;">90% fee waiver</strong> to make your tech dream a reality.
+                Out of over <strong style="color:#ffffff;">33,000 applicants</strong> from <strong style="color:#ffffff;">38+ countries</strong>, you received a <strong style="color:#ffffff;">90% fee waiver</strong> to make your tech dream a reality.
               </p>
               <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
                 We are excited to welcome you into a community of future tech leaders across Africa, as this marks the beginning of your transformative journey in tech!
@@ -72,7 +72,7 @@ function buildEmailHtml(name: string, track: string, fee: number, paymentUrl: st
                 This scholarship grants you access to a <strong style="color:#ffffff;">3-month Bootcamp</strong> with direct one-on-one access to your tutors, LMS dashboard, and the opportunity to participate in a hands-on capstone project to test your industry knowledge after 8 weeks of learning.
               </p>
               <p style="margin:0 0 20px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-                Additionally, this scholarship opportunity gives you access to free training on LinkedIn and CV optimization, an official certificate accredited by the American Council of Training and Development (USA), and valuable networking opportunities within and beyond the community, connecting you with fellow African students.
+                Additionally, this scholarship opportunity gives you access to free training on LinkedIn and CV optimization, an official certificate accredited by the American Council of Training and Development (USA), and valuable networking opportunities within and beyond the community, connecting you with fellow students.
               </p>
 
               <!-- Pricing breakdown card -->
@@ -152,14 +152,14 @@ function buildEmailHtml(name: string, track: string, fee: number, paymentUrl: st
               </table>
 
               <p style="margin:20px 0;padding:16px;border-radius:10px;background:rgba(234,179,8,0.08);border:1px solid rgba(234,179,8,0.25);font-size:13px;line-height:1.6;color:#eab308;">
-                <strong>NB:</strong> Due to the high number of applicants, it's important that you secure your spot as quickly as possible. Our system automatically reallocates any unclaimed scholarship slots to the next qualified applicant on our consideration list and once that happens the <strong>only way</strong> to join the TechCrush Cohort 8 program will be through the full fees payment route of <strong>${fmt(feeDetails.ngn.full)} / ${fmtUsd(feeDetails.usd.full)}</strong>.
+                <strong>NB:</strong> Due to the high number of applicants, it's important that you secure your spot as quickly as possible. Our system automatically reallocates any unclaimed scholarship slots to the next qualified applicant on our consideration list and once that happens the <strong>only way</strong> to join the Uget Academy cohort 1 program will be through the full fees payment route of <strong>${fmt(feeDetails.ngn.full)} / ${fmtUsd(feeDetails.usd.full)}</strong>.
               </p>
 
               <p style="margin:24px 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-                ${name.split(' ')[0]}, your selection into the #Tech4Africans scholarship program is a win that is worth celebrating, and sharing the good news with your network is a great way to start.
+                ${name.split(' ')[0]}, your selection into the Uget Academy cohort 1 program is a win that is worth celebrating, and sharing the good news with your network is a great way to start.
               </p>
               <p style="margin:0 0 24px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-                Click <a href="https://wa.me/2347043620799?text=Hello%20TechCrush,%20I%20have%20been%20selected%20for%20the%20scholarship.%20How%20do%20I%20get%20my%20flyer?" style="color:#06b6d4;text-decoration:underline;font-weight:600;">HERE</a> to get your official <strong>Tech4Africans Scholar flyer</strong> and ensure to tag <strong>@TechCrushHQ</strong> when you post on your socials.
+                Click <a href="https://wa.me/2347043620799?text=Hello%20Uget%20Technologies,%20I%20have%20been%20selected%20for%20the%20scholarship.%20How%20do%20I%20get%20my%20flyer?" style="color:#06b6d4;text-decoration:underline;font-weight:600;">HERE</a> to get your official <strong>Uget Academy Scholar flyer</strong> and ensure to tag <strong>@UgetAcademy</strong> when you post on your socials.
               </p>
 
               <p style="margin:24px 0 8px;font-size:14px;color:#8b83b0;border-top:1px solid rgba(120,100,220,0.2);padding-top:20px;">
@@ -169,19 +169,19 @@ function buildEmailHtml(name: string, track: string, fee: number, paymentUrl: st
 
               <p style="margin:24px 0 0;font-size:15px;line-height:1.7;color:#d0c8f0;">
                 Once again, Congratulations!<br/>
-                We look forward to seeing you thrive as a #Tech4Africans Scholar.
+                We look forward to seeing you thrive as a Uget Academy Scholar.
               </p>
               <p style="margin:20px 0 0;font-size:14px;line-height:1.5;color:#8b83b0;">
                 Warm regards,<br/>
-                <strong>Favour Babarinde</strong><br/>
-                Head of Learning & Programs, TechCrush
+                <strong>ogobor blessed</strong><br/>
+                uget technologies
               </p>
             </td>
           </tr>
           <!-- Footer -->
           <tr>
             <td style="padding:16px 36px;background:rgba(26,21,41,0.5);border-top:1px solid rgba(120,100,220,0.15);text-align:center;">
-              <p style="margin:0;font-size:12px;color:#635d7a;">© ${new Date().getFullYear()} TechCrush / Uget Technologies. All rights reserved.</p>
+              <p style="margin:0;font-size:12px;color:#635d7a;">© ${new Date().getFullYear()} Uget Academy / Uget Technologies. All rights reserved.</p>
             </td>
           </tr>
         </table>
@@ -195,39 +195,37 @@ function buildEmailHtml(name: string, track: string, fee: number, paymentUrl: st
 
 function buildEmailText(name: string, track: string, fee: number, paymentUrl: string) {
   const feeDetails = getFeeDetails(track);
-  return `Hey ${name},
+  return `Hello ${name},
 
-We are pleased to inform you that you have been selected as a recipient of the Tech4Africans Cohort 8 Scholarship for the ${track} track.
+Congratulations! 🎉 Your selection for the Uget Academy Cohort 1 for ${track} is confirmed.
 
-Out of over 33,000 African applicants from 38+ countries, you have emerged as one of the selected applicants for this huge opportunity of a 90% fee waiver to make your tech dream a reality.
+Out of 33,000+ applicants from 38+ countries, you received a 90% fee waiver!
 
-Your Course: ${track}
-Full Tuition (100%): ${fmt(feeDetails.ngn.full)} / ${fmtUsd(feeDetails.usd.full)}
-90% Scholarship Waiver: -${fmt(feeDetails.ngn.scholarship)} / -${fmtUsd(feeDetails.usd.scholarship)}
-Your 10% Commitment Fee: ${fmt(feeDetails.ngn.base)} / ${fmtUsd(feeDetails.usd.base)}
-Tax/VAT (5% Inclusive): ${fmt(feeDetails.ngn.tax)} / ${fmtUsd(feeDetails.usd.tax)}
-Total Commitment Fee to Pay: ${fmt(feeDetails.ngn.total)} / ${fmtUsd(feeDetails.usd.total)}
+Fee Breakdown:
+- Full Tuition: ${fmt(feeDetails.ngn.full)} / ${fmtUsd(feeDetails.usd.full)}
+- 90% Scholarship Waiver: -${fmt(feeDetails.ngn.scholarship)} / -${fmtUsd(feeDetails.usd.scholarship)}
+- 10% Commitment Fee: ${fmt(feeDetails.ngn.base)} / ${fmtUsd(feeDetails.usd.base)}
+- 5% Tax/VAT: ${fmt(feeDetails.ngn.tax)} / ${fmtUsd(feeDetails.usd.tax)}
+- Total to Pay (Tax Inclusive): ${fmt(feeDetails.ngn.total)} / ${fmtUsd(feeDetails.usd.total)}
 
-To officially claim your scholarship, secure your spot, and begin your learning journey, validate your scholarship by visiting this payment link:
-  ${paymentUrl}
+If you are paying from Nigeria, transfer to:
+Bank: Moniepoint
+Account: 6743620799
+Name: Uget Technologies
 
-NB: Due to the high number of applicants, it's important that you secure your spot as quickly as possible. Our system automatically reallocates any unclaimed scholarship slots to the next qualified applicant on our consideration list, and once that happens, the only way to join the TechCrush Cohort 8 program will be through the full fees payment route of ${fmt(feeDetails.ngn.full)} / ${fmtUsd(feeDetails.usd.full)}.
+Confirm payment & validate scholarship here:
+${paymentUrl}
 
-Share the good news: Click here to request your official flyer: https://wa.me/2347043620799?text=Hello%20TechCrush,%20I%20need%20my%20flyer.
-
-🌍 International & Other African Countries:
-If you are from outside Nigeria, please message our coordinator on WhatsApp at +234 704 362 0799 to receive manual payment details.
-
-Congratulations! We look forward to seeing you thrive as a #Tech4Africans Scholar.
+Other African countries / International: Contact WhatsApp coordinator at +234 704 362 0799 for localized options.
 
 Warm regards,
-Favour Babarinde
-Head of Learning & Programs, TechCrush`.trim();
+ogobor blessed
+uget technologies`.trim();
 }
 
 function getWhatsAppMessage(app: any, paymentUrl: string) {
   const feeDetails = getFeeDetails(app.track);
-  return `Hello ${app.full_name},\n\nCongratulations! 🎉 Your selection for the Tech4Africans Cohort 8 Scholarship for ${app.track} is confirmed.\n\nOut of 33,000+ applicants from 38+ countries, you received a 90% fee waiver!\n\nFee Breakdown:\n- Full Tuition: ${fmt(feeDetails.ngn.full)} / ${fmtUsd(feeDetails.usd.full)}\n- 90% Scholarship Waiver: -${fmt(feeDetails.ngn.scholarship)} / -${fmtUsd(feeDetails.usd.scholarship)}\n- 10% Commitment Fee: ${fmt(feeDetails.ngn.base)} / ${fmtUsd(feeDetails.usd.base)}\n- 5% Tax/VAT: ${fmt(feeDetails.ngn.tax)} / ${fmtUsd(feeDetails.usd.tax)}\n- *Total to Pay (Tax Inclusive)*: *${fmt(feeDetails.ngn.total)} / ${fmtUsd(feeDetails.usd.total)}*\n\nIf you are paying from Nigeria, transfer to:\nBank: Moniepoint\nAccount: 6743620799\nName: Uget Technologies\n\nConfirm payment & validate scholarship here:\n${paymentUrl}\n\n*Other African countries / International:* Contact WhatsApp coordinator at +234 704 362 0799 for localized options.\n\nWarm regards,\nFavour Babarinde\nTechCrush`;
+  return `Hello ${app.full_name},\n\nCongratulations! 🎉 Your selection for the uget academy cohort 1 for ${app.track} is confirmed.\n\nOut of 33,000+ applicants from 38+ countries, you received a 90% fee waiver!\n\nFee Breakdown:\n- Full Tuition: ${fmt(feeDetails.ngn.full)} / ${fmtUsd(feeDetails.usd.full)}\n- 90% Scholarship Waiver: -${fmt(feeDetails.ngn.scholarship)} / -${fmtUsd(feeDetails.usd.scholarship)}\n- 10% Commitment Fee: ${fmt(feeDetails.ngn.base)} / ${fmtUsd(feeDetails.usd.base)}\n- 5% Tax/VAT: ${fmt(feeDetails.ngn.tax)} / ${fmtUsd(feeDetails.usd.tax)}\n- *Total to Pay (Tax Inclusive)*: *${fmt(feeDetails.ngn.total)} / ${fmtUsd(feeDetails.usd.total)}*\n\nIf you are paying from Nigeria, transfer to:\nBank: Moniepoint\nAccount: 6743620799\nName: Uget Technologies\n\nConfirm payment & validate scholarship here:\n${paymentUrl}\n\n*Other African countries / International:* Contact WhatsApp coordinator at +234 704 362 0799 for localized options.\n\nWarm regards,\nogobor blessed\nuget technologies`;
 }
 
 // ─── Auth wrapper ─────────────────────────────────────────────────────────────
