@@ -113,7 +113,7 @@ function buildEmailHtml(name: string, track: string, fee: number, paymentUrl: st
 
               <p style="margin:24px 0 0;font-size:15px;line-height:1.7;color:#d0c8f0;">
                 Warm regards,<br/>
-                <strong>ogobor blessed</strong>, admissions coordinator<br/>
+                <strong>Chiemena Erasmous</strong><br/>
                 Uget Technologies
               </p>
             </td>
@@ -157,13 +157,13 @@ Once payment is confirmed, you'll receive your onboarding details, including acc
 If you have any questions before enrolling, feel free to reach out — we're happy to help.
 
 Warm regards,
-ogobor blessed, admissions coordinator
+Chiemena Erasmous
 Uget Technologies`.trim();
 }
 
 function getWhatsAppMessage(app: any, paymentUrl: string) {
   const feeDetails = getFeeDetails(app.track);
-  return `Hello ${app.full_name},\n\nCongratulations! You've secured a spot in Uget Academy's Cohort 1 for ${app.track}.\n\nProgram Fee: ${fmt(feeDetails.ngn.total)} (approximately ${fmtUsd(feeDetails.usd.total)})\n\nPayment Details (Nigeria):\nBank: Moniepoint\nAccount Number: 6743620799\nAccount Name: Uget Technologies\n\nPayment Details (International Students):\nPlease contact us on WhatsApp at +234 704 362 0799 and we'll guide you through the best payment option for your country.\n\nConfirm payment & validate scholarship here:\n${paymentUrl}\n\nOnce payment is confirmed, you'll receive your onboarding details, including access to the learning dashboard and your cohort schedule.\n\nIf you have any questions before enrolling, feel free to reach out — we're happy to help.\n\nWarm regards,\nogobor blessed, admissions coordinator\nUget Technologies`;
+  return `Hello ${app.full_name},\n\nCongratulations! You've secured a spot in Uget Academy's Cohort 1 for ${app.track}.\n\nProgram Fee: ${fmt(feeDetails.ngn.total)} (approximately ${fmtUsd(feeDetails.usd.total)})\n\nPayment Details (Nigeria):\nBank: Moniepoint\nAccount Number: 6743620799\nAccount Name: Uget Technologies\n\nPayment Details (International Students):\nPlease contact us on WhatsApp at +234 704 362 0799 and we'll guide you through the best payment option for your country.\n\nConfirm payment & validate scholarship here:\n${paymentUrl}\n\nOnce payment is confirmed, you'll receive your onboarding details, including access to the learning dashboard and your cohort schedule.\n\nIf you have any questions before enrolling, feel free to reach out — we're happy to help.\n\nWarm regards,\nChiemena Erasmous\nUget Technologies`;
 }
 
 // ─── Auth wrapper ─────────────────────────────────────────────────────────────
