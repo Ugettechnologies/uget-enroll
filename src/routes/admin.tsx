@@ -37,7 +37,7 @@ function buildEmailHtml(name: string, track: string, fee: number, paymentUrl: st
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Validate Your Scholarship — Uget Academy</title>
+  <title>Welcome to Uget Academy</title>
 </head>
 <body style="margin:0;padding:0;background:#13111c;font-family:Inter,Arial,sans-serif;color:#f0eeff;">
   <table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:40px auto;">
@@ -48,8 +48,8 @@ function buildEmailHtml(name: string, track: string, fee: number, paymentUrl: st
           <tr>
             <td style="padding:32px 36px 24px;background:linear-gradient(135deg,rgba(120,80,220,0.15),rgba(100,60,200,0.08));border-bottom:1px solid rgba(120,100,220,0.25);text-align:center;">
               <p style="margin:0 0 4px;font-size:11px;font-weight:700;letter-spacing:0.3em;text-transform:uppercase;color:#06b6d4;">Uget Academy</p>
-              <h1 style="margin:0;font-size:22px;font-weight:800;color:#ffffff;text-transform:uppercase;letter-spacing:0.05em;">
-                CLAIM YOUR SCHOLARSHIP HERE
+              <h1 style="margin:0;font-size:20px;font-weight:800;color:#ffffff;text-transform:uppercase;letter-spacing:0.05em;">
+                Welcome to Uget Academy
               </h1>
             </td>
           </tr>
@@ -57,86 +57,38 @@ function buildEmailHtml(name: string, track: string, fee: number, paymentUrl: st
           <tr>
             <td style="padding:28px 36px;">
               <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-                Hey <strong style="color:#ffffff;">${name}</strong>,
+                Hello <strong style="color:#ffffff;">${name}</strong>,
               </p>
               <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-                Congratulations! 🎉 Your selection for the <strong style="color:#ffffff;">uget academy cohort 1</strong> for <strong style="color:#ffffff;">${track}</strong> is confirmed.
+                Congratulations! You've secured a spot in Uget Academy's Cohort 1 for <strong style="color:#ffffff;">${track}</strong>.
               </p>
               <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-                Out of over <strong style="color:#ffffff;">33,000 applicants</strong> from <strong style="color:#ffffff;">38+ countries</strong>, you received a <strong style="color:#ffffff;">90% fee waiver</strong> to make your tech dream a reality.
-              </p>
-              <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-                We are excited to welcome you into a community of future tech leaders across Africa, as this marks the beginning of your transformative journey in tech!
-              </p>
-              <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-                This scholarship grants you access to a <strong style="color:#ffffff;">3-month Bootcamp</strong> with direct one-on-one access to your tutors, LMS dashboard, and the opportunity to participate in a hands-on capstone project to test your industry knowledge after 8 weeks of learning.
-              </p>
-              <p style="margin:0 0 20px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-                Additionally, this scholarship opportunity gives you access to free training on LinkedIn and CV optimization, an official certificate accredited by the American Council of Training and Development (USA), and valuable networking opportunities within and beyond the community, connecting you with fellow students.
+                <strong style="color:#ffffff;">Program Fee:</strong> ${fmt(feeDetails.ngn.total)} (approximately ${fmtUsd(feeDetails.usd.total)})
               </p>
 
-              <!-- Pricing breakdown card -->
-              <table width="100%" cellpadding="0" cellspacing="0" style="margin:24px 0;border-radius:12px;overflow:hidden;border:1px solid rgba(120,100,220,0.35);background:rgba(120,80,220,0.06);font-size:14px;color:#d0c8f0;">
+              <!-- Payment Details Card -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin:24px 0;border-radius:12px;overflow:hidden;border:1px solid rgba(120,100,220,0.3);background:rgba(120,80,220,0.05);font-size:14px;color:#d0c8f0;">
                 <tr>
-                  <td style="padding:16px 20px;background:rgba(120,80,220,0.12);border-bottom:1px solid rgba(120,100,220,0.2);">
-                    <strong style="color:#ffffff;font-size:15px;">Scholarship Fee Breakdown</strong>
+                  <td style="padding:16px 20px;background:rgba(120,80,220,0.1);border-bottom:1px solid rgba(120,100,220,0.15);">
+                    <strong style="color:#ffffff;font-size:15px;">Payment Details (Nigeria)</strong>
                   </td>
                 </tr>
                 <tr>
-                  <td style="padding:12px 20px;border-bottom:1px solid rgba(120,100,220,0.1);">
-                    <table width="100%">
-                      <tr>
-                        <td>Full Tuition (100%):</td>
-                        <td align="right" style="text-decoration:line-through;color:#8b83b0;">${fmt(feeDetails.ngn.full)} / ${fmtUsd(feeDetails.usd.full)}</td>
-                      </tr>
-                    </table>
+                  <td style="padding:16px 20px;line-height:1.6;">
+                    <span style="color:#8b83b0;">Bank:</span> <strong style="color:#ffffff;">Moniepoint</strong><br/>
+                    <span style="color:#8b83b0;">Account Number:</span> <strong style="color:#06b6d4;font-size:16px;font-mono:true;">6743620799</strong><br/>
+                    <span style="color:#8b83b0;">Account Name:</span> <strong style="color:#ffffff;">Uget Technologies</strong>
                   </td>
                 </tr>
-                <tr>
-                  <td style="padding:12px 20px;border-bottom:1px solid rgba(120,100,220,0.1);">
-                    <table width="100%">
-                      <tr>
-                        <td>Scholarship Waiver (90%):</td>
-                        <td align="right" style="color:#34d399;">-${fmt(feeDetails.ngn.scholarship)} / -${fmtUsd(feeDetails.usd.scholarship)}</td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
-                <tr>
-                  <td style="padding:12px 20px;border-bottom:1px solid rgba(120,100,220,0.1);">
-                    <table width="100%">
-                      <tr>
-                        <td>Your 10% Commitment Fee:</td>
-                        <td align="right" style="color:#ffffff;font-weight:600;">${fmt(feeDetails.ngn.base)} / ${fmtUsd(feeDetails.usd.base)}</td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
-                <tr>
-                  <td style="padding:12px 20px;border-bottom:1px solid rgba(120,100,220,0.15);">
-                    <table width="100%">
-                      <tr>
-                        <td>Tax/VAT (5% Inclusive):</td>
-                        <td align="right" style="color:#c4b5fd;">${fmt(feeDetails.ngn.tax)} / ${fmtUsd(feeDetails.usd.tax)}</td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
-                <tr style="background:rgba(120,80,220,0.15);">
-                  <td style="padding:16px 20px;">
-                    <table width="100%">
-                      <tr>
-                        <td><strong style="color:#ffffff;font-size:15px;">Total to Pay:</strong></td>
-                        <td align="right"><strong style="color:#06b6d4;font-size:22px;">${fmt(feeDetails.ngn.total)} / ${fmtUsd(feeDetails.usd.total)}</strong></td>
-                      </tr>
-                    </table>
+                <tr style="background:rgba(120,80,220,0.08);border-top:1px solid rgba(120,100,220,0.15);">
+                  <td style="padding:16px 20px;line-height:1.6;border-top:1px solid rgba(120,100,220,0.15);">
+                    <strong style="color:#ffffff;font-size:14px;">Payment Details (International Students)</strong><br/>
+                    <p style="margin:4px 0 0;font-size:13px;color:#d0c8f0;">
+                      Please contact us on WhatsApp at <a href="https://wa.me/2347043620799" style="color:#c4b5fd;text-decoration:none;font-weight:600;">+234 704 362 0799</a> and we'll guide you through the best payment option for your country.
+                    </p>
                   </td>
                 </tr>
               </table>
-
-              <p style="margin:24px 0 12px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-                Remember your scholarship slot is <strong>NOT</strong> yet valid until when you consent by claiming and validating it below:
-              </p>
 
               <!-- CTA button -->
               <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="margin: 24px auto; width: 100%; text-align: center;">
@@ -151,30 +103,18 @@ function buildEmailHtml(name: string, track: string, fee: number, paymentUrl: st
                 </tr>
               </table>
 
-              <p style="margin:20px 0;padding:16px;border-radius:10px;background:rgba(234,179,8,0.08);border:1px solid rgba(234,179,8,0.25);font-size:13px;line-height:1.6;color:#eab308;">
-                <strong>NB:</strong> Due to the high number of applicants, it's important that you secure your spot as quickly as possible. Our system automatically reallocates any unclaimed scholarship slots to the next qualified applicant on our consideration list and once that happens the <strong>only way</strong> to join the Uget Academy cohort 1 program will be through the full fees payment route of <strong>${fmt(feeDetails.ngn.full)} / ${fmtUsd(feeDetails.usd.full)}</strong>.
+              <p style="margin:16px 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
+                Once payment is confirmed, you'll receive your onboarding details, including access to the learning dashboard and your cohort schedule.
               </p>
 
-              <p style="margin:24px 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-                ${name.split(' ')[0]}, your selection into the Uget Academy cohort 1 program is a win that is worth celebrating, and sharing the good news with your network is a great way to start.
-              </p>
-              <p style="margin:0 0 24px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-                Click <a href="https://wa.me/2347043620799?text=Hello%20Uget%20Technologies,%20I%20have%20been%20selected%20for%20the%20scholarship.%20How%20do%20I%20get%20my%20flyer?" style="color:#06b6d4;text-decoration:underline;font-weight:600;">HERE</a> to get your official <strong>Uget Academy Scholar flyer</strong> and ensure to tag <strong>@UgetAcademy</strong> when you post on your socials.
-              </p>
-
-              <p style="margin:24px 0 8px;font-size:14px;color:#8b83b0;border-top:1px solid rgba(120,100,220,0.2);padding-top:20px;">
-                🌍 <strong>International Applicants & Other African Countries:</strong><br/>
-                If you are applying from outside Nigeria, please contact our coordinator on WhatsApp at <a href="https://wa.me/2347043620799" style="color:#c4b5fd;text-decoration:none;font-weight:600;">+234 704 362 0799</a> to make manual payment in USD or your country's local currency.
+              <p style="margin:16px 0 24px;font-size:15px;line-height:1.7;color:#d0c8f0;">
+                If you have any questions before enrolling, feel free to reach out — we're happy to help.
               </p>
 
               <p style="margin:24px 0 0;font-size:15px;line-height:1.7;color:#d0c8f0;">
-                Once again, Congratulations!<br/>
-                We look forward to seeing you thrive as a Uget Academy Scholar.
-              </p>
-              <p style="margin:20px 0 0;font-size:14px;line-height:1.5;color:#8b83b0;">
                 Warm regards,<br/>
-                <strong>ogobor blessed</strong><br/>
-                uget technologies
+                <strong>ogobor blessed</strong>, admissions coordinator<br/>
+                Uget Technologies
               </p>
             </td>
           </tr>
@@ -197,35 +137,33 @@ function buildEmailText(name: string, track: string, fee: number, paymentUrl: st
   const feeDetails = getFeeDetails(track);
   return `Hello ${name},
 
-Congratulations! 🎉 Your selection for the Uget Academy Cohort 1 for ${track} is confirmed.
+Congratulations! You've secured a spot in Uget Academy's Cohort 1 for ${track}.
 
-Out of 33,000+ applicants from 38+ countries, you received a 90% fee waiver!
+Program Fee: ${fmt(feeDetails.ngn.total)} (approximately ${fmtUsd(feeDetails.usd.total)})
 
-Fee Breakdown:
-- Full Tuition: ${fmt(feeDetails.ngn.full)} / ${fmtUsd(feeDetails.usd.full)}
-- 90% Scholarship Waiver: -${fmt(feeDetails.ngn.scholarship)} / -${fmtUsd(feeDetails.usd.scholarship)}
-- 10% Commitment Fee: ${fmt(feeDetails.ngn.base)} / ${fmtUsd(feeDetails.usd.base)}
-- 5% Tax/VAT: ${fmt(feeDetails.ngn.tax)} / ${fmtUsd(feeDetails.usd.tax)}
-- Total to Pay (Tax Inclusive): ${fmt(feeDetails.ngn.total)} / ${fmtUsd(feeDetails.usd.total)}
-
-If you are paying from Nigeria, transfer to:
+Payment Details (Nigeria):
 Bank: Moniepoint
-Account: 6743620799
-Name: Uget Technologies
+Account Number: 6743620799
+Account Name: Uget Technologies
+
+Payment Details (International Students):
+Please contact us on WhatsApp at +234 704 362 0799 and we'll guide you through the best payment option for your country.
 
 Confirm payment & validate scholarship here:
 ${paymentUrl}
 
-Other African countries / International: Contact WhatsApp coordinator at +234 704 362 0799 for localized options.
+Once payment is confirmed, you'll receive your onboarding details, including access to the learning dashboard and your cohort schedule.
+
+If you have any questions before enrolling, feel free to reach out — we're happy to help.
 
 Warm regards,
-ogobor blessed
-uget technologies`.trim();
+ogobor blessed, admissions coordinator
+Uget Technologies`.trim();
 }
 
 function getWhatsAppMessage(app: any, paymentUrl: string) {
   const feeDetails = getFeeDetails(app.track);
-  return `Hello ${app.full_name},\n\nCongratulations! 🎉 Your selection for the uget academy cohort 1 for ${app.track} is confirmed.\n\nOut of 33,000+ applicants from 38+ countries, you received a 90% fee waiver!\n\nFee Breakdown:\n- Full Tuition: ${fmt(feeDetails.ngn.full)} / ${fmtUsd(feeDetails.usd.full)}\n- 90% Scholarship Waiver: -${fmt(feeDetails.ngn.scholarship)} / -${fmtUsd(feeDetails.usd.scholarship)}\n- 10% Commitment Fee: ${fmt(feeDetails.ngn.base)} / ${fmtUsd(feeDetails.usd.base)}\n- 5% Tax/VAT: ${fmt(feeDetails.ngn.tax)} / ${fmtUsd(feeDetails.usd.tax)}\n- *Total to Pay (Tax Inclusive)*: *${fmt(feeDetails.ngn.total)} / ${fmtUsd(feeDetails.usd.total)}*\n\nIf you are paying from Nigeria, transfer to:\nBank: Moniepoint\nAccount: 6743620799\nName: Uget Technologies\n\nConfirm payment & validate scholarship here:\n${paymentUrl}\n\n*Other African countries / International:* Contact WhatsApp coordinator at +234 704 362 0799 for localized options.\n\nWarm regards,\nogobor blessed\nuget technologies`;
+  return `Hello ${app.full_name},\n\nCongratulations! You've secured a spot in Uget Academy's Cohort 1 for ${app.track}.\n\nProgram Fee: ${fmt(feeDetails.ngn.total)} (approximately ${fmtUsd(feeDetails.usd.total)})\n\nPayment Details (Nigeria):\nBank: Moniepoint\nAccount Number: 6743620799\nAccount Name: Uget Technologies\n\nPayment Details (International Students):\nPlease contact us on WhatsApp at +234 704 362 0799 and we'll guide you through the best payment option for your country.\n\nConfirm payment & validate scholarship here:\n${paymentUrl}\n\nOnce payment is confirmed, you'll receive your onboarding details, including access to the learning dashboard and your cohort schedule.\n\nIf you have any questions before enrolling, feel free to reach out — we're happy to help.\n\nWarm regards,\nogobor blessed, admissions coordinator\nUget Technologies`;
 }
 
 // ─── Auth wrapper ─────────────────────────────────────────────────────────────
@@ -329,7 +267,7 @@ function NotifyModal({
           resendKey,
           from: senderEmail || "onboarding@resend.dev",
           to: [app.email],
-          subject: "🎓 Uget Academy — Complete Your Enrollment",
+          subject: `Welcome to Uget Academy — ${app.track} Cohort 1`,
           html,
           text,
         },
@@ -492,7 +430,7 @@ function BulkEmailModal({
             resendKey,
             from: senderEmail || "onboarding@resend.dev",
             to: [app.email],
-            subject: "🎓 Uget Academy — Complete Your Enrollment",
+            subject: `Welcome to Uget Academy — ${app.track} Cohort 1`,
             html: buildEmailHtml(app.full_name, app.track, fee, paymentUrl),
             text: buildEmailText(app.full_name, app.track, fee, paymentUrl),
           },
