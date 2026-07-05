@@ -991,10 +991,16 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
     () => localStorage.getItem("uget_sender_email") || (import.meta.env.VITE_SENDER_EMAIL as string | undefined) || "",
   );
   const [paymentUrl, setPaymentUrl] = useState(
-    () =>
-      localStorage.getItem("uget_payment_url") ||
-      (import.meta.env.VITE_PAYMENT_URL as string | undefined) ||
-      "https://enroll.vercel.app/payment",
+    () => {
+      const stored = localStorage.getItem("uget_payment_url");
+      if (stored === "https://enroll.vercel.app/payment") {
+        localStorage.setItem("uget_payment_url", "https://uget-enroll.vercel.app/payment");
+        return "https://uget-enroll.vercel.app/payment";
+      }
+      return stored ||
+        (import.meta.env.VITE_PAYMENT_URL as string | undefined) ||
+        "https://uget-enroll.vercel.app/payment";
+    }
   );
 
   function saveSettings(key: string, email: string, url: string) {
@@ -1228,7 +1234,7 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
                 name="payment_url"
                 type="url"
                 defaultValue={paymentUrl}
-                placeholder="https://enroll.vercel.app/payment"
+                placeholder="https://uget-enroll.vercel.app/payment"
               />
               <p className="text-[10px] text-muted-foreground">
                 This is the payment confirmation link embedded in email alerts.
