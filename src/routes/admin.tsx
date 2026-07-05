@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState, Fragment } from "react";
+import { useEffect, useState, Fragment, useMemo } from "react";
 import { supabase } from "@/lib/supabase";
 import { sendEmailFn } from "@/lib/email";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -22,7 +22,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { Settings, ChevronDown, ChevronUp, Mail, MessageSquare, Send, Copy, Check, ExternalLink } from "lucide-react";
+import { Settings, ChevronDown, ChevronUp, Mail, MessageSquare, Send, Copy, Check, ExternalLink, Search, X, ArrowUpDown } from "lucide-react";
 
 export const Route = createFileRoute("/admin")({
   component: AdminWrapper,
@@ -885,6 +885,100 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
   const [showSettings, setShowSettings] = useState(false);
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
 
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortField, setSortField] = useState<string>("created_at");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+
+  const handleSort = (field: string) => {
+    if (sortField === field) {
+      setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setSortField(field);
+      setSortDirection("asc");
+    }
+  };
+
+  const renderSortableHeader = (field: string, label: string) => {
+    const isActive = sortField === field;
+    return (
+      <TableHead
+        className="cursor-pointer hover:bg-muted/40 transition-colors select-none py-3"
+        onClick={() => handleSort(field)}
+      >
+        <div className="flex items-center gap-1.5">
+          <span>{label}</span>
+          {isActive ? (
+            sortDirection === "asc" ? (
+              <ChevronUp className="h-3.5 w-3.5 text-primary shrink-0" />
+            ) : (
+              <ChevronDown className="h-3.5 w-3.5 text-primary shrink-0" />
+            )
+          ) : (
+            <ArrowUpDown className="h-3 w-3 text-muted-foreground/30 shrink-0" />
+          )}
+        </div>
+      </TableHead>
+    );
+  };
+
+  const filteredAndSortedApplications = useMemo(() => {
+    let result = [...applications];
+
+    // 1. Search Filter
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim();
+      result = result.filter((app) => {
+        return (
+          app.full_name?.toLowerCase().includes(q) ||
+          app.email?.toLowerCase().includes(q) ||
+          app.phone?.toLowerCase().includes(q) ||
+          app.track?.toLowerCase().includes(q) ||
+          app.payment_status?.toLowerCase().includes(q) ||
+          app.payment_sender?.toLowerCase().includes(q) ||
+          app.payment_ref?.toLowerCase().includes(q) ||
+          app.referral_code?.toLowerCase().includes(q)
+        );
+      });
+    }
+
+    // 2. Sort Logic
+    result.sort((a, b) => {
+      let aVal = a[sortField];
+      let bVal = b[sortField];
+
+      // Handle null/undefined values
+      if (aVal === null || aVal === undefined) aVal = "";
+      if (bVal === null || bVal === undefined) bVal = "";
+
+      // Special handling for created_at (dates)
+      if (sortField === "created_at") {
+        const aDate = new Date(aVal).getTime();
+        const bDate = new Date(bVal).getTime();
+        return sortDirection === "asc" ? aDate - bDate : bDate - aDate;
+      }
+
+      // Special handling for fee (derived from track) or amount paid
+      if (sortField === "fee") {
+        aVal = COURSE_FEES[a.track] ?? 0;
+        bVal = COURSE_FEES[b.track] ?? 0;
+      }
+
+      // Convert to string for comparisons if they are strings
+      if (typeof aVal === "string") {
+        return sortDirection === "asc"
+          ? aVal.localeCompare(bVal as string)
+          : (bVal as string).localeCompare(aVal);
+      }
+
+      // For numbers
+      return sortDirection === "asc"
+        ? (aVal as number) - (bVal as number)
+        : (bVal as number) - (aVal as number);
+    });
+
+    return result;
+  }, [applications, searchQuery, sortField, sortDirection]);
+
   const toggleRow = (id: string) => {
     setExpandedRows((prev) => ({ ...prev, [id]: !prev[id] }));
   };
@@ -1199,6 +1293,57 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
           </div>
         </div>
 
+        {/* Search & Sort Panel */}
+        <div className="flex flex-col md:flex-row gap-4 mb-6 items-center bg-card/45 border border-border/60 rounded-xl p-4 backdrop-blur-sm shadow-sm">
+          <div className="relative w-full md:flex-1">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Search by name, email, phone, course, reference..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 pr-10 h-10 bg-background/40 border-border/80 focus-visible:ring-primary text-sm rounded-lg"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-1"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+          
+          <div className="flex items-center justify-between md:justify-end gap-4 w-full md:w-auto shrink-0">
+            <span className="text-xs text-muted-foreground whitespace-nowrap">
+              Showing <strong className="text-foreground">{filteredAndSortedApplications.length}</strong> of <strong className="text-foreground">{applications.length}</strong> applications
+            </span>
+            
+            <div className="flex items-center gap-2">
+              <label htmlFor="sort-by" className="text-xs text-muted-foreground whitespace-nowrap">Sort by:</label>
+              <select
+                id="sort-by"
+                value={`${sortField}-${sortDirection}`}
+                onChange={(e) => {
+                  const [field, direction] = e.target.value.split("-");
+                  setSortField(field);
+                  setSortDirection(direction as "asc" | "desc");
+                }}
+                className="h-10 bg-background/50 border border-border/80 rounded-lg px-3 py-1 text-sm font-medium focus:outline-none focus:ring-1 focus:ring-primary text-foreground transition-colors cursor-pointer hover:bg-background/80"
+              >
+                <option value="created_at-desc">Date (Newest)</option>
+                <option value="created_at-asc">Date (Oldest)</option>
+                <option value="full_name-asc">Name (A-Z)</option>
+                <option value="full_name-desc">Name (Z-A)</option>
+                <option value="track-asc">Track (A-Z)</option>
+                <option value="payment_status-asc">Status (Unpaid First)</option>
+                <option value="payment_status-desc">Status (Paid First)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
         <Tabs defaultValue="payments" className="w-full">
           <TabsList className="mb-4 flex-wrap h-auto gap-1">
             <TabsTrigger value="payments">
@@ -1231,7 +1376,7 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
               {
                 id: "paid-pending",
                 title: "✅ Paid / Pending Verification",
-                rows: applications.filter(
+                rows: filteredAndSortedApplications.filter(
                   (a) => a.payment_status === "Paid" || a.payment_status === "Pending Verification"
                 ),
                 showDetails: true,
@@ -1239,7 +1384,7 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
               {
                 id: "unpaid",
                 title: "❌ Unpaid",
-                rows: applications.filter(
+                rows: filteredAndSortedApplications.filter(
                   (a) => !a.payment_status || a.payment_status === "Unpaid"
                 ),
                 showDetails: false,
@@ -1255,17 +1400,17 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead>Name</TableHead>
-                          <TableHead>Email</TableHead>
-                          <TableHead>Course</TableHead>
-                          <TableHead>Fee</TableHead>
-                          <TableHead>Status</TableHead>
+                          {renderSortableHeader("full_name", "Name")}
+                          {renderSortableHeader("email", "Email")}
+                          {renderSortableHeader("track", "Course")}
+                          {renderSortableHeader("fee", "Fee")}
+                          {renderSortableHeader("payment_status", "Status")}
                           {group.showDetails && (
                             <>
-                              <TableHead>Sender Name</TableHead>
-                              <TableHead>Reference</TableHead>
-                              <TableHead>Date</TableHead>
-                              <TableHead>Amount Paid</TableHead>
+                              {renderSortableHeader("payment_sender", "Sender Name")}
+                              {renderSortableHeader("payment_ref", "Reference")}
+                              {renderSortableHeader("payment_date", "Date")}
+                              {renderSortableHeader("payment_amount", "Amount Paid")}
                             </>
                           )}
                           <TableHead>Actions</TableHead>
@@ -1349,29 +1494,29 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Track</TableHead>
-                    <TableHead>Full Name</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Phone</TableHead>
-                    <TableHead>Gender</TableHead>
-                    <TableHead>DOB</TableHead>
-                    <TableHead>State/Region</TableHead>
-                    <TableHead>Country</TableHead>
-                    <TableHead>Highest Qual.</TableHead>
-                    <TableHead>Institution</TableHead>
-                    <TableHead>Course of Study</TableHead>
-                    <TableHead>Current Status</TableHead>
-                    <TableHead>Studied Before</TableHead>
-                    <TableHead>Exp. Level</TableHead>
-                    <TableHead>Has Computer</TableHead>
-                    <TableHead>Has Internet</TableHead>
-                    <TableHead>Can Commit</TableHead>
-                    <TableHead>Heard From</TableHead>
-                    <TableHead>Referral Code</TableHead>
-                    <TableHead>Signature</TableHead>
-                    <TableHead>Agreed to Terms</TableHead>
-                    <TableHead>Payment Status</TableHead>
+                    {renderSortableHeader("created_at", "Date")}
+                    {renderSortableHeader("track", "Track")}
+                    {renderSortableHeader("full_name", "Full Name")}
+                    {renderSortableHeader("email", "Email")}
+                    {renderSortableHeader("phone", "Phone")}
+                    {renderSortableHeader("gender", "Gender")}
+                    {renderSortableHeader("date_of_birth", "DOB")}
+                    {renderSortableHeader("state_region", "State/Region")}
+                    {renderSortableHeader("country", "Country")}
+                    {renderSortableHeader("highest_qualification", "Highest Qual.")}
+                    {renderSortableHeader("institution", "Institution")}
+                    {renderSortableHeader("course_of_study", "Course of Study")}
+                    {renderSortableHeader("current_status", "Current Status")}
+                    {renderSortableHeader("studied_before", "Studied Before")}
+                    {renderSortableHeader("experience_level", "Exp. Level")}
+                    {renderSortableHeader("has_computer", "Has Computer")}
+                    {renderSortableHeader("has_internet", "Has Internet")}
+                    {renderSortableHeader("can_commit", "Can Commit")}
+                    {renderSortableHeader("heard_from", "Heard From")}
+                    {renderSortableHeader("referral_code", "Referral Code")}
+                    {renderSortableHeader("signature", "Signature")}
+                    {renderSortableHeader("agreed_to_terms", "Agreed to Terms")}
+                    {renderSortableHeader("payment_status", "Payment Status")}
                     <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -1382,14 +1527,14 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
                         Loading...
                       </TableCell>
                     </TableRow>
-                  ) : applications.length === 0 ? (
+                  ) : filteredAndSortedApplications.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={24} className="text-center py-4">
                         No applications found.
                       </TableCell>
                     </TableRow>
                   ) : (
-                    applications.map((app, i) => (
+                    filteredAndSortedApplications.map((app, i) => (
                       <Fragment key={app.id || i}>
                         <TableRow
                           onClick={() => toggleRow(app.id)}
