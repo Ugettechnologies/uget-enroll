@@ -244,12 +244,14 @@ function NotifyModal({
   resendKey,
   senderEmail,
   paymentUrl,
+  onNotified,
 }: {
   app: any;
   onClose: () => void;
   resendKey: string;
   senderEmail: string;
   paymentUrl: string;
+  onNotified: () => void;
 }) {
   const fee = COURSE_FEES[app.track] ?? 0;
   const personalizedPaymentUrl = paymentUrl.includes("?")
@@ -260,6 +262,16 @@ function NotifyModal({
   const [sending, setSending] = useState(false);
   const [sendResult, setSendResult] = useState<"idle" | "ok" | "err">("idle");
   const [sendMsg, setSendMsg] = useState("");
+  const [copiedText, setCopiedText] = useState(false);
+
+  const handleCopyEmailText = () => {
+    const fullText = `Subject: 🎓 Uget Academy — Complete Your Enrollment\n\n${text}`;
+    navigator.clipboard.writeText(fullText).then(() => {
+      setCopiedText(true);
+      onNotified();
+      setTimeout(() => setCopiedText(false), 2000);
+    });
+  };
 
   async function sendViaResend() {
     setSending(true);
@@ -278,6 +290,7 @@ function NotifyModal({
       if (result.success) {
         setSendResult("ok");
         setSendMsg("Email sent successfully!");
+        onNotified();
       } else {
         setSendResult("err");
         setSendMsg(result.error || "Failed to send. Check your Resend API key and sender domain.");
@@ -362,8 +375,15 @@ function NotifyModal({
           >
             {sending ? "Sending…" : "📧 Send Email (via Resend)"}
           </button>
+          <button
+            onClick={handleCopyEmailText}
+            className="w-full flex items-center justify-center gap-2 rounded-full py-2.5 text-sm font-semibold border border-border bg-card/60 transition-all hover:border-primary/50"
+          >
+            {copiedText ? "📋 Copied!" : "📋 Copy Email Text (Webmail)"}
+          </button>
           <a
             href={mailtoLink}
+            onClick={onNotified}
             className="w-full block text-center rounded-full py-2.5 text-sm font-semibold border border-border bg-card/60 transition-all hover:border-primary/50"
           >
             📤 Open in Mail App (mailto)
@@ -372,6 +392,7 @@ function NotifyModal({
             href={`https://wa.me/?text=${waText}`}
             target="_blank"
             rel="noreferrer noopener"
+            onClick={onNotified}
             className="w-full flex items-center justify-center gap-2 rounded-full py-2.5 text-sm font-semibold border border-border bg-card/60 transition-all hover:border-green-500/50"
           >
             <svg className="h-4 w-4 text-green-400" viewBox="0 0 24 24" fill="currentColor">
@@ -399,12 +420,14 @@ function BulkEmailModal({
   resendKey,
   senderEmail,
   paymentUrl,
+  onNotifiedBatch,
 }: {
   applications: any[];
   onClose: () => void;
   resendKey: string;
   senderEmail: string;
   paymentUrl: string;
+  onNotifiedBatch?: (ids: string[]) => void;
 }) {
   const unpaid = applications.filter(
     (a) => !a.payment_status || a.payment_status === "Unpaid",
@@ -424,6 +447,7 @@ function BulkEmailModal({
     const next: Record<string, "idle" | "ok" | "err"> = {};
     targets.forEach((a) => (next[a.id] = "idle"));
     setProgress({ ...next });
+    const notifiedIds: string[] = [];
 
     for (const app of targets) {
       const fee = COURSE_FEES[app.track] ?? 0;
@@ -441,13 +465,21 @@ function BulkEmailModal({
             text: buildEmailText(app.full_name, app.track, fee, personalizedPaymentUrl),
           },
         });
-        next[app.id] = result.success ? "ok" : "err";
+        if (result.success) {
+          next[app.id] = "ok";
+          notifiedIds.push(app.id);
+        } else {
+          next[app.id] = "err";
+        }
       } catch {
         next[app.id] = "err";
       }
       setProgress({ ...next });
       // Small delay to avoid rate limiting
       await new Promise((r) => setTimeout(r, 300));
+    }
+    if (notifiedIds.length > 0 && onNotifiedBatch) {
+      onNotifiedBatch(notifiedIds);
     }
     setRunning(false);
     setDone(true);
@@ -475,6 +507,7 @@ function BulkEmailModal({
   const handleCopyMsg = (app: any) => {
     navigator.clipboard.writeText(getWhatsAppMsg(app)).then(() => {
       setCopiedAppId(app.id);
+      if (onNotifiedBatch) onNotifiedBatch([app.id]);
       setTimeout(() => setCopiedAppId(null), 2000);
     });
   };
@@ -488,6 +521,7 @@ function BulkEmailModal({
       .join("\n\n");
     navigator.clipboard.writeText(allMsgs).then(() => {
       setCopiedAppId("all_wa");
+      if (onNotifiedBatch) onNotifiedBatch(targets.map((a) => a.id));
       setTimeout(() => setCopiedAppId(null), 2000);
     });
   };
@@ -676,6 +710,7 @@ function BulkEmailModal({
                         </div>
                         <a
                           href={mailto}
+                          onClick={() => onNotifiedBatch && onNotifiedBatch([app.id])}
                           className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-card hover:bg-card/90 hover:border-primary/50 text-[11px] font-semibold text-foreground transition-all shrink-0"
                         >
                           <Send className="h-3 w-3 text-primary" /> Open Mail Client
@@ -841,6 +876,46 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
   const [sortField, setSortField] = useState<string>("created_at");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
 
+  const [notifiedFilter, setNotifiedFilter] = useState<"all" | "yes" | "no">("all");
+  const [notifiedApps, setNotifiedApps] = useState<Record<string, boolean>>(() => {
+    try {
+      const stored = localStorage.getItem("uget_notified_apps");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) {
+          return parsed.reduce((acc: Record<string, boolean>, id: string) => {
+            acc[id] = true;
+            return acc;
+          }, {});
+        }
+      }
+    } catch (e) {
+      console.error("Error parsing uget_notified_apps", e);
+    }
+    return {};
+  });
+
+  const toggleNotified = (id: string) => {
+    setNotifiedApps((prev) => {
+      const next = { ...prev, [id]: !prev[id] };
+      const ids = Object.keys(next).filter((key) => next[key]);
+      localStorage.setItem("uget_notified_apps", JSON.stringify(ids));
+      return next;
+    });
+  };
+
+  const markBatchNotified = (ids: string[]) => {
+    setNotifiedApps((prev) => {
+      const next = { ...prev };
+      ids.forEach((id) => {
+        next[id] = true;
+      });
+      const allIds = Object.keys(next).filter((key) => next[key]);
+      localStorage.setItem("uget_notified_apps", JSON.stringify(allIds));
+      return next;
+    });
+  };
+
   const handleSort = (field: string) => {
     if (sortField === field) {
       setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
@@ -893,8 +968,22 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
       });
     }
 
+    // 1.5. Notified Filter
+    if (notifiedFilter !== "all") {
+      result = result.filter((app) => {
+        const isNotified = Boolean(notifiedApps[app.id]);
+        return notifiedFilter === "yes" ? isNotified : !isNotified;
+      });
+    }
+
     // 2. Sort Logic
     result.sort((a, b) => {
+      if (sortField === "notified") {
+        const aVal = notifiedApps[a.id] ? 1 : 0;
+        const bVal = notifiedApps[b.id] ? 1 : 0;
+        return sortDirection === "asc" ? aVal - bVal : bVal - aVal;
+      }
+
       let aVal = a[sortField];
       let bVal = b[sortField];
 
@@ -1107,6 +1196,7 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
           resendKey={resendKey}
           senderEmail={senderEmail}
           paymentUrl={paymentUrl}
+          onNotified={() => toggleNotified(notifyApp.id)}
         />
       )}
       {showBulk && (
@@ -1116,6 +1206,7 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
           resendKey={resendKey}
           senderEmail={senderEmail}
           paymentUrl={paymentUrl}
+          onNotifiedBatch={markBatchNotified}
         />
       )}
 
@@ -1279,6 +1370,20 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
             </span>
             
             <div className="flex items-center gap-2">
+              <label htmlFor="filter-notified" className="text-xs text-muted-foreground whitespace-nowrap">Notification:</label>
+              <select
+                id="filter-notified"
+                value={notifiedFilter}
+                onChange={(e) => setNotifiedFilter(e.target.value as "all" | "yes" | "no")}
+                className="h-10 bg-background/50 border border-border/80 rounded-lg px-3 py-1 text-sm font-medium focus:outline-none focus:ring-1 focus:ring-primary text-foreground transition-colors cursor-pointer hover:bg-background/80"
+              >
+                <option value="all">All</option>
+                <option value="no">⏳ Not Sent</option>
+                <option value="yes">✅ Notified</option>
+              </select>
+            </div>
+
+            <div className="flex items-center gap-2">
               <label htmlFor="sort-by" className="text-xs text-muted-foreground whitespace-nowrap">Sort by:</label>
               <select
                 id="sort-by"
@@ -1363,6 +1468,7 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
                           {renderSortableHeader("track", "Course")}
                           {renderSortableHeader("fee", "Fee")}
                           {renderSortableHeader("payment_status", "Status")}
+                          {renderSortableHeader("notified", "Notified")}
                           {group.showDetails && (
                             <>
                               {renderSortableHeader("payment_sender", "Sender Name")}
@@ -1389,6 +1495,23 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
                               </TableCell>
                               <TableCell>
                                 <PaymentBadge status={app.payment_status} />
+                              </TableCell>
+                              <TableCell onClick={(e) => e.stopPropagation()}>
+                                <button
+                                  onClick={() => toggleNotified(app.id)}
+                                  className="focus:outline-none select-none text-left"
+                                  title="Click to toggle notification status"
+                                >
+                                  {notifiedApps[app.id] ? (
+                                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-green-500/15 text-green-400 border border-green-500/20">
+                                      ✅ Notified
+                                    </span>
+                                  ) : (
+                                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-zinc-500/10 text-muted-foreground border border-zinc-500/15">
+                                      ⏳ Not Sent
+                                    </span>
+                                  )}
+                                </button>
                               </TableCell>
                               {group.showDetails && (
                                 <>
@@ -1474,6 +1597,7 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
                     {renderSortableHeader("referral_code", "Referral Code")}
                     {renderSortableHeader("signature", "Signature")}
                     {renderSortableHeader("agreed_to_terms", "Agreed to Terms")}
+                    {renderSortableHeader("notified", "Notified")}
                     {renderSortableHeader("payment_status", "Payment Status")}
                     <TableHead>Actions</TableHead>
                   </TableRow>
@@ -1529,6 +1653,23 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
                           <TableCell>{app.referral_code || "—"}</TableCell>
                           <TableCell>{app.signature}</TableCell>
                           <TableCell>{app.agreed_to_terms ? "Yes" : "No"}</TableCell>
+                          <TableCell onClick={(e) => e.stopPropagation()}>
+                            <button
+                              onClick={() => toggleNotified(app.id)}
+                              className="focus:outline-none select-none text-left"
+                              title="Click to toggle notification status"
+                            >
+                              {notifiedApps[app.id] ? (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-green-500/15 text-green-400 border border-green-500/20">
+                                  ✅ Notified
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-zinc-500/10 text-muted-foreground border border-zinc-500/15">
+                                  ⏳ Not Sent
+                                </span>
+                              )}
+                            </button>
+                          </TableCell>
                           <TableCell>
                             <PaymentBadge status={app.payment_status} />
                           </TableCell>
