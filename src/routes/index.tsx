@@ -3,6 +3,9 @@ import { useState, type FormEvent, type ReactNode } from "react";
 import logo from "@/assets/uget-logo.png";
 import { supabase, supabaseConfigured } from "@/lib/supabase";
 
+// Toggle registration status (set to true to reopen, false to close)
+const REGISTRATION_OPEN = false;
+
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
@@ -184,7 +187,9 @@ function RegistrationPage() {
             className="mt-7 text-xs font-semibold uppercase tracking-[0.35em] text-primary animate-fade-in"
             style={{ animationDelay: "80ms", animationFillMode: "backwards" }}
           >
-            Uget Academy · Cohort Applications Open
+            {REGISTRATION_OPEN
+              ? "Uget Academy · Cohort Applications Open"
+              : "Uget Academy · Cohort Registration Closed"}
           </p>
           <h1
             className="mt-4 text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight animate-fade-in"
@@ -236,7 +241,7 @@ function RegistrationPage() {
             Refer 
           </a> */}
           <a
-            href="#apply"
+            href={REGISTRATION_OPEN ? "#apply" : "/payment"}
             className="mt-10 inline-flex items-center justify-center rounded-full px-8 py-3.5 text-sm font-semibold text-primary-foreground shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-[var(--shadow-glow)] animate-fade-in"
             style={{
               background: "var(--gradient-brand)",
@@ -245,7 +250,7 @@ function RegistrationPage() {
               animationFillMode: "backwards",
             }}
           >
-            Begin Application{" "}
+            {REGISTRATION_OPEN ? "Begin Application" : "Proceed to Payment"}{" "}
             <span className="ml-2 transition-transform group-hover:translate-x-1">→</span>
           </a>
         </div>
@@ -261,464 +266,483 @@ function RegistrationPage() {
         </div>
       )}
 
-      {/* Stepper + Form */}
-      <main id="apply" className="mx-auto max-w-3xl px-6 py-16 scroll-mt-8">
-        {status === "success" && (
-          <div className="mb-8 rounded-2xl border border-primary/40 bg-primary/10 p-6 text-center animate-scale-in">
-            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-primary/20">
+      {/* Stepper + Form / Registration Closed Notice */}
+      {REGISTRATION_OPEN ? (
+        <main id="apply" className="mx-auto max-w-3xl px-6 py-16 scroll-mt-8">
+          {status === "success" && (
+            <div className="mb-8 rounded-2xl border border-primary/40 bg-primary/10 p-6 text-center animate-scale-in">
+              <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-primary/20">
+                <svg
+                  className="h-6 w-6 text-primary"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <p className="text-base font-semibold">{message}</p>
+            </div>
+          )}
+
+          <Stepper currentStep={step} />
+
+          <div key={step} className="mt-10 animate-fade-in">
+            {step === 1 && (
+              <form onSubmit={goNext} className="space-y-8">
+                <Section title="Scholarship Track" subtitle="Choose what you want to master.">
+                  <Field label="Track" required>
+                    <select
+                      name="track"
+                      required
+                      defaultValue={str(formData.track)}
+                      className={selectCls}
+                    >
+                      <option value="">Choose a track…</option>
+                      {TRACKS.map((t) => (
+                        <option key={t} value={t}>
+                          {t}
+                        </option>
+                      ))}
+                    </select>
+                  </Field>
+                  <Field label="Why should you be chosen for this Scholarship?" required>
+                    <textarea
+                      name="track_reason"
+                      required
+                      defaultValue={str(formData.track_reason)}
+                      rows={3}
+                      className={inputCls}
+                    />
+                  </Field>
+                </Section>
+
+                <Section title="Personal Information">
+                  <Grid>
+                    <Field label="Full Name" required>
+                      <input
+                        name="full_name"
+                        required
+                        defaultValue={str(formData.full_name)}
+                        className={inputCls}
+                      />
+                    </Field>
+                    <Field label="Email Address" required>
+                      <input
+                        type="email"
+                        name="email"
+                        required
+                        defaultValue={str(formData.email)}
+                        className={inputCls}
+                      />
+                    </Field>
+                    <Field label="Phone (WhatsApp Preferred)" required>
+                      <input
+                        name="phone"
+                        required
+                        defaultValue={str(formData.phone)}
+                        className={inputCls}
+                      />
+                    </Field>
+                    <Field label="Gender" required>
+                      <select
+                        name="gender"
+                        required
+                        defaultValue={str(formData.gender)}
+                        className={selectCls}
+                      >
+                        <option value="">Select…</option>
+                        <option>Male</option>
+                        <option>Female</option>
+                        <option>Prefer not to say</option>
+                      </select>
+                    </Field>
+                    <Field label="Date of Birth">
+                      <input
+                        type="date"
+                        name="date_of_birth"
+                        defaultValue={str(formData.date_of_birth)}
+                        className={inputCls}
+                      />
+                    </Field>
+                    <Field label="State / Region" required>
+                      <input
+                        name="state_region"
+                        required
+                        defaultValue={str(formData.state_region)}
+                        className={inputCls}
+                      />
+                    </Field>
+                    <Field label="Country" required>
+                      <input
+                        name="country"
+                        required
+                        defaultValue={str(formData.country)}
+                        className={inputCls}
+                      />
+                    </Field>
+                    <Field label="LinkedIn (optional)">
+                      <input
+                        name="linkedin_url"
+                        type="url"
+                        defaultValue={str(formData.linkedin_url)}
+                        className={inputCls}
+                      />
+                    </Field>
+                  </Grid>
+                  <Field label="Residential Address">
+                    <textarea
+                      name="residential_address"
+                      required
+                      defaultValue={str(formData.residential_address)}
+                      rows={2}
+                      className={inputCls}
+                    />
+                  </Field>
+                </Section>
+
+                <NavButtons step={step} />
+              </form>
+            )}
+
+            {step === 2 && (
+              <form onSubmit={goNext} className="space-y-8">
+                <Section title="Educational Background">
+                  <Grid>
+                    <Field label="Highest Qualification" required>
+                      <select
+                        name="highest_qualification"
+                        required
+                        defaultValue={str(formData.highest_qualification)}
+                        className={selectCls}
+                      >
+                        <option value="">Select…</option>
+                        {[
+                          "Secondary School",
+                          "Diploma",
+                          "Undergraduate",
+                          "Graduate",
+                          "Postgraduate",
+                          "Other",
+                        ].map((o) => (
+                          <option key={o}>{o}</option>
+                        ))}
+                      </select>
+                    </Field>
+                    <Field label="Current Status" required>
+                      <select
+                        name="current_status"
+                        required
+                        defaultValue={str(formData.current_status)}
+                        className={selectCls}
+                      >
+                        <option value="">Select…</option>
+                        {["Student", "Employed", "Self-Employed", "Unemployed", "Other"].map((o) => (
+                          <option key={o}>{o}</option>
+                        ))}
+                      </select>
+                    </Field>
+                    <Field label="Name of Institution">
+                      <input
+                        name="institution"
+                        required
+                        defaultValue={str(formData.institution)}
+                        className={inputCls}
+                      />
+                    </Field>
+                    <Field label="Course of Study (if applicable)">
+                      <input
+                        name="course_of_study"
+                        defaultValue={str(formData.course_of_study)}
+                        className={inputCls}
+                      />
+                    </Field>
+                  </Grid>
+                </Section>
+
+                <Section title="Experience & Motivation">
+                  <Grid>
+                    <Field label="Studied this field before?" required>
+                      <select
+                        name="studied_before"
+                        required
+                        defaultValue={str(formData.studied_before)}
+                        className={selectCls}
+                      >
+                        <option value="">Select…</option>
+                        <option>Yes</option>
+                        <option>No</option>
+                      </select>
+                    </Field>
+                    <Field label="Experience Level" required>
+                      <select
+                        name="experience_level"
+                        required
+                        defaultValue={str(formData.experience_level)}
+                        className={selectCls}
+                      >
+                        <option value="">Select…</option>
+                        <option>Beginner</option>
+                        <option>Intermediate</option>
+                        <option>Advanced</option>
+                      </select>
+                    </Field>
+                  </Grid>
+                  <Field label="Why are you applying for this scholarship?" required>
+                    <textarea
+                      name="why_apply"
+                      required
+                      defaultValue={str(formData.why_apply)}
+                      rows={3}
+                      className={inputCls}
+                    />
+                  </Field>
+                  <Field label="What do you hope to achieve after this program?" required>
+                    <textarea
+                      name="goals"
+                      required
+                      defaultValue={str(formData.goals)}
+                      rows={3}
+                      className={inputCls}
+                    />
+                  </Field>
+                  <Field label="Where do you see yourself in the next 2 years?" required>
+                    <textarea
+                      name="two_year_vision"
+                      required
+                      defaultValue={str(formData.two_year_vision)}
+                      rows={3}
+                      className={inputCls}
+                    />
+                  </Field>
+                </Section>
+
+                <Section title="Technical Readiness">
+                  <Grid>
+                    <Field label="Access to a laptop/desktop?" required>
+                      <select
+                        name="has_computer"
+                        required
+                        defaultValue={str(formData.has_computer)}
+                        className={selectCls}
+                      >
+                        <option value="">Select…</option>
+                        <option>Yes</option>
+                        <option>No</option>
+                      </select>
+                    </Field>
+                    <Field label="Reliable internet?" required>
+                      <select
+                        name="has_internet"
+                        required
+                        defaultValue={str(formData.has_internet)}
+                        className={selectCls}
+                      >
+                        <option value="">Select…</option>
+                        <option>Yes</option>
+                        <option>No</option>
+                      </select>
+                    </Field>
+                    <Field
+                      label="Willing to commit to all 12 weeks?"
+                      required
+                      className="md:col-span-2"
+                    >
+                      <select
+                        name="can_commit"
+                        required
+                        defaultValue={str(formData.can_commit)}
+                        className={selectCls}
+                      >
+                        <option value="">Select…</option>
+                        <option>Yes</option>
+                        <option>No</option>
+                      </select>
+                    </Field>
+                  </Grid>
+                </Section>
+
+                <NavButtons step={step} onBack={goBack} />
+              </form>
+            )}
+
+            {step === 3 && (
+              <form onSubmit={handleSubmit} className="space-y-8">
+                <Section title="Portfolio & Social (Optional)">
+                  <Grid>
+                    <Field label="Portfolio Link">
+                      <input
+                        name="portfolio_url"
+                        type="url"
+                        defaultValue={str(formData.portfolio_url)}
+                        className={inputCls}
+                      />
+                    </Field>
+                    <Field label="GitHub (technical tracks)">
+                      <input
+                        name="github_url"
+                        type="url"
+                        defaultValue={str(formData.github_url)}
+                        className={inputCls}
+                      />
+                    </Field>
+                    <Field label="Behance / Dribbble (design)">
+                      <input
+                        name="design_profile_url"
+                        type="url"
+                        defaultValue={str(formData.design_profile_url)}
+                        className={inputCls}
+                      />
+                    </Field>
+                    <Field label="Other Relevant Links">
+                      <input
+                        name="other_links"
+                        defaultValue={str(formData.other_links)}
+                        className={inputCls}
+                      />
+                    </Field>
+                  </Grid>
+                </Section>
+
+                <Section title="Referral">
+                  <Grid>
+                    <Field label="How did you hear about us?" required>
+                      <select
+                        name="heard_from"
+                        required
+                        defaultValue={str(formData.heard_from)}
+                        className={selectCls}
+                      >
+                        <option value="">Select…</option>
+                        {[
+                          "Facebook",
+                          "Instagram",
+                          "LinkedIn",
+                          "WhatsApp",
+                          "Friend/Referral",
+                          "Website",
+                          "Other",
+                        ].map((o) => (
+                          <option key={o}>{o}</option>
+                        ))}
+                      </select>
+                    </Field>
+                    <Field label="Referral Code">
+                      <input
+                        name="referral_code"
+                        required
+                        defaultValue={str(formData.referral_code)}
+                        className={inputCls}
+                      />
+                    </Field>
+                  </Grid>
+                </Section>
+
+                <Section title="Commitment">
+                  <div className="rounded-xl border border-border bg-card/50 p-5 text-sm text-muted-foreground space-y-2">
+                    <p>By submitting this application, I understand that:</p>
+                    <ul className="list-disc pl-5 space-y-1">
+                      <li>The program runs for 12 weeks.</li>
+                      <li>Attendance and active participation are required.</li>
+                      <li>Assignments and projects must be completed on time.</li>
+                      <li>Scholarships may be withdrawn for repeated absence or misconduct.</li>
+                      <li>Information provided is accurate and truthful.</li>
+                    </ul>
+                  </div>
+                  <label className="flex items-start gap-3 text-sm cursor-pointer group">
+                    <input
+                      type="checkbox"
+                      name="agreed_to_terms"
+                      required
+                      className="mt-1 h-4 w-4 accent-primary"
+                    />
+                    <span className="transition-colors group-hover:text-foreground">
+                      I agree to the terms and conditions of the Uget Academy Tech Scholarship Cohort.
+                    </span>
+                  </label>
+                  <Grid>
+                    <Field label="Applicant Signature (full name)" required>
+                      <input
+                        name="signature"
+                        required
+                        defaultValue={str(formData.signature)}
+                        className={inputCls}
+                      />
+                    </Field>
+                    <Field label="Date">
+                      <input
+                        value={new Date().toLocaleDateString()}
+                        readOnly
+                        className={inputCls + " opacity-70"}
+                      />
+                    </Field>
+                  </Grid>
+                </Section>
+
+                {status === "error" && (
+                  <div className="rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm animate-fade-in">
+                    {message}
+                  </div>
+                )}
+
+                <NavButtons
+                  step={step}
+                  onBack={goBack}
+                  submitting={status === "submitting"}
+                  isFinal
+                />
+              </form>
+            )}
+          </div>
+        </main>
+      ) : (
+        <main id="apply" className="mx-auto max-w-2xl px-6 py-16 text-center scroll-mt-8 animate-fade-in">
+          <div
+            className="rounded-2xl border border-border/60 p-8 shadow-xl space-y-6"
+            style={{ background: "oklch(0.21 0.06 280 / 0.7)", backdropFilter: "blur(12px)" }}
+          >
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-yellow-500/10 text-yellow-400 border border-yellow-500/20">
               <svg
-                className="h-6 w-6 text-primary"
+                className="h-8 w-8"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                strokeWidth="3"
+                strokeWidth="2"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
               </svg>
             </div>
-            <p className="text-base font-semibold">{message}</p>
+            <div>
+              <h2 className="text-2xl font-bold tracking-tight text-foreground">Registration is Closed</h2>
+              <p className="mt-3 text-sm text-muted-foreground">
+                Registration for the current Uget Academy Tech Scholarship cohort is now closed. We are no longer accepting new applications at this time.
+              </p>
+            </div>
+
+            <div className="border-t border-border/40 my-6 pt-6 text-left space-y-4">
+              <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider">Already Registered?</h3>
+              <p className="text-xs text-muted-foreground">
+                If you have already submitted your application, your record is active. You can proceed to complete your course commitment fee payment to secure your slot.
+              </p>
+              <div className="pt-4 text-center">
+                <a
+                  href="/payment"
+                  className="inline-flex items-center justify-center rounded-full px-8 py-3.5 text-sm font-semibold text-primary-foreground shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-[var(--shadow-glow)]"
+                  style={{
+                    background: "var(--gradient-brand)",
+                    boxShadow: "var(--shadow-glow)",
+                  }}
+                >
+                  Proceed to Payment
+                  <span className="ml-2 transition-transform group-hover:translate-x-1">→</span>
+                </a>
+              </div>
+            </div>
           </div>
-        )}
-
-        <Stepper currentStep={step} />
-
-        <div key={step} className="mt-10 animate-fade-in">
-          {step === 1 && (
-            <form onSubmit={goNext} className="space-y-8">
-              <Section title="Scholarship Track" subtitle="Choose what you want to master.">
-                <Field label="Track" required>
-                  <select
-                    name="track"
-                    required
-                    defaultValue={str(formData.track)}
-                    className={selectCls}
-                  >
-                    <option value="">Choose a track…</option>
-                    {TRACKS.map((t) => (
-                      <option key={t} value={t}>
-                        {t}
-                      </option>
-                    ))}
-                  </select>
-                </Field>
-                <Field label="Why should you be chosen for this Scholarship?" required>
-                  <textarea
-                    name="track_reason"
-                    required
-                    defaultValue={str(formData.track_reason)}
-                    rows={3}
-                    className={inputCls}
-                  />
-                </Field>
-              </Section>
-
-              <Section title="Personal Information">
-                <Grid>
-                  <Field label="Full Name" required>
-                    <input
-                      name="full_name"
-                      required
-                      defaultValue={str(formData.full_name)}
-                      className={inputCls}
-                    />
-                  </Field>
-                  <Field label="Email Address" required>
-                    <input
-                      type="email"
-                      name="email"
-                      required
-                      defaultValue={str(formData.email)}
-                      className={inputCls}
-                    />
-                  </Field>
-                  <Field label="Phone (WhatsApp Preferred)" required>
-                    <input
-                      name="phone"
-                      required
-                      defaultValue={str(formData.phone)}
-                      className={inputCls}
-                    />
-                  </Field>
-                  <Field label="Gender" required>
-                    <select
-                      name="gender"
-                      required
-                      defaultValue={str(formData.gender)}
-                      className={selectCls}
-                    >
-                      <option value="">Select…</option>
-                      <option>Male</option>
-                      <option>Female</option>
-                      <option>Prefer not to say</option>
-                    </select>
-                  </Field>
-                  <Field label="Date of Birth">
-                    <input
-                      type="date"
-                      name="date_of_birth"
-                      defaultValue={str(formData.date_of_birth)}
-                      className={inputCls}
-                    />
-                  </Field>
-                  <Field label="State / Region" required>
-                    <input
-                      name="state_region"
-                      required
-                      defaultValue={str(formData.state_region)}
-                      className={inputCls}
-                    />
-                  </Field>
-                  <Field label="Country" required>
-                    <input
-                      name="country"
-                      required
-                      defaultValue={str(formData.country)}
-                      className={inputCls}
-                    />
-                  </Field>
-                  <Field label="LinkedIn (optional)">
-                    <input
-                      name="linkedin_url"
-                      type="url"
-                      defaultValue={str(formData.linkedin_url)}
-                      className={inputCls}
-                    />
-                  </Field>
-                </Grid>
-                <Field label="Residential Address">
-                  <textarea
-                    name="residential_address"
-                    required
-                    defaultValue={str(formData.residential_address)}
-                    rows={2}
-                    className={inputCls}
-                  />
-                </Field>
-              </Section>
-
-              <NavButtons step={step} />
-            </form>
-          )}
-
-          {step === 2 && (
-            <form onSubmit={goNext} className="space-y-8">
-              <Section title="Educational Background">
-                <Grid>
-                  <Field label="Highest Qualification" required>
-                    <select
-                      name="highest_qualification"
-                      required
-                      defaultValue={str(formData.highest_qualification)}
-                      className={selectCls}
-                    >
-                      <option value="">Select…</option>
-                      {[
-                        "Secondary School",
-                        "Diploma",
-                        "Undergraduate",
-                        "Graduate",
-                        "Postgraduate",
-                        "Other",
-                      ].map((o) => (
-                        <option key={o}>{o}</option>
-                      ))}
-                    </select>
-                  </Field>
-                  <Field label="Current Status" required>
-                    <select
-                      name="current_status"
-                      required
-                      defaultValue={str(formData.current_status)}
-                      className={selectCls}
-                    >
-                      <option value="">Select…</option>
-                      {["Student", "Employed", "Self-Employed", "Unemployed", "Other"].map((o) => (
-                        <option key={o}>{o}</option>
-                      ))}
-                    </select>
-                  </Field>
-                  <Field label="Name of Institution">
-                    <input
-                      name="institution"
-                      required
-                      defaultValue={str(formData.institution)}
-                      className={inputCls}
-                    />
-                  </Field>
-                  <Field label="Course of Study (if applicable)">
-                    <input
-                      name="course_of_study"
-                      defaultValue={str(formData.course_of_study)}
-                      className={inputCls}
-                    />
-                  </Field>
-                </Grid>
-              </Section>
-
-              <Section title="Experience & Motivation">
-                <Grid>
-                  <Field label="Studied this field before?" required>
-                    <select
-                      name="studied_before"
-                      required
-                      defaultValue={str(formData.studied_before)}
-                      className={selectCls}
-                    >
-                      <option value="">Select…</option>
-                      <option>Yes</option>
-                      <option>No</option>
-                    </select>
-                  </Field>
-                  <Field label="Experience Level" required>
-                    <select
-                      name="experience_level"
-                      required
-                      defaultValue={str(formData.experience_level)}
-                      className={selectCls}
-                    >
-                      <option value="">Select…</option>
-                      <option>Beginner</option>
-                      <option>Intermediate</option>
-                      <option>Advanced</option>
-                    </select>
-                  </Field>
-                </Grid>
-                <Field label="Why are you applying for this scholarship?" required>
-                  <textarea
-                    name="why_apply"
-                    required
-                    defaultValue={str(formData.why_apply)}
-                    rows={3}
-                    className={inputCls}
-                  />
-                </Field>
-                <Field label="What do you hope to achieve after this program?" required>
-                  <textarea
-                    name="goals"
-                    required
-                    defaultValue={str(formData.goals)}
-                    rows={3}
-                    className={inputCls}
-                  />
-                </Field>
-                <Field label="Where do you see yourself in the next 2 years?" required>
-                  <textarea
-                    name="two_year_vision"
-                    required
-                    defaultValue={str(formData.two_year_vision)}
-                    rows={3}
-                    className={inputCls}
-                  />
-                </Field>
-              </Section>
-
-              <Section title="Technical Readiness">
-                <Grid>
-                  <Field label="Access to a laptop/desktop?" required>
-                    <select
-                      name="has_computer"
-                      required
-                      defaultValue={str(formData.has_computer)}
-                      className={selectCls}
-                    >
-                      <option value="">Select…</option>
-                      <option>Yes</option>
-                      <option>No</option>
-                    </select>
-                  </Field>
-                  <Field label="Reliable internet?" required>
-                    <select
-                      name="has_internet"
-                      required
-                      defaultValue={str(formData.has_internet)}
-                      className={selectCls}
-                    >
-                      <option value="">Select…</option>
-                      <option>Yes</option>
-                      <option>No</option>
-                    </select>
-                  </Field>
-                  <Field
-                    label="Willing to commit to all 12 weeks?"
-                    required
-                    className="md:col-span-2"
-                  >
-                    <select
-                      name="can_commit"
-                      required
-                      defaultValue={str(formData.can_commit)}
-                      className={selectCls}
-                    >
-                      <option value="">Select…</option>
-                      <option>Yes</option>
-                      <option>No</option>
-                    </select>
-                  </Field>
-                </Grid>
-              </Section>
-
-              <NavButtons step={step} onBack={goBack} />
-            </form>
-          )}
-
-          {step === 3 && (
-            <form onSubmit={handleSubmit} className="space-y-8">
-              <Section title="Portfolio & Social (Optional)">
-                <Grid>
-                  <Field label="Portfolio Link">
-                    <input
-                      name="portfolio_url"
-                      type="url"
-                      defaultValue={str(formData.portfolio_url)}
-                      className={inputCls}
-                    />
-                  </Field>
-                  <Field label="GitHub (technical tracks)">
-                    <input
-                      name="github_url"
-                      type="url"
-                      defaultValue={str(formData.github_url)}
-                      className={inputCls}
-                    />
-                  </Field>
-                  <Field label="Behance / Dribbble (design)">
-                    <input
-                      name="design_profile_url"
-                      type="url"
-                      defaultValue={str(formData.design_profile_url)}
-                      className={inputCls}
-                    />
-                  </Field>
-                  <Field label="Other Relevant Links">
-                    <input
-                      name="other_links"
-                      defaultValue={str(formData.other_links)}
-                      className={inputCls}
-                    />
-                  </Field>
-                </Grid>
-              </Section>
-
-              {/* <Section title="Emergency Contact">
-                <Grid>
-                  <Field label="Full Name" required>
-                    <input
-                      name="emergency_name"
-                      required
-                      defaultValue={str(formData.emergency_name)}
-                      className={inputCls}
-                    />
-                  </Field>
-                  <Field label="Relationship" required>
-                    <input
-                      name="emergency_relationship"
-                      required
-                      defaultValue={str(formData.emergency_relationship)}
-                      className={inputCls}
-                    />
-                  </Field>
-                  <Field label="Phone Number" required className="md:col-span-2">
-                    <input
-                      name="emergency_phone"
-                      required
-                      defaultValue={str(formData.emergency_phone)}
-                      className={inputCls}
-                    />
-                  </Field>
-                </Grid>
-              </Section> */}
-
-              <Section title="Referral">
-                <Grid>
-                  <Field label="How did you hear about us?" required>
-                    <select
-                      name="heard_from"
-                      required
-                      defaultValue={str(formData.heard_from)}
-                      className={selectCls}
-                    >
-                      <option value="">Select…</option>
-                      {[
-                        "Facebook",
-                        "Instagram",
-                        "LinkedIn",
-                        "WhatsApp",
-                        "Friend/Referral",
-                        "Website",
-                        "Other",
-                      ].map((o) => (
-                        <option key={o}>{o}</option>
-                      ))}
-                    </select>
-                  </Field>
-                  <Field label="Referral Code">
-                    <input
-                      name="referral_code"
-                      required
-                      defaultValue={str(formData.referral_code)}
-                      className={inputCls}
-                    />
-                  </Field>
-                </Grid>
-              </Section>
-
-              <Section title="Commitment">
-                <div className="rounded-xl border border-border bg-card/50 p-5 text-sm text-muted-foreground space-y-2">
-                  <p>By submitting this application, I understand that:</p>
-                  <ul className="list-disc pl-5 space-y-1">
-                    <li>The program runs for 12 weeks.</li>
-                    <li>Attendance and active participation are required.</li>
-                    <li>Assignments and projects must be completed on time.</li>
-                    <li>Scholarships may be withdrawn for repeated absence or misconduct.</li>
-                    <li>Information provided is accurate and truthful.</li>
-                  </ul>
-                </div>
-                <label className="flex items-start gap-3 text-sm cursor-pointer group">
-                  <input
-                    type="checkbox"
-                    name="agreed_to_terms"
-                    required
-                    className="mt-1 h-4 w-4 accent-primary"
-                  />
-                  <span className="transition-colors group-hover:text-foreground">
-                    I agree to the terms and conditions of the Uget Academy Tech Scholarship Cohort.
-                  </span>
-                </label>
-                <Grid>
-                  <Field label="Applicant Signature (full name)" required>
-                    <input
-                      name="signature"
-                      required
-                      defaultValue={str(formData.signature)}
-                      className={inputCls}
-                    />
-                  </Field>
-                  <Field label="Date">
-                    <input
-                      value={new Date().toLocaleDateString()}
-                      readOnly
-                      className={inputCls + " opacity-70"}
-                    />
-                  </Field>
-                </Grid>
-              </Section>
-
-              {status === "error" && (
-                <div className="rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm animate-fade-in">
-                  {message}
-                </div>
-              )}
-
-              <NavButtons
-                step={step}
-                onBack={goBack}
-                submitting={status === "submitting"}
-                isFinal
-              />
-            </form>
-          )}
-        </div>
-      </main>
+        </main>
+      )}
 
       <Footer />
     </div>
