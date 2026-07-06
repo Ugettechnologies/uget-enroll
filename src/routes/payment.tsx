@@ -143,8 +143,8 @@ function PaymentPage() {
     applicant?.payment_status === "Paid" ||
     applicant?.payment_status === "Pending Verification";
 
-  async function handleLookup(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+  async function performLookup(emailVal: string) {
+    if (!emailVal.trim()) return;
     setLookupStatus("loading");
     setApplicant(null);
 
@@ -156,7 +156,7 @@ function PaymentPage() {
     const { data } = await supabase
       .from("scholarship_applications")
       .select("id, full_name, email, track, country, phone, payments(payment_status)")
-      .ilike("email", email.trim())
+      .ilike("email", emailVal.trim())
       .maybeSingle();
 
     if (data) {
@@ -175,6 +175,23 @@ function PaymentPage() {
       setLookupStatus("not_found");
     }
   }
+
+  async function handleLookup(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    await performLookup(email);
+  }
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const emailParam = params.get("email");
+      if (emailParam) {
+        const decodedEmail = decodeURIComponent(emailParam).trim();
+        setEmail(decodedEmail);
+        performLookup(decodedEmail);
+      }
+    }
+  }, []);
 
   async function handleConfirm(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();

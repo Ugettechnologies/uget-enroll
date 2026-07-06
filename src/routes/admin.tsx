@@ -84,7 +84,7 @@ function buildEmailHtml(name: string, track: string, fee: number, paymentUrl: st
                   <td style="padding:16px 20px;line-height:1.6;border-top:1px solid rgba(120,100,220,0.15);">
                     <strong style="color:#ffffff;font-size:14px;">Payment Details (International Students)</strong><br/>
                     <p style="margin:4px 0 0;font-size:13px;color:#d0c8f0;">
-                      Please contact us at <a href="mailto:admissions@ugettech.com" style="color:#c4b5fd;text-decoration:underline;">admissions@ugettech.com</a> or via WhatsApp at <a href="https://wa.me/2347043620799" style="color:#c4b5fd;text-decoration:none;font-weight:600;">+234 704 362 0799</a> and we'll guide you through the best payment option for your country.
+                      Please contact us at <a href="mailto:ugettechnologies@gmail.com" style="color:#c4b5fd;text-decoration:underline;">ugettechnologies@gmail.com</a> or via WhatsApp at <a href="https://wa.me/2347043620799" style="color:#c4b5fd;text-decoration:none;font-weight:600;">+234 704 362 0799</a> and we'll guide you through the best payment option for your country.
                     </p>
                   </td>
                 </tr>
@@ -147,7 +147,7 @@ Account Number: 6743620799
 Account Name: Uget Technologies
 
 Payment Details (International Students):
-Please contact us at admissions@ugettech.com or via WhatsApp at +234 704 362 0799 and we'll guide you through the best payment option for your country.
+Please contact us at ugettechnologies@gmail.com or via WhatsApp at +234 704 362 0799 and we'll guide you through the best payment option for your country.
 
 Confirm payment & validate scholarship here:
 ${paymentUrl}
@@ -163,7 +163,7 @@ Uget Technologies`.trim();
 
 function getWhatsAppMessage(app: any, paymentUrl: string) {
   const feeDetails = getFeeDetails(app.track);
-  return `Hello ${app.full_name},\n\nCongratulations! You've secured a spot in Uget Academy's Cohort 1 for ${app.track}.\n\nProgram Fee: ${fmt(feeDetails.ngn.total)} (approximately ${fmtUsd(feeDetails.usd.total)})\n\nPayment Details (Nigeria):\nBank: Moniepoint\nAccount Number: 6743620799\nAccount Name: Uget Technologies\n\nPayment Details (International Students):\nPlease contact us at admissions@ugettech.com or via WhatsApp at +234 704 362 0799 and we'll guide you through the best payment option for your country.\n\nConfirm payment & validate scholarship here:\n${paymentUrl}\n\nOnce payment is confirmed, you'll receive your onboarding details, including access to the learning dashboard and your cohort schedule.\n\nIf you have any questions before enrolling, feel free to reach out — we're happy to help.\n\nWarm regards,\nChiemena Erasmous\nUget Technologies`;
+  return `Hello ${app.full_name},\n\nCongratulations! You've secured a spot in Uget Academy's Cohort 1 for ${app.track}.\n\nProgram Fee: ${fmt(feeDetails.ngn.total)} (approximately ${fmtUsd(feeDetails.usd.total)})\n\nPayment Details (Nigeria):\nBank: Moniepoint\nAccount Number: 6743620799\nAccount Name: Uget Technologies\n\nPayment Details (International Students):\nPlease contact us at ugettechnologies@gmail.com or via WhatsApp at +234 704 362 0799 and we'll guide you through the best payment option for your country.\n\nConfirm payment & validate scholarship here:\n${paymentUrl}\n\nOnce payment is confirmed, you'll receive your onboarding details, including access to the learning dashboard and your cohort schedule.\n\nIf you have any questions before enrolling, feel free to reach out — we're happy to help.\n\nWarm regards,\nChiemena Erasmous\nUget Technologies`;
 }
 
 // ─── Auth wrapper ─────────────────────────────────────────────────────────────
@@ -252,8 +252,11 @@ function NotifyModal({
   paymentUrl: string;
 }) {
   const fee = COURSE_FEES[app.track] ?? 0;
-  const html = buildEmailHtml(app.full_name, app.track, fee, paymentUrl);
-  const text = buildEmailText(app.full_name, app.track, fee, paymentUrl);
+  const personalizedPaymentUrl = paymentUrl.includes("?")
+    ? `${paymentUrl}&email=${encodeURIComponent(app.email)}`
+    : `${paymentUrl}?email=${encodeURIComponent(app.email)}`;
+  const html = buildEmailHtml(app.full_name, app.track, fee, personalizedPaymentUrl);
+  const text = buildEmailText(app.full_name, app.track, fee, personalizedPaymentUrl);
   const [sending, setSending] = useState(false);
   const [sendResult, setSendResult] = useState<"idle" | "ok" | "err">("idle");
   const [sendMsg, setSendMsg] = useState("");
@@ -288,7 +291,7 @@ function NotifyModal({
   }
 
   const mailtoLink = `mailto:${app.email}?subject=${encodeURIComponent("🎓 Uget Academy — Complete Your Enrollment")}&body=${encodeURIComponent(text)}`;
-  const waText = encodeURIComponent(getWhatsAppMessage(app, paymentUrl));
+  const waText = encodeURIComponent(getWhatsAppMessage(app, personalizedPaymentUrl));
 
   return (
     <div
@@ -332,7 +335,7 @@ function NotifyModal({
           </p>
           <p>
             <span className="text-muted-foreground">Link:</span>{" "}
-            <span className="text-primary/80">{paymentUrl}</span>
+            <span className="text-primary/80">{personalizedPaymentUrl}</span>
           </p>
         </div>
 
@@ -424,6 +427,9 @@ function BulkEmailModal({
 
     for (const app of targets) {
       const fee = COURSE_FEES[app.track] ?? 0;
+      const personalizedPaymentUrl = paymentUrl.includes("?")
+        ? `${paymentUrl}&email=${encodeURIComponent(app.email)}`
+        : `${paymentUrl}?email=${encodeURIComponent(app.email)}`;
       try {
         const result = await sendEmailFn({
           data: {
@@ -431,8 +437,8 @@ function BulkEmailModal({
             from: senderEmail || "onboarding@resend.dev",
             to: [app.email],
             subject: `Welcome to Uget Academy — ${app.track} Cohort 1`,
-            html: buildEmailHtml(app.full_name, app.track, fee, paymentUrl),
-            text: buildEmailText(app.full_name, app.track, fee, paymentUrl),
+            html: buildEmailHtml(app.full_name, app.track, fee, personalizedPaymentUrl),
+            text: buildEmailText(app.full_name, app.track, fee, personalizedPaymentUrl),
           },
         });
         next[app.id] = result.success ? "ok" : "err";
@@ -460,7 +466,10 @@ function BulkEmailModal({
   };
 
   const getWhatsAppMsg = (app: any) => {
-    return getWhatsAppMessage(app, paymentUrl);
+    const personalizedPaymentUrl = paymentUrl.includes("?")
+      ? `${paymentUrl}&email=${encodeURIComponent(app.email)}`
+      : `${paymentUrl}?email=${encodeURIComponent(app.email)}`;
+    return getWhatsAppMessage(app, personalizedPaymentUrl);
   };
 
   const handleCopyMsg = (app: any) => {
@@ -484,9 +493,12 @@ function BulkEmailModal({
   };
 
   // Preview data based on first applicant in target list or placeholder
-  const previewApp = targets[0] ?? { full_name: "John Doe", track: "Full-Stack Development" };
+  const previewApp = targets[0] ?? { full_name: "John Doe", track: "Full-Stack Development", email: "johndoe@example.com" };
   const previewFee = COURSE_FEES[previewApp.track] ?? 0;
-  const previewText = buildEmailText(previewApp.full_name, previewApp.track, previewFee, paymentUrl);
+  const previewPaymentUrl = paymentUrl.includes("?")
+    ? `${paymentUrl}&email=${encodeURIComponent(previewApp.email || "")}`
+    : `${paymentUrl}?email=${encodeURIComponent(previewApp.email || "")}`;
+  const previewText = buildEmailText(previewApp.full_name, previewApp.track, previewFee, previewPaymentUrl);
 
   return (
     <div
@@ -651,7 +663,10 @@ function BulkEmailModal({
                 <div className="max-h-60 overflow-y-auto border border-border bg-card/30 rounded-xl divide-y divide-border/40">
                   {targets.map((app) => {
                     const fee = COURSE_FEES[app.track] ?? 0;
-                    const text = buildEmailText(app.full_name, app.track, fee, paymentUrl);
+                    const personalizedPaymentUrl = paymentUrl.includes("?")
+                      ? `${paymentUrl}&email=${encodeURIComponent(app.email)}`
+                      : `${paymentUrl}?email=${encodeURIComponent(app.email)}`;
+                    const text = buildEmailText(app.full_name, app.track, fee, personalizedPaymentUrl);
                     const mailto = `mailto:${app.email}?subject=${encodeURIComponent("🎓 Uget Academy — Complete Your Enrollment")}&body=${encodeURIComponent(text)}`;
                     return (
                       <div key={app.id} className="flex items-center justify-between p-3 text-xs">
