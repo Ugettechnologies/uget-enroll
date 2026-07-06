@@ -1057,6 +1057,111 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
     setPaymentUrl(url);
   }
 
+  const [sendingCorrection, setSendingCorrection] = useState(false);
+
+  const sendCorrectionEmails = async () => {
+    const notifiedIds = Object.keys(notifiedApps).filter((id) => notifiedApps[id]);
+    const targets = applications.filter((app) => notifiedIds.includes(app.id));
+
+    if (targets.length === 0) {
+      alert("No notified candidates found in this browser to send corrections to.");
+      return;
+    }
+
+    if (!resendKey) {
+      alert("Please configure your Resend API Key in Settings first.");
+      return;
+    }
+
+    const confirmSend = window.confirm(
+      `This will send a correction email to ${targets.length} candidates who were notified. Are you sure you want to proceed?`
+    );
+    if (!confirmSend) return;
+
+    setSendingCorrection(true);
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const app of targets) {
+      const personalizedPaymentUrl = paymentUrl.includes("?")
+        ? `${paymentUrl}&email=${encodeURIComponent(app.email)}`
+        : `${paymentUrl}?email=${encodeURIComponent(app.email)}`;
+
+      const htmlContent = `
+        <!DOCTYPE html>
+        <html>
+        <body style="margin:0;padding:24px;background:#13111c;font-family:Inter,Arial,sans-serif;color:#f0eeff;">
+          <div style="max-width:600px;margin:0 auto;background:rgba(120,80,220,0.05);border:1px solid rgba(120,100,220,0.25);border-radius:12px;padding:32px;">
+            <p style="font-size:11px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:#06b6d4;margin:0 0 8px;">Uget Academy</p>
+            <h2 style="color:#ffffff;margin-top:0;">Important Correction: WhatsApp Support Number</h2>
+            
+            <p style="font-size:14px;line-height:1.6;color:#d0c8f0;">
+              Hello <strong>${app.full_name}</strong>,
+            </p>
+            <p style="font-size:14px;line-height:1.6;color:#d0c8f0;">
+              We are sending this email to correct a typographical error in our previous communication regarding the Uget Academy Scholarship.
+            </p>
+            <p style="font-size:14px;line-height:1.6;color:#d0c8f0;">
+              Our official admissions coordinator WhatsApp support line is <strong>+234 810 617 5131</strong> (not the number ending in 0799).
+            </p>
+            <p style="font-size:14px;line-height:1.6;color:#d0c8f0;">
+              If you need to contact us for payment options or payment confirmation, please chat with us here:
+            </p>
+            
+            <div style="margin:24px 0;text-align:center;">
+              <a href="https://wa.me/2348106175131" style="display:inline-block;padding:12px 24px;background:#25d366;color:#ffffff;text-decoration:none;font-weight:bold;border-radius:30px;font-size:14px;box-shadow:0 4px 12px rgba(37,211,102,0.3);">
+                💬 Chat with Coordinator on WhatsApp
+              </a>
+            </div>
+            
+            <p style="font-size:14px;line-height:1.6;color:#d0c8f0;">
+              You can also confirm your transfer and <strong>upload your proof of payment receipt</strong> directly on your enrollment page:
+            </p>
+            
+            <div style="margin:20px 0;text-align:center;">
+              <a href="${personalizedPaymentUrl}" style="display:inline-block;padding:10px 20px;background:#7c3aed;color:#ffffff;text-decoration:none;font-weight:bold;border-radius:30px;font-size:13px;">
+                💳 Open Enrollment & Upload Receipt
+              </a>
+            </div>
+            
+            <p style="font-size:13px;color:#8b83b0;margin-top:32px;border-top:1px solid rgba(120,100,220,0.15);padding-top:16px;">
+              Please ignore any WhatsApp messages or contacts pointing to the other number. We apologize for any confusion.
+            </p>
+          </div>
+        </body>
+        </html>
+      `;
+
+      const textContent = `Hello ${app.full_name},\n\nWe are sending this email to correct a typographical error in our previous communication regarding the Uget Academy Scholarship.\n\nOur official WhatsApp support line is +234 810 617 5131 (not the number ending in 0799).\n\nChat with us on WhatsApp: https://wa.me/2348106175131\n\nYou can also confirm your transfer and upload your proof of payment receipt directly on your enrollment page:\n${personalizedPaymentUrl}\n\nWe apologize for any confusion.\n\nWarm regards,\nUget Academy Team`;
+
+      try {
+        const result = await sendEmailFn({
+          data: {
+            resendKey,
+            from: senderEmail || "onboarding@resend.dev",
+            to: [app.email],
+            subject: "Correction: Uget Academy WhatsApp Support Line",
+            html: htmlContent,
+            text: textContent,
+          },
+        });
+        if (result.success) {
+          successCount++;
+        } else {
+          failCount++;
+        }
+      } catch {
+        failCount++;
+      }
+
+      // Delay to avoid rate limiting
+      await new Promise((r) => setTimeout(r, 200));
+    }
+
+    setSendingCorrection(false);
+    alert(`Finished sending correction emails!\nSent successfully: ${successCount}\nFailed: ${failCount}`);
+  };
+
   useEffect(() => {
     async function fetchData() {
       if (!supabase) {
@@ -1295,6 +1400,25 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
             </div>
           </form>
 
+          {/* WhatsApp Correction Tool */}
+          <div className="mt-6 pt-6 border-t border-border/60 space-y-4">
+            <h4 className="font-semibold uppercase tracking-wider text-[10px] text-destructive">
+              Emergency: WhatsApp Correction
+            </h4>
+            <p className="text-[11px] text-muted-foreground leading-relaxed">
+              If you recently sent offers with the incorrect WhatsApp support number ending in <code>0799</code>, use this tool to send a polite follow-up correction email to all candidates who were marked as "Notified" in this browser.
+            </p>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={sendCorrectionEmails}
+              disabled={sendingCorrection || !resendKey}
+              className="w-full font-semibold text-xs py-2 bg-red-600 hover:bg-red-700 text-white flex items-center justify-center gap-1.5"
+            >
+              {sendingCorrection ? "Sending Correction..." : "📧 Send Correction to Notified Candidates"}
+            </Button>
+          </div>
+
           {/* Reference Fees */}
           <div className="mt-8 pt-6 border-t border-border/60 text-xs space-y-3">
             <h4 className="font-semibold text-foreground uppercase tracking-wider text-[10px]">Course Fee Schedule</h4>
@@ -1520,7 +1644,24 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
                               {group.showDetails && (
                                 <>
                                   <TableCell className="whitespace-nowrap">{app.payment_sender ?? "—"}</TableCell>
-                                  <TableCell className="whitespace-nowrap">{app.payment_ref ?? "—"}</TableCell>
+                                  <TableCell className="whitespace-nowrap">
+                                    {(() => {
+                                      if (!app.payment_ref) return "—";
+                                      const hasReceipt = app.payment_ref.includes("data:");
+                                      const parts = app.payment_ref.split(" | ");
+                                      const refText = parts.length > 1 ? parts[0] : (hasReceipt ? "" : app.payment_ref);
+                                      return (
+                                        <div className="flex flex-col gap-0.5">
+                                          {refText && <span className="font-mono text-xs">{refText}</span>}
+                                          {hasReceipt && (
+                                            <span className="text-primary font-bold text-[11px] flex items-center gap-1 select-none">
+                                              🖼️ Receipt Uploaded
+                                            </span>
+                                          )}
+                                        </div>
+                                      );
+                                    })()}
+                                  </TableCell>
                                   <TableCell className="whitespace-nowrap">{app.payment_date ?? "—"}</TableCell>
                                   <TableCell className="whitespace-nowrap">
                                     {app.payment_amount ? fmt(app.payment_amount) : "—"}
@@ -1716,8 +1857,38 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
                                     <div className="text-sm font-semibold">{app.payment_sender ?? "—"}</div>
                                   </div>
                                   <div>
-                                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-0.5">Reference</div>
-                                    <div className="text-sm font-semibold font-mono text-primary/95">{app.payment_ref ?? "—"}</div>
+                                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-0.5">Reference / Receipt</div>
+                                    {(() => {
+                                      if (!app.payment_ref) return <div className="text-sm font-semibold">—</div>;
+                                      const hasReceipt = app.payment_ref.includes("data:");
+                                      const parts = app.payment_ref.split(" | ");
+                                      const refText = parts.length > 1 ? parts[0] : (hasReceipt ? "" : app.payment_ref);
+                                      const receiptData = hasReceipt ? (parts.length > 1 ? parts[1] : app.payment_ref) : null;
+                                      return (
+                                        <div className="space-y-2">
+                                          {refText && <div className="text-sm font-semibold font-mono text-primary/95">{refText}</div>}
+                                          {receiptData && (
+                                            <div className="mt-1">
+                                              <a
+                                                href={receiptData}
+                                                target="_blank"
+                                                rel="noreferrer noopener"
+                                                className="inline-flex items-center gap-1 text-primary hover:underline text-xs font-semibold"
+                                              >
+                                                👁️ View Full Receipt
+                                              </a>
+                                              <div className="mt-1.5 rounded-lg overflow-hidden border border-border/40 max-w-[200px] bg-card/50 p-1">
+                                                <img
+                                                  src={receiptData}
+                                                  alt="Receipt Proof"
+                                                  className="max-h-36 object-contain rounded"
+                                                />
+                                              </div>
+                                            </div>
+                                          )}
+                                        </div>
+                                      );
+                                    })()}
                                   </div>
                                   <div>
                                     <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-0.5">Date Paid</div>

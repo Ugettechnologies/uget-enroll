@@ -102,6 +102,8 @@ function PaymentPage() {
   const [submitError, setSubmitError] = useState("");
   const [copied, setCopied] = useState(false);
   const [currency, setCurrency] = useState<"NGN" | "OTHER_AFRICA" | "USD">("NGN");
+  const [receiptBase64, setReceiptBase64] = useState("");
+  const [fileError, setFileError] = useState("");
 
   useEffect(() => {
     if (applicant) {
@@ -193,18 +195,39 @@ function PaymentPage() {
     }
   }, []);
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    setFileError("");
+    if (file) {
+      if (file.size > 1.5 * 1024 * 1024) {
+        setFileError("File is too large. Please upload an image under 1.5MB.");
+        e.target.value = "";
+        setReceiptBase64("");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setReceiptBase64(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   async function handleConfirm(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!applicant || !supabase || !feeDetails) return;
 
     const fd = new FormData(e.currentTarget);
+    const refText = fd.get("transaction_ref") as string || "";
     const payload = {
       application_id: applicant.id,
       payment_status: "Pending Verification",
       payment_sender: fd.get("sender_name") as string,
       payment_amount: Number(fd.get("amount_paid")),
       payment_date: fd.get("payment_date") as string,
-      payment_ref: fd.get("transaction_ref") as string,
+      payment_ref: receiptBase64 
+        ? (refText ? `${refText} | ${receiptBase64}` : receiptBase64)
+        : refText,
     };
 
     setSubmitStatus("submitting");
@@ -601,6 +624,33 @@ function PaymentPage() {
                               placeholder="Narration or Reference number"
                               className={inputCls}
                             />
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-medium text-foreground mb-1">
+                              Upload Proof of Payment (Receipt Image) <span className="text-accent">*</span>
+                            </label>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              required
+                              onChange={handleFileChange}
+                              className="w-full text-xs text-muted-foreground file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer"
+                            />
+                            {fileError && <p className="text-red-400 text-xs mt-1">{fileError}</p>}
+                            {receiptBase64 && (
+                              <div className="mt-3 rounded-lg overflow-hidden border border-border/50 max-h-45 bg-card/40 flex items-center justify-center p-2 relative group">
+                                <img src={receiptBase64} alt="Receipt Preview" className="max-h-40 object-contain rounded" />
+                                <button
+                                  type="button"
+                                  onClick={() => setReceiptBase64("")}
+                                  className="absolute top-2 right-2 p-1 rounded-full bg-red-500/80 hover:bg-red-500 text-white text-xs transition-colors"
+                                  title="Remove image"
+                                >
+                                  ✕
+                                </button>
+                              </div>
+                            )}
                           </div>
 
                           {submitStatus === "error" && (
