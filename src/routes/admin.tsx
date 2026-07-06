@@ -87,7 +87,7 @@ function buildEmailHtml(name: string, track: string, fee: number, paymentUrl: st
                   <td style="padding:16px 20px;line-height:1.6;border-top:1px solid rgba(120,100,220,0.15);">
                     <strong style="color:#ffffff;font-size:14px;">Payment Details (International Students)</strong><br/>
                     <p style="margin:4px 0 0;font-size:13px;color:#d0c8f0;">
-                      Please contact us at <a href="mailto:ugettechnologies@gmail.com" style="color:#c4b5fd;text-decoration:underline;">ugettechnologies@gmail.com</a> or via WhatsApp at <a href="https://wa.me/2347043620799" style="color:#c4b5fd;text-decoration:none;font-weight:600;">+234 704 362 0799</a> and we'll guide you through the best payment option for your country.
+                      Please contact us at <a href="mailto:ugettechnologies@gmail.com" style="color:#c4b5fd;text-decoration:underline;">ugettechnologies@gmail.com</a> or via WhatsApp at <a href="https://wa.me/2348106175131" style="color:#c4b5fd;text-decoration:none;font-weight:600;">+234 810 617 5131</a> and we'll guide you through the best payment option for your country.
                     </p>
                   </td>
                 </tr>
@@ -151,7 +151,7 @@ Account Number: 6743620799
 Account Name: Uget Technologies
 
 Payment Details (International Students):
-Please contact us at ugettechnologies@gmail.com or via WhatsApp at +234 704 362 0799 and we'll guide you through the best payment option for your country.
+Please contact us at ugettechnologies@gmail.com or via WhatsApp at +234 810 617 5131 and we'll guide you through the best payment option for your country.
 
 Confirm payment & validate scholarship here:
 ${paymentUrl}
@@ -167,7 +167,7 @@ Uget Technologies`.trim();
 
 function getWhatsAppMessage(app: any, paymentUrl: string) {
   const feeDetails = getFeeDetails(app.track);
-  return `Hello ${app.full_name},\n\nCongratulations! You've secured a spot in Uget Academy's Cohort 1 for ${app.track}.\n\nProgram Fee: ${fmt(feeDetails.ngn.total)} (approximately ${fmtUsd(feeDetails.usd.total)})\nDeadline: Payment is to be made within 24 to 72 hours of receiving this offer to secure your spot.\n\nPayment Details (Nigeria):\nBank: Moniepoint\nAccount Number: 6743620799\nAccount Name: Uget Technologies\n\nPayment Details (International Students):\nPlease contact us at ugettechnologies@gmail.com or via WhatsApp at +234 704 362 0799 and we'll guide you through the best payment option for your country.\n\nConfirm payment & validate scholarship here:\n${paymentUrl}\n\nOnce payment is confirmed, you'll receive your onboarding details, including access to the learning dashboard and your cohort schedule.\n\nIf you have any questions before enrolling, feel free to reach out — we're happy to help.\n\nWarm regards,\nChiemena Erasmous\nUget Technologies`;
+  return `Hello ${app.full_name},\n\nCongratulations! You've secured a spot in Uget Academy's Cohort 1 for ${app.track}.\n\nProgram Fee: ${fmt(feeDetails.ngn.total)} (approximately ${fmtUsd(feeDetails.usd.total)})\nDeadline: Payment is to be made within 24 to 72 hours of receiving this offer to secure your spot.\n\nPayment Details (Nigeria):\nBank: Moniepoint\nAccount Number: 6743620799\nAccount Name: Uget Technologies\n\nPayment Details (International Students):\nPlease contact us at ugettechnologies@gmail.com or via WhatsApp at +234 810 617 5131 and we'll guide you through the best payment option for your country.\n\nConfirm payment & validate scholarship here:\n${paymentUrl}\n\nOnce payment is confirmed, you'll receive your onboarding details, including access to the learning dashboard and your cohort schedule.\n\nIf you have any questions before enrolling, feel free to reach out — we're happy to help.\n\nWarm regards,\nChiemena Erasmous\nUget Technologies`;
 }
 
 // ─── Auth wrapper ─────────────────────────────────────────────────────────────

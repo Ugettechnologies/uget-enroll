@@ -619,7 +619,7 @@ function PaymentPage() {
                               {submitStatus === "submitting" ? "Submitting…" : "Confirm Payment Details"}
                             </button>
                             <a
-                              href={`https://wa.me/2347043620799?text=${whatsappText}`}
+                              href={`https://wa.me/2348106175131?text=${whatsappText}`}
                               target="_blank"
                               rel="noreferrer noopener"
                               className="flex-1 flex items-center justify-center gap-2 rounded-full border border-border bg-card/60 py-3 text-sm font-semibold hover:bg-card transition-all"
@@ -652,7 +652,7 @@ function PaymentPage() {
                       </div>
 
                       <a
-                        href={`https://wa.me/2347043620799?text=${encodeURIComponent(
+                        href={`https://wa.me/2348106175131?text=${encodeURIComponent(
                           `Hello, I am ${applicant.full_name} and I have been selected for the Tech4Africans Cohort 8 Scholarship (${applicant.track}). I am registering from an African country and would like to receive details to make my commitment fee payment in my local currency/MoMo. My email is ${applicant.email}`
                         )}`}
                         target="_blank"
@@ -685,7 +685,7 @@ function PaymentPage() {
 
                       <div className="flex flex-col sm:flex-row gap-3">
                         <a
-                          href={`https://wa.me/2347043620799?text=${encodeURIComponent(
+                          href={`https://wa.me/2348106175131?text=${encodeURIComponent(
                             `Hello support, I am an international candidate (${applicant.full_name}) selected for the Tech4Africans Cohort 8 Scholarship (${applicant.track}). I would like to receive the USD card payment checkout link. My email is ${applicant.email}`
                           )}`}
                           target="_blank"
@@ -754,7 +754,7 @@ function PaymentPage() {
             </p>
             {whatsappText && (
               <a
-                href={`https://wa.me/2347043620799?text=${whatsappText}`}
+                href={`https://wa.me/2348106175131?text=${whatsappText}`}
                 target="_blank"
                 rel="noreferrer noopener"
                 className="mt-6 inline-flex items-center gap-2 rounded-full border border-border bg-card/60 px-5 py-2.5 text-sm font-medium transition-all hover:border-primary/50"
