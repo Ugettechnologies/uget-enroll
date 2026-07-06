@@ -200,7 +200,7 @@ function PaymentPage() {
     setFileError("");
     if (file) {
       if (file.size > 1.5 * 1024 * 1024) {
-        setFileError("File is too large. Please upload an image under 1.5MB.");
+        setFileError("File is too large. Please upload an image or PDF under 1.5MB.");
         e.target.value = "";
         setReceiptBase64("");
         return;
@@ -628,11 +628,11 @@ function PaymentPage() {
 
                           <div>
                             <label className="block text-xs font-medium text-foreground mb-1">
-                              Upload Proof of Payment (Receipt Image) <span className="text-accent">*</span>
+                              Upload Proof of Payment (Image or PDF) <span className="text-accent">*</span>
                             </label>
                             <input
                               type="file"
-                              accept="image/*"
+                              accept="image/*,application/pdf"
                               required
                               onChange={handleFileChange}
                               className="w-full text-xs text-muted-foreground file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer"
@@ -640,12 +640,19 @@ function PaymentPage() {
                             {fileError && <p className="text-red-400 text-xs mt-1">{fileError}</p>}
                             {receiptBase64 && (
                               <div className="mt-3 rounded-lg overflow-hidden border border-border/50 max-h-45 bg-card/40 flex items-center justify-center p-2 relative group">
-                                <img src={receiptBase64} alt="Receipt Preview" className="max-h-40 object-contain rounded" />
+                                {receiptBase64.startsWith("data:application/pdf") ? (
+                                  <div className="flex flex-col items-center gap-2 text-primary p-4 select-none">
+                                    <span className="text-3xl">📄</span>
+                                    <span className="text-xs font-semibold">PDF Receipt Selected</span>
+                                  </div>
+                                ) : (
+                                  <img src={receiptBase64} alt="Receipt Preview" className="max-h-40 object-contain rounded" />
+                                )}
                                 <button
                                   type="button"
                                   onClick={() => setReceiptBase64("")}
                                   className="absolute top-2 right-2 p-1 rounded-full bg-red-500/80 hover:bg-red-500 text-white text-xs transition-colors"
-                                  title="Remove image"
+                                  title="Remove file"
                                 >
                                   ✕
                                 </button>

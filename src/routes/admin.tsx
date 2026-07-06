@@ -1650,12 +1650,13 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
                                       const hasReceipt = app.payment_ref.includes("data:");
                                       const parts = app.payment_ref.split(" | ");
                                       const refText = parts.length > 1 ? parts[0] : (hasReceipt ? "" : app.payment_ref);
+                                      const isPdf = hasReceipt && app.payment_ref.includes("data:application/pdf");
                                       return (
                                         <div className="flex flex-col gap-0.5">
                                           {refText && <span className="font-mono text-xs">{refText}</span>}
                                           {hasReceipt && (
                                             <span className="text-primary font-bold text-[11px] flex items-center gap-1 select-none">
-                                              🖼️ Receipt Uploaded
+                                              {isPdf ? "📄 PDF Receipt" : "🖼️ Receipt Uploaded"}
                                             </span>
                                           )}
                                         </div>
@@ -1864,6 +1865,7 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
                                       const parts = app.payment_ref.split(" | ");
                                       const refText = parts.length > 1 ? parts[0] : (hasReceipt ? "" : app.payment_ref);
                                       const receiptData = hasReceipt ? (parts.length > 1 ? parts[1] : app.payment_ref) : null;
+                                      const isPdf = hasReceipt && receiptData && receiptData.startsWith("data:application/pdf");
                                       return (
                                         <div className="space-y-2">
                                           {refText && <div className="text-sm font-semibold font-mono text-primary/95">{refText}</div>}
@@ -1875,14 +1877,21 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
                                                 rel="noreferrer noopener"
                                                 className="inline-flex items-center gap-1 text-primary hover:underline text-xs font-semibold"
                                               >
-                                                👁️ View Full Receipt
+                                                {isPdf ? "👁️ View PDF Receipt" : "👁️ View Full Receipt"}
                                               </a>
-                                              <div className="mt-1.5 rounded-lg overflow-hidden border border-border/40 max-w-[200px] bg-card/50 p-1">
-                                                <img
-                                                  src={receiptData}
-                                                  alt="Receipt Proof"
-                                                  className="max-h-36 object-contain rounded"
-                                                />
+                                              <div className="mt-1.5 rounded-lg overflow-hidden border border-border/40 max-w-[200px] bg-card/50 p-1 flex items-center justify-center">
+                                                {isPdf ? (
+                                                  <div className="p-4 flex flex-col items-center gap-1.5 text-muted-foreground select-none">
+                                                    <span className="text-2xl">📄</span>
+                                                    <span className="text-[10px] font-medium">PDF Document</span>
+                                                  </div>
+                                                ) : (
+                                                  <img
+                                                    src={receiptData}
+                                                    alt="Receipt Proof"
+                                                    className="max-h-36 object-contain rounded"
+                                                  />
+                                                )}
                                               </div>
                                             </div>
                                           )}
