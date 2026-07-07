@@ -170,6 +170,235 @@ function getWhatsAppMessage(app: any, paymentUrl: string) {
   return `Hello ${app.full_name},\n\nCongratulations! You've secured a spot in Uget Academy's Cohort 1 for ${app.track}.\n\nProgram Fee: ${fmt(feeDetails.ngn.total)} (approximately ${fmtUsd(feeDetails.usd.total)})\nDeadline: Payment is to be made within 24 to 72 hours of receiving this offer to secure your spot.\n\nPayment Details (Nigeria):\nBank: Moniepoint\nAccount Number: 6743620799\nAccount Name: Uget Technologies\n\nPayment Details (International Students):\nPlease contact us at ugettechnologies@gmail.com or via WhatsApp at +234 810 617 5131 and we'll guide you through the best payment option for your country.\n\nConfirm payment & validate scholarship here:\n${paymentUrl}\n\nOnce payment is confirmed, you'll receive your onboarding details, including access to the learning dashboard and your cohort schedule.\n\nIf you have any questions before enrolling, feel free to reach out — we're happy to help.\n\nWarm regards,\nChiemena Erasmous\nUget Technologies`;
 }
 
+function buildDeadlineEmailHtml(name: string, track: string, paymentUrl: string) {
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Action Required: Secure Your Spot</title>
+</head>
+<body style="margin:0;padding:0;background:#13111c;font-family:Inter,Arial,sans-serif;color:#f0eeff;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:40px auto;">
+    <tr>
+      <td style="background:linear-gradient(135deg,#13111c 0%,#1f1a30 50%,#181424 100%);border-radius:16px;padding:0;overflow:hidden;border:1px solid rgba(120,100,220,0.25);">
+        <!-- Header -->
+        <table width="100%" cellpadding="0" cellspacing="0">
+          <tr>
+            <td style="padding:32px 36px 24px;background:linear-gradient(135deg,rgba(120,80,220,0.15),rgba(100,60,200,0.08));border-bottom:1px solid rgba(120,100,220,0.25);text-align:center;">
+              <p style="margin:0 0 4px;font-size:11px;font-weight:700;letter-spacing:0.3em;text-transform:uppercase;color:#f87171;">Action Required</p>
+              <h1 style="margin:0;font-size:20px;font-weight:800;color:#ffffff;text-transform:uppercase;letter-spacing:0.05em;">
+                Secure Your Spot
+              </h1>
+            </td>
+          </tr>
+          <!-- Body -->
+          <tr>
+            <td style="padding:28px 36px;">
+              <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
+                Hello <strong style="color:#ffffff;">${name}</strong>,
+              </p>
+              <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
+                We hope you are doing well.
+              </p>
+              <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
+                This is a gentle reminder regarding your admission offer to Uget Academy's Cohort 1 for <strong style="color:#ffffff;">${track}</strong>. We noticed that you have not yet completed or confirmed your commitment fee payment.
+              </p>
+              <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#facc15;font-weight:600;">
+                ⚠️ <strong style="color:#ffffff;">Deadline:</strong> To secure your scholarship spot and participate in the upcoming cohort, please complete your payment and upload your receipt on your enrollment portal on or before <strong style="color:#ffffff;text-decoration:underline;">July 10th, 2026</strong>.
+              </p>
+              <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
+                Please note that we have limited seats, and spots not secured by the deadline will be reassigned to applicants on our waiting list.
+              </p>
+
+              <!-- Payment Details Card -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin:24px 0;border-radius:12px;overflow:hidden;border:1px solid rgba(120,100,220,0.3);background:rgba(120,80,220,0.05);font-size:14px;color:#d0c8f0;">
+                <tr>
+                  <td style="padding:16px 20px;background:rgba(120,80,220,0.1);border-bottom:1px solid rgba(120,100,220,0.15);">
+                    <strong style="color:#ffffff;font-size:15px;">Payment Verification Portal</strong>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:16px 20px;line-height:1.6;">
+                    If you have already paid or are about to pay, please visit your personalized portal to upload your receipt (Image or PDF) for immediate verification.
+                  </td>
+                </tr>
+              </table>
+
+              <!-- CTA button -->
+              <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="margin: 24px auto; width: 100%; text-align: center;">
+                <tr>
+                  <td align="center">
+                    <a href="${paymentUrl}"
+                       target="_blank"
+                       style="display: inline-block; background-color: #7c3aed; background-image: linear-gradient(135deg, #7c3aed, #06b6d4); padding: 14px 36px; font-family: Arial, sans-serif; font-size: 14px; font-weight: 800; color: #ffffff; text-decoration: none; letter-spacing: 0.05em; text-transform: uppercase; border-radius: 9999px; box-shadow: 0 4px 12px rgba(124,58,237,0.35);">
+                      GO TO PORTAL & UPLOAD RECEIPT
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin:16px 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
+                If you are an international student requiring localized payment options, or have any other questions, please contact our coordinator via WhatsApp at <a href="https://wa.me/2348106175131" style="color:#c4b5fd;text-decoration:none;font-weight:600;">+234 810 617 5131</a>.
+              </p>
+
+              <p style="margin:24px 0 0;font-size:15px;line-height:1.7;color:#d0c8f0;">
+                Warm regards,<br/>
+                <strong>Chiemena Erasmous</strong><br/>
+                Uget Technologies
+              </p>
+            </td>
+          </tr>
+          <!-- Footer -->
+          <tr>
+            <td style="padding:16px 36px;background:rgba(26,21,41,0.5);border-top:1px solid rgba(120,100,220,0.15);text-align:center;">
+              <p style="margin:0;font-size:12px;color:#635d7a;">© ${new Date().getFullYear()} Uget Academy / Uget Technologies. All rights reserved.</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+  `.trim();
+}
+
+function buildDeadlineEmailText(name: string, track: string, paymentUrl: string) {
+  return `Hello ${name},
+
+We hope you are doing well.
+
+This is a gentle reminder regarding your admission offer to Uget Academy's Cohort 1 for ${track}. We noticed that you have not yet completed or confirmed your commitment fee payment.
+
+Deadline: To secure your scholarship spot and participate in the upcoming cohort, please complete your payment and upload your receipt on your enrollment portal on or before July 10th, 2026.
+
+Please note that we have limited seats, and spots not secured by the deadline will be reassigned to applicants on our waiting list.
+
+Go to your portal to upload your receipt for immediate verification:
+${paymentUrl}
+
+If you are an international student requiring localized payment options, or have any other questions, please contact our coordinator via WhatsApp at +234 810 617 5131.
+
+Warm regards,
+Chiemena Erasmous
+Uget Technologies`.trim();
+}
+
+function buildClassStartsEmailHtml(name: string, track: string) {
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Class Commencement Alert — Uget Academy</title>
+</head>
+<body style="margin:0;padding:0;background:#13111c;font-family:Inter,Arial,sans-serif;color:#f0eeff;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:40px auto;">
+    <tr>
+      <td style="background:linear-gradient(135deg,#13111c 0%,#1f1a30 50%,#181424 100%);border-radius:16px;padding:0;overflow:hidden;border:1px solid rgba(120,100,220,0.25);">
+        <!-- Header -->
+        <table width="100%" cellpadding="0" cellspacing="0">
+          <tr>
+            <td style="padding:32px 36px 24px;background:linear-gradient(135deg,rgba(120,80,220,0.15),rgba(100,60,200,0.08));border-bottom:1px solid rgba(120,100,220,0.25);text-align:center;">
+              <p style="margin:0 0 4px;font-size:11px;font-weight:700;letter-spacing:0.3em;text-transform:uppercase;color:#06b6d4;">Uget Academy</p>
+              <h1 style="margin:0;font-size:20px;font-weight:800;color:#ffffff;text-transform:uppercase;letter-spacing:0.05em;">
+                Classes Start July 13th
+              </h1>
+            </td>
+          </tr>
+          <!-- Body -->
+          <tr>
+            <td style="padding:28px 36px;">
+              <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
+                Hello <strong style="color:#ffffff;">${name}</strong>,
+              </p>
+              <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
+                Congratulations once again on securing your spot in Uget Academy's Cohort 1 for <strong style="color:#ffffff;">${track}</strong>!
+              </p>
+              <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
+                We are pleased to inform you that your payment has been verified, and your enrollment is officially complete.
+              </p>
+              <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#06b6d4;font-weight:600;">
+                🚀 <strong style="color:#ffffff;">Start Date:</strong> Official classes will commence on <strong style="color:#ffffff;text-decoration:underline;">Monday, July 13th, 2026</strong>.
+              </p>
+              <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
+                In the coming days, you will receive an onboarding email containing your learning dashboard access credentials, Slack workspace invitation, and the schedule details for our first session.
+              </p>
+              <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
+                Please ensure you check your email regularly so you do not miss these setup instructions. If you have any immediate questions, feel free to reply directly to this email or chat with us on WhatsApp.
+              </p>
+
+              <!-- Support Card -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin:24px 0;border-radius:12px;overflow:hidden;border:1px solid rgba(120,100,220,0.3);background:rgba(120,80,220,0.05);font-size:14px;color:#d0c8f0;">
+                <tr>
+                  <td style="padding:16px 20px;background:rgba(120,80,220,0.1);border-bottom:1px solid rgba(120,100,220,0.15);">
+                    <strong style="color:#ffffff;font-size:15px;">Need Help?</strong>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:16px 20px;line-height:1.6;">
+                    WhatsApp Support: <strong style="color:#ffffff;">+234 810 617 5131</strong><br/>
+                    Email: <a href="mailto:ugettechnologies@gmail.com" style="color:#c4b5fd;text-decoration:underline;">ugettechnologies@gmail.com</a>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin:16px 0 0;font-size:15px;line-height:1.7;color:#d0c8f0;">
+                We are thrilled to welcome you to this cohort and look forward to an amazing learning journey together.
+              </p>
+
+              <p style="margin:24px 0 0;font-size:15px;line-height:1.7;color:#d0c8f0;">
+                Warm regards,<br/>
+                <strong>Chiemena Erasmous</strong><br/>
+                Uget Technologies
+              </p>
+            </td>
+          </tr>
+          <!-- Footer -->
+          <tr>
+            <td style="padding:16px 36px;background:rgba(26,21,41,0.5);border-top:1px solid rgba(120,100,220,0.15);text-align:center;">
+              <p style="margin:0;font-size:12px;color:#635d7a;">© ${new Date().getFullYear()} Uget Academy / Uget Technologies. All rights reserved.</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+  `.trim();
+}
+
+function buildClassStartsEmailText(name: string, track: string) {
+  return `Hello ${name},
+
+Congratulations once again on securing your spot in Uget Academy's Cohort 1 for ${track}!
+
+We are pleased to inform you that your payment has been verified, and your enrollment is officially complete.
+
+Start Date: Official classes will commence on Monday, July 13th, 2026.
+
+In the coming days, you will receive an onboarding email containing your learning dashboard access credentials, Slack workspace invitation, and the schedule details for our first session.
+
+Please ensure you check your email regularly so you do not miss these setup instructions. If you have any immediate questions, feel free to reply to this email or chat with us on WhatsApp at +234 810 617 5131.
+
+Warm regards,
+Chiemena Erasmous
+Uget Technologies`.trim();
+}
+
+function getDeadlineWhatsAppMessage(app: any, paymentUrl: string) {
+  return `Hello ${app.full_name},\n\nThis is a gentle reminder regarding your admission offer to Uget Academy's Cohort 1 for ${app.track}.\n\nDeadline: To secure your scholarship spot, please complete your payment and upload your receipt on your enrollment portal on or before July 10th, 2026:\n${paymentUrl}\n\nIf you have any questions or require international payment options, please let us know or chat with our coordinator here. We look forward to welcoming you!\n\nWarm regards,\nChiemena Erasmous\nUget Technologies`;
+}
+
+function getClassStartsWhatsAppMessage(app: any) {
+  return `Hello ${app.full_name},\n\nCongratulations! Your payment has been verified, and your spot in Uget Academy's Cohort 1 for ${app.track} is secured.\n\nStart Date: Official classes will commence on Monday, July 13th, 2026.\n\nKeep an eye on your email for dashboard access details and our Slack invitation. We look forward to starting this journey with you!\n\nWarm regards,\nChiemena Erasmous\nUget Technologies`;
+}
+
+
 // ─── Auth wrapper ─────────────────────────────────────────────────────────────
 function AdminWrapper() {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
@@ -246,6 +475,8 @@ function NotifyModal({
   app,
   onClose,
   resendKey,
+  brevoKey,
+  emailProvider,
   senderEmail,
   paymentUrl,
   onNotified,
@@ -253,23 +484,50 @@ function NotifyModal({
   app: any;
   onClose: () => void;
   resendKey: string;
+  brevoKey: string;
+  emailProvider: "resend" | "brevo";
   senderEmail: string;
   paymentUrl: string;
   onNotified: () => void;
 }) {
+  const [templateType, setTemplateType] = useState<"offer" | "deadline" | "class_starts">(() => {
+    return app.payment_status === "Paid" ? "class_starts" : "deadline";
+  });
+
   const fee = COURSE_FEES[app.track] ?? 0;
   const personalizedPaymentUrl = paymentUrl.includes("?")
     ? `${paymentUrl}&email=${encodeURIComponent(app.email)}`
     : `${paymentUrl}?email=${encodeURIComponent(app.email)}`;
-  const html = buildEmailHtml(app.full_name, app.track, fee, personalizedPaymentUrl);
-  const text = buildEmailText(app.full_name, app.track, fee, personalizedPaymentUrl);
+
+  let subject = `Welcome to Uget Academy — ${app.track} Cohort 1`;
+  let html = "";
+  let text = "";
+  let waTextRaw = "";
+
+  if (templateType === "class_starts") {
+    subject = `Congratulations! Class Commences July 13th — Uget Academy`;
+    html = buildClassStartsEmailHtml(app.full_name, app.track);
+    text = buildClassStartsEmailText(app.full_name, app.track);
+    waTextRaw = getClassStartsWhatsAppMessage(app);
+  } else if (templateType === "deadline") {
+    subject = `Action Required: Secure Your Spot at Uget Academy`;
+    html = buildDeadlineEmailHtml(app.full_name, app.track, personalizedPaymentUrl);
+    text = buildDeadlineEmailText(app.full_name, app.track, personalizedPaymentUrl);
+    waTextRaw = getDeadlineWhatsAppMessage(app, personalizedPaymentUrl);
+  } else {
+    subject = `Welcome to Uget Academy — ${app.track} Cohort 1`;
+    html = buildEmailHtml(app.full_name, app.track, fee, personalizedPaymentUrl);
+    text = buildEmailText(app.full_name, app.track, fee, personalizedPaymentUrl);
+    waTextRaw = getWhatsAppMessage(app, personalizedPaymentUrl);
+  }
+
   const [sending, setSending] = useState(false);
   const [sendResult, setSendResult] = useState<"idle" | "ok" | "err">("idle");
   const [sendMsg, setSendMsg] = useState("");
   const [copiedText, setCopiedText] = useState(false);
 
   const handleCopyEmailText = () => {
-    const fullText = `Subject: 🎓 Uget Academy — Complete Your Enrollment\n\n${text}`;
+    const fullText = `Subject: ${subject}\n\n${text}`;
     navigator.clipboard.writeText(fullText).then(() => {
       setCopiedText(true);
       onNotified();
@@ -277,16 +535,18 @@ function NotifyModal({
     });
   };
 
-  async function sendViaResend() {
+  async function sendViaProvider() {
     setSending(true);
     setSendResult("idle");
     try {
       const result = await sendEmailFn({
         data: {
+          provider: emailProvider,
           resendKey,
-          from: senderEmail || "onboarding@resend.dev",
+          brevoKey,
+          from: senderEmail || (emailProvider === "brevo" ? "academy@ugettech.com" : "onboarding@resend.dev"),
           to: [app.email],
-          subject: `Welcome to Uget Academy — ${app.track} Cohort 1`,
+          subject,
           html,
           text,
         },
@@ -297,7 +557,7 @@ function NotifyModal({
         onNotified();
       } else {
         setSendResult("err");
-        setSendMsg(result.error || "Failed to send. Check your Resend API key and sender domain.");
+        setSendMsg(result.error || `Failed to send. Check your ${emailProvider === "brevo" ? "Brevo" : "Resend"} API key and sender domain.`);
       }
     } catch (e: any) {
       setSendResult("err");
@@ -307,8 +567,8 @@ function NotifyModal({
     }
   }
 
-  const mailtoLink = `mailto:${app.email}?subject=${encodeURIComponent("🎓 Uget Academy — Complete Your Enrollment")}&body=${encodeURIComponent(text)}`;
-  const waText = encodeURIComponent(getWhatsAppMessage(app, personalizedPaymentUrl));
+  const mailtoLink = `mailto:${app.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(text)}`;
+  const waText = encodeURIComponent(waTextRaw);
 
   return (
     <div
@@ -335,10 +595,30 @@ function NotifyModal({
           </button>
         </div>
 
+        {/* Template Selector */}
+        <div className="space-y-1.5">
+          <Label htmlFor="template_type" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            Email Template
+          </Label>
+          <select
+            id="template_type"
+            value={templateType}
+            onChange={(e) => setTemplateType(e.target.value as any)}
+            className="w-full h-10 bg-background border border-border rounded-lg px-3 py-1 text-sm font-medium focus:outline-none focus:ring-1 focus:ring-primary text-foreground transition-colors cursor-pointer hover:bg-background/80"
+          >
+            <option value="offer">Welcome Offer (Original)</option>
+            <option value="deadline">Payment Deadline Reminder (July 10)</option>
+            <option value="class_starts">Class Start Notification (July 13)</option>
+          </select>
+        </div>
+
         {/* Preview */}
         <div className="rounded-xl border border-border/60 bg-card/40 p-4 space-y-1 text-sm">
           <p className="text-muted-foreground text-xs uppercase tracking-wider mb-2">
             Email Preview
+          </p>
+          <p>
+            <span className="text-muted-foreground">Subject:</span> <strong className="text-foreground">{subject}</strong>
           </p>
           <p>
             <span className="text-muted-foreground">To:</span> {app.email}
@@ -346,14 +626,18 @@ function NotifyModal({
           <p>
             <span className="text-muted-foreground">Course:</span> {app.track}
           </p>
-          <p>
-            <span className="text-muted-foreground">Fee:</span>{" "}
-            <strong className="text-primary">{fee > 0 ? fmt(fee) : "—"}</strong>
-          </p>
-          <p>
-            <span className="text-muted-foreground">Link:</span>{" "}
-            <span className="text-primary/80">{personalizedPaymentUrl}</span>
-          </p>
+          {templateType === "offer" && (
+            <p>
+              <span className="text-muted-foreground">Fee:</span>{" "}
+              <strong className="text-primary">{fee > 0 ? fmt(fee) : "—"}</strong>
+            </p>
+          )}
+          {templateType !== "class_starts" && (
+            <p>
+              <span className="text-muted-foreground">Link:</span>{" "}
+              <span className="text-primary/80">{personalizedPaymentUrl}</span>
+            </p>
+          )}
         </div>
 
         {/* Send result */}
@@ -371,13 +655,17 @@ function NotifyModal({
         {/* Actions */}
         <div className="flex flex-col gap-2">
           <button
-            onClick={sendViaResend}
-            disabled={sending || !resendKey}
+            onClick={sendViaProvider}
+            disabled={sending || (emailProvider === "brevo" ? !brevoKey : !resendKey)}
             className="w-full rounded-full py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:scale-[1.01] disabled:opacity-50"
             style={{ background: "var(--gradient-brand)" }}
-            title={!resendKey ? "Add Resend API key in Settings tab first" : ""}
+            title={
+              emailProvider === "brevo"
+                ? !brevoKey ? "Add Brevo API key in Settings tab first" : ""
+                : !resendKey ? "Add Resend API key in Settings tab first" : ""
+            }
           >
-            {sending ? "Sending…" : "📧 Send Email (via Resend)"}
+            {sending ? "Sending…" : `📧 Send Email (via ${emailProvider === "brevo" ? "Brevo" : "Resend"})`}
           </button>
           <button
             onClick={handleCopyEmailText}
@@ -406,9 +694,14 @@ function NotifyModal({
           </a>
         </div>
 
-        {!resendKey && (
+        {emailProvider === "resend" && !resendKey && (
           <p className="text-xs text-muted-foreground text-center">
             ⚙️ Add your Resend API key in the <strong>Settings</strong> tab to enable one-click emails.
+          </p>
+        )}
+        {emailProvider === "brevo" && !brevoKey && (
+          <p className="text-xs text-muted-foreground text-center">
+            ⚙️ Add your Brevo API key in the <strong>Settings</strong> tab to enable one-click emails.
           </p>
         )}
       </div>
@@ -422,6 +715,8 @@ function BulkEmailModal({
   applications,
   onClose,
   resendKey,
+  brevoKey,
+  emailProvider,
   senderEmail,
   paymentUrl,
   onNotifiedBatch,
@@ -429,6 +724,8 @@ function BulkEmailModal({
   applications: any[];
   onClose: () => void;
   resendKey: string;
+  brevoKey: string;
+  emailProvider: "resend" | "brevo";
   senderEmail: string;
   paymentUrl: string;
   onNotifiedBatch?: (ids: string[]) => void;
@@ -436,8 +733,25 @@ function BulkEmailModal({
   const unpaid = applications.filter(
     (a) => !a.payment_status || a.payment_status === "Unpaid",
   );
-  const [target, setTarget] = useState<"all" | "unpaid">("unpaid");
-  const targets = target === "all" ? applications : unpaid;
+  const paid = applications.filter(
+    (a) => a.payment_status === "Paid",
+  );
+  const [target, setTarget] = useState<"all" | "unpaid" | "paid">("unpaid");
+  const targets = target === "all" ? applications : target === "paid" ? paid : unpaid;
+
+  const [templateType, setTemplateType] = useState<"offer" | "deadline" | "class_starts">("deadline");
+
+  const handleTargetChange = (newTarget: "all" | "unpaid" | "paid") => {
+    setTarget(newTarget);
+    if (newTarget === "paid") {
+      setTemplateType("class_starts");
+    } else if (newTarget === "unpaid") {
+      setTemplateType("deadline");
+    } else {
+      setTemplateType("offer");
+    }
+  };
+
   const [progress, setProgress] = useState<Record<string, "idle" | "ok" | "err">>({});
   const [running, setRunning] = useState(false);
   const [done, setDone] = useState(false);
@@ -445,7 +759,8 @@ function BulkEmailModal({
   const [copiedAppId, setCopiedAppId] = useState<string | null>(null);
 
   async function sendAll() {
-    if (!resendKey) return;
+    const activeKey = emailProvider === "brevo" ? brevoKey : resendKey;
+    if (!activeKey) return;
     setRunning(true);
     setDone(false);
     const next: Record<string, "idle" | "ok" | "err"> = {};
@@ -459,14 +774,33 @@ function BulkEmailModal({
         ? `${paymentUrl}&email=${encodeURIComponent(app.email)}`
         : `${paymentUrl}?email=${encodeURIComponent(app.email)}`;
       try {
+        let subject = "";
+        let html = "";
+        let text = "";
+        if (templateType === "class_starts") {
+          subject = `Congratulations! Class Commences July 13th — Uget Academy`;
+          html = buildClassStartsEmailHtml(app.full_name, app.track);
+          text = buildClassStartsEmailText(app.full_name, app.track);
+        } else if (templateType === "deadline") {
+          subject = `Action Required: Secure Your Spot at Uget Academy`;
+          html = buildDeadlineEmailHtml(app.full_name, app.track, personalizedPaymentUrl);
+          text = buildDeadlineEmailText(app.full_name, app.track, personalizedPaymentUrl);
+        } else {
+          subject = `Welcome to Uget Academy — ${app.track} Cohort 1`;
+          html = buildEmailHtml(app.full_name, app.track, fee, personalizedPaymentUrl);
+          text = buildEmailText(app.full_name, app.track, fee, personalizedPaymentUrl);
+        }
+
         const result = await sendEmailFn({
           data: {
+            provider: emailProvider,
             resendKey,
-            from: senderEmail || "onboarding@resend.dev",
+            brevoKey,
+            from: senderEmail || (emailProvider === "brevo" ? "academy@ugettech.com" : "onboarding@resend.dev"),
             to: [app.email],
-            subject: `Welcome to Uget Academy — ${app.track} Cohort 1`,
-            html: buildEmailHtml(app.full_name, app.track, fee, personalizedPaymentUrl),
-            text: buildEmailText(app.full_name, app.track, fee, personalizedPaymentUrl),
+            subject,
+            html,
+            text,
           },
         });
         if (result.success) {
@@ -505,6 +839,11 @@ function BulkEmailModal({
     const personalizedPaymentUrl = paymentUrl.includes("?")
       ? `${paymentUrl}&email=${encodeURIComponent(app.email)}`
       : `${paymentUrl}?email=${encodeURIComponent(app.email)}`;
+    if (templateType === "class_starts") {
+      return getClassStartsWhatsAppMessage(app);
+    } else if (templateType === "deadline") {
+      return getDeadlineWhatsAppMessage(app, personalizedPaymentUrl);
+    }
     return getWhatsAppMessage(app, personalizedPaymentUrl);
   };
 
@@ -536,7 +875,19 @@ function BulkEmailModal({
   const previewPaymentUrl = paymentUrl.includes("?")
     ? `${paymentUrl}&email=${encodeURIComponent(previewApp.email || "")}`
     : `${paymentUrl}?email=${encodeURIComponent(previewApp.email || "")}`;
-  const previewText = buildEmailText(previewApp.full_name, previewApp.track, previewFee, previewPaymentUrl);
+
+  let previewSubject = "";
+  let previewText = "";
+  if (templateType === "class_starts") {
+    previewSubject = `Congratulations! Class Commences July 13th — Uget Academy`;
+    previewText = buildClassStartsEmailText(previewApp.full_name, previewApp.track);
+  } else if (templateType === "deadline") {
+    previewSubject = `Action Required: Secure Your Spot at Uget Academy`;
+    previewText = buildDeadlineEmailText(previewApp.full_name, previewApp.track, previewPaymentUrl);
+  } else {
+    previewSubject = `Welcome to Uget Academy — ${previewApp.track} Cohort 1`;
+    previewText = buildEmailText(previewApp.full_name, previewApp.track, previewFee, previewPaymentUrl);
+  }
 
   return (
     <div
@@ -573,32 +924,63 @@ function BulkEmailModal({
             <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">
               1. Select Recipients
             </label>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-3 gap-2.5">
               <button
                 type="button"
-                onClick={() => setTarget("unpaid")}
-                className={`rounded-xl border p-3 text-left text-sm transition-all ${
+                onClick={() => handleTargetChange("unpaid")}
+                className={`rounded-xl border p-2.5 text-left text-sm transition-all ${
                   target === "unpaid"
                     ? "border-primary bg-primary/10 text-foreground"
                     : "border-border bg-card/45 text-muted-foreground hover:border-border/80"
                 }`}
               >
-                <div className="font-semibold">Unpaid only</div>
-                <div className="text-xs mt-0.5">{unpaid.length} registrants</div>
+                <div className="font-semibold text-xs">Unpaid only</div>
+                <div className="text-[10px] mt-0.5 text-muted-foreground">{unpaid.length} students</div>
               </button>
               <button
                 type="button"
-                onClick={() => setTarget("all")}
-                className={`rounded-xl border p-3 text-left text-sm transition-all ${
+                onClick={() => handleTargetChange("paid")}
+                className={`rounded-xl border p-2.5 text-left text-sm transition-all ${
+                  target === "paid"
+                    ? "border-primary bg-primary/10 text-foreground"
+                    : "border-border bg-card/45 text-muted-foreground hover:border-border/80"
+                }`}
+              >
+                <div className="font-semibold text-xs">Paid only</div>
+                <div className="text-[10px] mt-0.5 text-muted-foreground">{paid.length} students</div>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleTargetChange("all")}
+                className={`rounded-xl border p-2.5 text-left text-sm transition-all ${
                   target === "all"
                     ? "border-primary bg-primary/10 text-foreground"
                     : "border-border bg-card/45 text-muted-foreground hover:border-border/80"
                 }`}
               >
-                <div className="font-semibold">All registrants</div>
-                <div className="text-xs mt-0.5">{applications.length} registrants</div>
+                <div className="font-semibold text-xs">All</div>
+                <div className="text-[10px] mt-0.5 text-muted-foreground">{applications.length} students</div>
               </button>
             </div>
+          </div>
+        )}
+
+        {/* 1b. Template Selector */}
+        {!running && !done && (
+          <div className="space-y-2">
+            <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">
+              2. Select Email Template
+            </label>
+            <select
+              id="bulk_template_type"
+              value={templateType}
+              onChange={(e) => setTemplateType(e.target.value as any)}
+              className="w-full h-10 bg-background border border-border rounded-xl px-3 py-1 text-sm font-medium focus:outline-none focus:ring-1 focus:ring-primary text-foreground transition-colors cursor-pointer hover:bg-background/80"
+            >
+              <option value="offer">Welcome Offer (Original)</option>
+              <option value="deadline">Payment Deadline Reminder (July 10)</option>
+              <option value="class_starts">Class Start Notification (July 13)</option>
+            </select>
           </div>
         )}
 
@@ -606,7 +988,7 @@ function BulkEmailModal({
         {!running && !done && (
           <div className="space-y-2">
             <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">
-              2. Choose Notification Method
+              3. Choose Notification Method
             </label>
             <div className="flex border-b border-border/60">
               <button
@@ -618,7 +1000,7 @@ function BulkEmailModal({
                     : "border-transparent text-muted-foreground hover:text-foreground"
                 }`}
               >
-                Resend API (Auto)
+                {emailProvider === "brevo" ? "Brevo API (Auto)" : "Resend API (Auto)"}
               </button>
               <button
                 type="button"
@@ -652,18 +1034,32 @@ function BulkEmailModal({
             {method === "resend" && (
               <div className="space-y-3">
                 <div className="rounded-xl border border-border bg-card/40 p-4 text-xs space-y-1.5">
-                  <h4 className="font-bold text-foreground text-sm">Resend Configuration</h4>
-                  {resendKey ? (
-                    <p className="text-primary font-medium flex items-center gap-1">
-                      <span>✓ Resend Key Configured</span>
-                    </p>
+                  <h4 className="font-bold text-foreground text-sm">
+                    {emailProvider === "brevo" ? "Brevo Configuration" : "Resend Configuration"}
+                  </h4>
+                  {emailProvider === "brevo" ? (
+                    brevoKey ? (
+                      <p className="text-primary font-medium flex items-center gap-1">
+                        <span>✓ Brevo Key Configured</span>
+                      </p>
+                    ) : (
+                      <p className="text-destructive font-semibold">
+                        ✕ No Brevo API key found. Add it in the Settings panel (⚙️) first.
+                      </p>
+                    )
                   ) : (
-                    <p className="text-destructive font-semibold">
-                      ✕ No Resend API key found. Add it in the Settings panel (⚙️) first.
-                    </p>
+                    resendKey ? (
+                      <p className="text-primary font-medium flex items-center gap-1">
+                        <span>✓ Resend Key Configured</span>
+                      </p>
+                    ) : (
+                      <p className="text-destructive font-semibold">
+                        ✕ No Resend API key found. Add it in the Settings panel (⚙️) first.
+                      </p>
+                    )
                   )}
                   <p className="text-muted-foreground text-[11px]">
-                    Sender email: <strong className="text-foreground">{senderEmail || "academy@ugettech.com"}</strong>
+                    Sender email: <strong className="text-foreground">{senderEmail || (emailProvider === "brevo" ? "academy@ugettech.com" : "onboarding@resend.dev")}</strong>
                   </p>
                 </div>
 
@@ -674,7 +1070,7 @@ function BulkEmailModal({
                   </div>
                   <div className="p-4 text-xs max-h-48 overflow-y-auto space-y-2 bg-background/40">
                     <p className="font-semibold text-foreground">
-                      Subject: <span className="font-normal text-muted-foreground">🎓 Uget Academy — Complete Your Enrollment</span>
+                      Subject: <span className="font-normal text-muted-foreground">{previewSubject}</span>
                     </p>
                     <div className="border-t border-border/30 pt-2 text-muted-foreground whitespace-pre-wrap font-mono leading-relaxed text-[11px]">
                       {previewText}
@@ -684,10 +1080,10 @@ function BulkEmailModal({
 
                 <Button
                   onClick={sendAll}
-                  disabled={!resendKey || targets.length === 0}
+                  disabled={!(emailProvider === "brevo" ? brevoKey : resendKey) || targets.length === 0}
                   className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
                 >
-                  Send to {targets.length} Student{targets.length !== 1 ? "s" : ""} via Resend
+                  Send to {targets.length} Student{targets.length !== 1 ? "s" : ""} via {emailProvider === "brevo" ? "Brevo" : "Resend"}
                 </Button>
               </div>
             )}
@@ -704,8 +1100,21 @@ function BulkEmailModal({
                     const personalizedPaymentUrl = paymentUrl.includes("?")
                       ? `${paymentUrl}&email=${encodeURIComponent(app.email)}`
                       : `${paymentUrl}?email=${encodeURIComponent(app.email)}`;
-                    const text = buildEmailText(app.full_name, app.track, fee, personalizedPaymentUrl);
-                    const mailto = `mailto:${app.email}?subject=${encodeURIComponent("🎓 Uget Academy — Complete Your Enrollment")}&body=${encodeURIComponent(text)}`;
+                    
+                    let subject = "";
+                    let text = "";
+                    if (templateType === "class_starts") {
+                      subject = `Congratulations! Class Commences July 13th — Uget Academy`;
+                      text = buildClassStartsEmailText(app.full_name, app.track);
+                    } else if (templateType === "deadline") {
+                      subject = `Action Required: Secure Your Spot at Uget Academy`;
+                      text = buildDeadlineEmailText(app.full_name, app.track, personalizedPaymentUrl);
+                    } else {
+                      subject = `Welcome to Uget Academy — ${app.track} Cohort 1`;
+                      text = buildEmailText(app.full_name, app.track, fee, personalizedPaymentUrl);
+                    }
+                    
+                    const mailto = `mailto:${app.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(text)}`;
                     return (
                       <div key={app.id} className="flex items-center justify-between p-3 text-xs">
                         <div className="truncate max-w-[65%] pr-2">
@@ -1029,8 +1438,14 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
   };
 
   // Settings (persisted in localStorage or environment variables)
+  const [emailProvider, setEmailProvider] = useState<"resend" | "brevo">(
+    () => (localStorage.getItem("uget_email_provider") as "resend" | "brevo" | null) || "resend",
+  );
   const [resendKey, setResendKey] = useState(
     () => localStorage.getItem("uget_resend_key") || (import.meta.env.VITE_RESEND_API_KEY as string | undefined) || "",
+  );
+  const [brevoKey, setBrevoKey] = useState(
+    () => localStorage.getItem("uget_brevo_key") || (import.meta.env.VITE_BREVO_API_KEY as string | undefined) || "",
   );
   const [senderEmail, setSenderEmail] = useState(
     () => localStorage.getItem("uget_sender_email") || (import.meta.env.VITE_SENDER_EMAIL as string | undefined) || "",
@@ -1048,11 +1463,15 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
     }
   );
 
-  function saveSettings(key: string, email: string, url: string) {
-    localStorage.setItem("uget_resend_key", key);
+  function saveSettings(provider: "resend" | "brevo", resKey: string, brevKey: string, email: string, url: string) {
+    localStorage.setItem("uget_email_provider", provider);
+    localStorage.setItem("uget_resend_key", resKey);
+    localStorage.setItem("uget_brevo_key", brevKey);
     localStorage.setItem("uget_sender_email", email);
     localStorage.setItem("uget_payment_url", url);
-    setResendKey(key);
+    setEmailProvider(provider);
+    setResendKey(resKey);
+    setBrevoKey(brevKey);
     setSenderEmail(email);
     setPaymentUrl(url);
   }
@@ -1064,17 +1483,18 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
     const targets = applications.filter((app) => notifiedIds.includes(app.id));
 
     if (targets.length === 0) {
-      alert("No notified candidates found in this browser to send corrections to.");
+      alert("No notified candidates found in this browser to send reminders to.");
       return;
     }
 
-    if (!resendKey) {
-      alert("Please configure your Resend API Key in Settings first.");
+    const activeKey = emailProvider === "brevo" ? brevoKey : resendKey;
+    if (!activeKey) {
+      alert(`Please configure your ${emailProvider === "brevo" ? "Brevo" : "Resend"} API Key in Settings first.`);
       return;
     }
 
     const confirmSend = window.confirm(
-      `This will send a correction email to ${targets.length} candidates who were notified. Are you sure you want to proceed?`
+      `This will send a professional check-in/reminder email to ${targets.length} candidates who were notified. Are you sure you want to proceed?`
     );
     if (!confirmSend) return;
 
@@ -1083,6 +1503,7 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
     let failCount = 0;
 
     for (const app of targets) {
+      const fee = COURSE_FEES[app.track] ?? 0;
       const personalizedPaymentUrl = paymentUrl.includes("?")
         ? `${paymentUrl}&email=${encodeURIComponent(app.email)}`
         : `${paymentUrl}?email=${encodeURIComponent(app.email)}`;
@@ -1093,52 +1514,51 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
         <body style="margin:0;padding:24px;background:#13111c;font-family:Inter,Arial,sans-serif;color:#f0eeff;">
           <div style="max-width:600px;margin:0 auto;background:rgba(120,80,220,0.05);border:1px solid rgba(120,100,220,0.25);border-radius:12px;padding:32px;">
             <p style="font-size:11px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:#06b6d4;margin:0 0 8px;">Uget Academy</p>
-            <h2 style="color:#ffffff;margin-top:0;">Important Correction: WhatsApp Support Number</h2>
+            <h2 style="color:#ffffff;margin-top:0;">Scholarship Offer & Enrollment Check-in</h2>
             
             <p style="font-size:14px;line-height:1.6;color:#d0c8f0;">
               Hello <strong>${app.full_name}</strong>,
             </p>
             <p style="font-size:14px;line-height:1.6;color:#d0c8f0;">
-              We are sending this email to correct a typographical error in our previous communication regarding the Uget Academy Scholarship.
+              We are reaching out to check in on your scholarship enrollment progress. As we prepare learning dashboard setups and onboarding schedules for Cohort 1, we want to ensure your spot is secured.
             </p>
             <p style="font-size:14px;line-height:1.6;color:#d0c8f0;">
-              Our official admissions coordinator WhatsApp support line is <strong>+234 810 617 5131</strong> (not the number ending in 0799).
+              If you have already made your commitment fee transfer (or are about to do so), please visit your enrollment portal to confirm your payment details and <strong>upload your receipt (Image or PDF)</strong> for verification:
             </p>
+            
+            <div style="margin:24px 0;text-align:center;">
+              <a href="${personalizedPaymentUrl}" style="display:inline-block;padding:12px 24px;background:#7c3aed;color:#ffffff;text-decoration:none;font-weight:bold;border-radius:30px;font-size:14px;box-shadow:0 4px 12px rgba(124,58,237,0.35);">
+                💳 Open Portal & Confirm Payment
+              </a>
+            </div>
+            
             <p style="font-size:14px;line-height:1.6;color:#d0c8f0;">
-              If you need to contact us for payment options or payment confirmation, please chat with us here:
+              If you require a localized country payment option (for candidates outside Nigeria) or have any questions about the enrollment timeline, please chat with our coordinator on our official WhatsApp line:
             </p>
             
             <div style="margin:24px 0;text-align:center;">
               <a href="https://wa.me/2348106175131" style="display:inline-block;padding:12px 24px;background:#25d366;color:#ffffff;text-decoration:none;font-weight:bold;border-radius:30px;font-size:14px;box-shadow:0 4px 12px rgba(37,211,102,0.3);">
-                💬 Chat with Coordinator on WhatsApp
+                💬 Contact Coordinator on WhatsApp
               </a>
             </div>
             
-            <p style="font-size:14px;line-height:1.6;color:#d0c8f0;">
-              You can also confirm your transfer and <strong>upload your proof of payment receipt</strong> directly on your enrollment page:
-            </p>
-            
-            <div style="margin:20px 0;text-align:center;">
-              <a href="${personalizedPaymentUrl}" style="display:inline-block;padding:10px 20px;background:#7c3aed;color:#ffffff;text-decoration:none;font-weight:bold;border-radius:30px;font-size:13px;">
-                💳 Open Enrollment & Upload Receipt
-              </a>
-            </div>
-            
-            <p style="font-size:13px;color:#8b83b0;margin-top:32px;border-top:1px solid rgba(120,100,220,0.15);padding-top:16px;">
-              Please ignore any WhatsApp messages or contacts pointing to the other number. We apologize for any confusion.
+            <p style="font-size:13px;color:#8b83b0;margin-top:32px;border-top:1px solid rgba(120,100,220,0.15);padding-top:16px;line-height:1.6;">
+              Please make sure to message us only at our official line <strong>+234 810 617 5131</strong> for any WhatsApp updates. We look forward to welcoming you as a scholar!
             </p>
           </div>
         </body>
         </html>
       `;
 
-      const textContent = `Hello ${app.full_name},\n\nWe are sending this email to correct a typographical error in our previous communication regarding the Uget Academy Scholarship.\n\nOur official WhatsApp support line is +234 810 617 5131 (not the number ending in 0799).\n\nChat with us on WhatsApp: https://wa.me/2348106175131\n\nYou can also confirm your transfer and upload your proof of payment receipt directly on your enrollment page:\n${personalizedPaymentUrl}\n\nWe apologize for any confusion.\n\nWarm regards,\nUget Academy Team`;
+      const textContent = `Hello ${app.full_name},\n\nWe are reaching out to check in on your scholarship enrollment progress for Uget Academy.\n\nTo secure your spot, please confirm your commitment fee transfer and upload your receipt (Image or PDF) directly on your personalized enrollment portal:\n${personalizedPaymentUrl}\n\nIf you require international/localized payment options or have any questions, please contact our admissions coordinator on our official WhatsApp line (+234 810 617 5131):\nhttps://wa.me/2348106175131\n\nWarm regards,\nUget Academy Team`;
 
       try {
         const result = await sendEmailFn({
           data: {
+            provider: emailProvider,
             resendKey,
-            from: senderEmail || "onboarding@resend.dev",
+            brevoKey,
+            from: senderEmail || (emailProvider === "brevo" ? "academy@ugettech.com" : "onboarding@resend.dev"),
             to: [app.email],
             subject: "Correction: Uget Academy WhatsApp Support Line",
             html: htmlContent,
@@ -1303,6 +1723,8 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
           app={notifyApp}
           onClose={() => setNotifyApp(null)}
           resendKey={resendKey}
+          brevoKey={brevoKey}
+          emailProvider={emailProvider}
           senderEmail={senderEmail}
           paymentUrl={paymentUrl}
           onNotified={() => toggleNotified(notifyApp.id)}
@@ -1313,6 +1735,8 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
           applications={applications}
           onClose={() => setShowBulk(false)}
           resendKey={resendKey}
+          brevoKey={brevoKey}
+          emailProvider={emailProvider}
           senderEmail={senderEmail}
           paymentUrl={paymentUrl}
           onNotifiedBatch={markBatchNotified}
@@ -1335,7 +1759,9 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
               e.preventDefault();
               const fd = new FormData(e.currentTarget);
               saveSettings(
+                (fd.get("email_provider") as "resend" | "brevo") || "resend",
                 fd.get("resend_key") as string,
+                fd.get("brevo_key") as string,
                 fd.get("sender_email") as string,
                 fd.get("payment_url") as string,
               );
@@ -1343,6 +1769,19 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
             }}
             className="space-y-5"
           >
+            <div className="space-y-1.5">
+              <Label htmlFor="email_provider">Email Provider</Label>
+              <select
+                id="email_provider"
+                name="email_provider"
+                defaultValue={emailProvider}
+                className="w-full h-10 bg-background border border-border rounded-lg px-3 py-1 text-sm font-medium focus:outline-none focus:ring-1 focus:ring-primary text-foreground transition-colors cursor-pointer hover:bg-background/80"
+              >
+                <option value="resend">Resend</option>
+                <option value="brevo">Brevo (Sendinblue)</option>
+              </select>
+            </div>
+
             <div className="space-y-1.5">
               <Label htmlFor="resend_key">Resend API Key</Label>
               <Input
@@ -1366,6 +1805,20 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
             </div>
 
             <div className="space-y-1.5">
+              <Label htmlFor="brevo_key">Brevo API Key</Label>
+              <Input
+                id="brevo_key"
+                name="brevo_key"
+                type="password"
+                defaultValue={brevoKey}
+                placeholder="xkeysib-xxxxxxxxxxxxxxxxxxxx"
+              />
+              <p className="text-[10px] text-muted-foreground">
+                Retrieve your key from SMTP & API page in your Brevo dashboard.
+              </p>
+            </div>
+
+            <div className="space-y-1.5">
               <Label htmlFor="sender_email">Sender Email ("From" Address)</Label>
               <Input
                 id="sender_email"
@@ -1375,7 +1828,7 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
                 placeholder="academy@ugettech.com"
               />
               <p className="text-[10px] text-muted-foreground">
-                Must be verified in Resend. E.g., <code>no-reply@uget.com.ng</code>.
+                E.g., <code>Uget Academy &lt;academy@ugettech.com&gt;</code> or <code>no-reply@uget.com.ng</code>. Must be a verified sender in your chosen provider.
               </p>
             </div>
 
