@@ -39,95 +39,96 @@ function buildEmailHtml(name: string, track: string, fee: number, paymentUrl: st
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Welcome to Uget Academy</title>
 </head>
-<body style="margin:0;padding:0;background:#13111c;font-family:Inter,Arial,sans-serif;color:#f0eeff;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:40px auto;">
+<body style="margin:0;padding:0;background:#0d0a1a;font-family:'Inter',Arial,sans-serif;color:#f0eeff;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:40px auto;background:#130f26;border-radius:24px;overflow:hidden;border:1px solid rgba(124,58,237,0.3);box-shadow:0 20px 40px rgba(0,0,0,0.5);">
+    <!-- Header Logo -->
     <tr>
-      <td style="background:linear-gradient(135deg,#13111c 0%,#1f1a30 50%,#181424 100%);border-radius:16px;padding:0;overflow:hidden;border:1px solid rgba(120,100,220,0.25);">
-        <!-- Header -->
-        <table width="100%" cellpadding="0" cellspacing="0">
+      <td style="padding:48px 36px 32px;background:linear-gradient(135deg,rgba(124,58,237,0.15) 0%,rgba(6,182,212,0.05) 100%);border-bottom:1px solid rgba(124,58,237,0.2);text-align:center;">
+        <img src="https://raw.githubusercontent.com/Ugettechnologies/uget-enroll/main/src/assets/uget-logo.png" alt="Uget Technologies Logo" style="width:160px;max-width:100%;height:auto;display:inline-block;margin-bottom:12px;" />
+        <p style="margin:0;font-size:11px;font-weight:800;letter-spacing:0.35em;text-transform:uppercase;color:#06b6d4;">Academy</p>
+      </td>
+    </tr>
+    <!-- Content Body -->
+    <tr>
+      <td style="padding:40px 36px 32px;">
+        <h2 style="margin:0 0 20px;font-size:22px;font-weight:800;color:#ffffff;letter-spacing:-0.02em;">Welcome to Uget Academy</h2>
+        
+        <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
+          Hello <strong style="color:#ffffff;">${name}</strong>,
+        </p>
+        <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
+          Congratulations! You've secured a spot in Uget Academy's Cohort 1 for <strong style="color:#ffffff;">${track}</strong>.
+        </p>
+        <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
+          <strong style="color:#ffffff;">Program Fee:</strong> ${fmt(feeDetails.ngn.total)} (approximately ${fmtUsd(feeDetails.usd.total)})
+        </p>
+        <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#facc15;font-weight:600;">
+          ⚠️ <strong style="color:#ffffff;">Deadline:</strong> Payment is to be made within 24 to 72 hours of receiving this offer to secure your spot.
+        </p>
+
+        <!-- Payment Details Card -->
+        <table width="100%" cellpadding="0" cellspacing="0" style="margin:28px 0;border-radius:16px;overflow:hidden;border:1px solid rgba(124,58,237,0.3);background:rgba(124,58,237,0.05);font-size:14px;color:#d0c8f0;">
           <tr>
-            <td style="padding:32px 36px 24px;background:linear-gradient(135deg,rgba(120,80,220,0.15),rgba(100,60,200,0.08));border-bottom:1px solid rgba(120,100,220,0.25);text-align:center;">
-              <p style="margin:0 0 4px;font-size:11px;font-weight:700;letter-spacing:0.3em;text-transform:uppercase;color:#06b6d4;">Uget Academy</p>
-              <h1 style="margin:0;font-size:20px;font-weight:800;color:#ffffff;text-transform:uppercase;letter-spacing:0.05em;">
-                Welcome to Uget Academy
-              </h1>
+            <td style="padding:18px 24px;background:rgba(124,58,237,0.12);border-bottom:1px solid rgba(124,58,237,0.25);">
+              <strong style="color:#ffffff;font-size:15px;">Payment Details (Nigeria)</strong>
             </td>
           </tr>
-          <!-- Body -->
           <tr>
-            <td style="padding:28px 36px;">
-              <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-                Hello <strong style="color:#ffffff;">${name}</strong>,
-              </p>
-              <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-                Congratulations! You've secured a spot in Uget Academy's Cohort 1 for <strong style="color:#ffffff;">${track}</strong>.
-              </p>
-              <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-                <strong style="color:#ffffff;">Program Fee:</strong> ${fmt(feeDetails.ngn.total)} (approximately ${fmtUsd(feeDetails.usd.total)})
-              </p>
-              <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#facc15;font-weight:600;">
-                ⚠️ <strong style="color:#ffffff;">Deadline:</strong> Payment is to be made within 24 to 72 hours of receiving this offer to secure your spot.
-              </p>
-
-              <!-- Payment Details Card -->
-              <table width="100%" cellpadding="0" cellspacing="0" style="margin:24px 0;border-radius:12px;overflow:hidden;border:1px solid rgba(120,100,220,0.3);background:rgba(120,80,220,0.05);font-size:14px;color:#d0c8f0;">
-                <tr>
-                  <td style="padding:16px 20px;background:rgba(120,80,220,0.1);border-bottom:1px solid rgba(120,100,220,0.15);">
-                    <strong style="color:#ffffff;font-size:15px;">Payment Details (Nigeria)</strong>
-                  </td>
-                </tr>
-                <tr>
-                  <td style="padding:16px 20px;line-height:1.6;">
-                    <span style="color:#8b83b0;">Bank:</span> <strong style="color:#ffffff;">Moniepoint</strong><br/>
-                    <span style="color:#8b83b0;">Account Number:</span> <strong style="color:#06b6d4;font-size:16px;font-mono:true;">6743620799</strong><br/>
-                    <span style="color:#8b83b0;">Account Name:</span> <strong style="color:#ffffff;">Uget Technologies</strong>
-                  </td>
-                </tr>
-                <tr style="background:rgba(120,80,220,0.08);border-top:1px solid rgba(120,100,220,0.15);">
-                  <td style="padding:16px 20px;line-height:1.6;border-top:1px solid rgba(120,100,220,0.15);">
-                    <strong style="color:#ffffff;font-size:14px;">Payment Details (International Students)</strong><br/>
-                    <p style="margin:4px 0 0;font-size:13px;color:#d0c8f0;">
-                      Please contact us at <a href="mailto:ugettechnologies@gmail.com" style="color:#c4b5fd;text-decoration:underline;">ugettechnologies@gmail.com</a> or via WhatsApp at <a href="https://wa.me/2348106175131" style="color:#c4b5fd;text-decoration:none;font-weight:600;">+234 810 617 5131</a> and we'll guide you through the best payment option for your country.
-                    </p>
-                  </td>
-                </tr>
-              </table>
-
-              <!-- CTA button -->
-              <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="margin: 24px auto; width: 100%; text-align: center;">
-                <tr>
-                  <td align="center">
-                    <a href="${paymentUrl}"
-                       target="_blank"
-                       style="display: inline-block; background-color: #06b6d4; background-image: linear-gradient(135deg, #06b6d4, #3b82f6); padding: 14px 36px; font-family: Arial, sans-serif; font-size: 14px; font-weight: 800; color: #ffffff; text-decoration: none; letter-spacing: 0.05em; text-transform: uppercase; border-radius: 9999px; box-shadow: 0 4px 12px rgba(6,182,212,0.35);">
-                      PROCEED TO PAYMENT & VALIDATE
-                    </a>
-                  </td>
-                </tr>
-              </table>
-
-              <p style="margin:16px 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-                Once payment is confirmed, you'll receive your onboarding details, including access to the learning dashboard and your cohort schedule.
-              </p>
-
-              <p style="margin:16px 0 24px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-                If you have any questions before enrolling, feel free to reach out — we're happy to help.
-              </p>
-
-              <p style="margin:24px 0 0;font-size:15px;line-height:1.7;color:#d0c8f0;">
-                Warm regards,<br/>
-                <strong>Chiemena Erasmous</strong><br/>
-                Uget Technologies
-              </p>
+            <td style="padding:20px 24px;line-height:1.6;">
+              <span style="color:#8b83b0;">Bank:</span> <strong style="color:#ffffff;">Moniepoint</strong><br/>
+              <span style="color:#8b83b0;">Account Number:</span> <strong style="color:#06b6d4;font-size:18px;font-family:monospace;letter-spacing:0.05em;">6743620799</strong><br/>
+              <span style="color:#8b83b0;">Account Name:</span> <strong style="color:#ffffff;">Uget Technologies</strong>
             </td>
           </tr>
-          <!-- Footer -->
-          <tr>
-            <td style="padding:16px 36px;background:rgba(26,21,41,0.5);border-top:1px solid rgba(120,100,220,0.15);text-align:center;">
-              <p style="margin:0;font-size:12px;color:#635d7a;">© ${new Date().getFullYear()} Uget Academy / Uget Technologies. All rights reserved.</p>
+          <tr style="background:rgba(124,58,237,0.08);border-top:1px solid rgba(124,58,237,0.2);">
+            <td style="padding:20px 24px;line-height:1.6;border-top:1px solid rgba(124,58,237,0.2);">
+              <strong style="color:#ffffff;font-size:14px;">Payment Details (International Students)</strong><br/>
+              <p style="margin:6px 0 0;font-size:13px;color:#d0c8f0;line-height:1.6;">
+                Please contact us at <a href="mailto:ugettechnologies@gmail.com" style="color:#06b6d4;text-decoration:underline;">ugettechnologies@gmail.com</a> or via WhatsApp at <a href="https://wa.me/2348106175131" style="color:#06b6d4;text-decoration:none;font-weight:600;">+234 810 617 5131</a> and we'll guide you through the best payment option for your country.
+              </p>
             </td>
           </tr>
         </table>
+
+        <!-- CTA button -->
+        <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="margin: 32px auto; width: 100%; text-align: center;">
+          <tr>
+            <td align="center">
+              <a href="${paymentUrl}"
+                 target="_blank"
+                 style="display: inline-block; background: linear-gradient(135deg, #06b6d4 0%, #7c3aed 100%); padding: 16px 40px; font-family: Arial, sans-serif; font-size: 14px; font-weight: 800; color: #ffffff; text-decoration: none; letter-spacing: 0.08em; text-transform: uppercase; border-radius: 9999px; box-shadow: 0 8px 24px rgba(124,58,237,0.35);">
+                PROCEED TO PAYMENT & VALIDATE
+              </a>
+            </td>
+          </tr>
+        </table>
+
+        <p style="margin:16px 0;font-size:15px;line-height:1.7;color:#d0c8f0;">
+          Once payment is confirmed, you'll receive your onboarding details, including access to the learning dashboard and your cohort schedule.
+        </p>
+
+        <p style="margin:16px 0 32px;font-size:15px;line-height:1.7;color:#d0c8f0;">
+          If you have any questions before enrolling, feel free to reach out — we're happy to help.
+        </p>
+
+        <!-- Sign-off -->
+        <table width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid rgba(124,58,237,0.2);padding-top:24px;">
+          <tr>
+            <td>
+              <p style="margin:0;font-size:15px;line-height:1.7;color:#d0c8f0;">
+                Warm regards,<br/>
+                <strong style="color:#ffffff;">Chiemena Erasmous</strong><br/>
+                <span style="color:#8b83b0;font-size:13px;">Uget Technologies Team</span>
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+    <!-- Footer -->
+    <tr>
+      <td style="padding:24px 36px;background:#090714;border-top:1px solid rgba(124,58,237,0.15);text-align:center;">
+        <p style="margin:0;font-size:12px;color:#635d7a;">© ${new Date().getFullYear()} Uget Academy / Uget Technologies. All rights reserved.</p>
       </td>
     </tr>
   </table>
@@ -179,84 +180,82 @@ function buildDeadlineEmailHtml(name: string, track: string, paymentUrl: string)
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Action Required: Secure Your Spot</title>
 </head>
-<body style="margin:0;padding:0;background:#13111c;font-family:Inter,Arial,sans-serif;color:#f0eeff;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:40px auto;">
+<body style="margin:0;padding:0;background:#0d0a1a;font-family:'Inter',Arial,sans-serif;color:#f0eeff;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:40px auto;background:#130f26;border-radius:24px;overflow:hidden;border:1px solid rgba(239,68,68,0.3);box-shadow:0 20px 40px rgba(0,0,0,0.5);">
+    <!-- Header Logo -->
     <tr>
-      <td style="background:linear-gradient(135deg,#13111c 0%,#1f1a30 50%,#181424 100%);border-radius:16px;padding:0;overflow:hidden;border:1px solid rgba(120,100,220,0.25);">
-        <!-- Header -->
-        <table width="100%" cellpadding="0" cellspacing="0">
+      <td style="padding:48px 36px 32px;background:linear-gradient(135deg,rgba(239,68,68,0.15) 0%,rgba(6,182,212,0.05) 100%);border-bottom:1px solid rgba(239,68,68,0.2);text-align:center;">
+        <img src="https://raw.githubusercontent.com/Ugettechnologies/uget-enroll/main/src/assets/uget-logo.png" alt="Uget Technologies Logo" style="width:160px;max-width:100%;height:auto;display:inline-block;margin-bottom:12px;" />
+        <p style="margin:0;font-size:11px;font-weight:800;letter-spacing:0.35em;text-transform:uppercase;color:#f87171;">Academy</p>
+      </td>
+    </tr>
+    <!-- Content Body -->
+    <tr>
+      <td style="padding:40px 36px 32px;">
+        <h2 style="margin:0 0 20px;font-size:22px;font-weight:800;color:#ffffff;letter-spacing:-0.02em;">Secure Your Scholarship Spot</h2>
+        
+        <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
+          Hello <strong style="color:#ffffff;">${name}</strong>,
+        </p>
+        <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
+          This is a gentle reminder regarding your admission offer to Uget Academy's Cohort 1 for <strong style="color:#ffffff;">${track}</strong>. We noticed that you have not yet completed or confirmed your commitment fee payment.
+        </p>
+        <p style="margin:0 0 24px;font-size:15px;line-height:1.7;color:#facc15;font-weight:600;background:rgba(250,204,21,0.1);padding:14px 20px;border-radius:12px;border:1px solid rgba(250,204,21,0.25);">
+          ⚠️ <strong style="color:#ffffff;">Deadline:</strong> To secure your scholarship spot and participate in the upcoming cohort, please complete your payment and upload your receipt on your enrollment portal on or before <strong style="color:#ffffff;text-decoration:underline;">July 10th, 2026</strong>.
+        </p>
+        <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
+          Please note that we have limited seats, and spots not secured by the deadline will be reassigned to applicants on our waiting list.
+        </p>
+
+        <!-- Portal Details Card -->
+        <table width="100%" cellpadding="0" cellspacing="0" style="margin:28px 0;border-radius:16px;overflow:hidden;border:1px solid rgba(239,68,68,0.2);background:rgba(239,68,68,0.02);font-size:14px;color:#d0c8f0;">
           <tr>
-            <td style="padding:32px 36px 24px;background:linear-gradient(135deg,rgba(120,80,220,0.15),rgba(100,60,200,0.08));border-bottom:1px solid rgba(120,100,220,0.25);text-align:center;">
-              <p style="margin:0 0 4px;font-size:11px;font-weight:700;letter-spacing:0.3em;text-transform:uppercase;color:#f87171;">Action Required</p>
-              <h1 style="margin:0;font-size:20px;font-weight:800;color:#ffffff;text-transform:uppercase;letter-spacing:0.05em;">
-                Secure Your Spot
-              </h1>
+            <td style="padding:18px 24px;background:rgba(239,68,68,0.08);border-bottom:1px solid rgba(239,68,68,0.15);">
+              <strong style="color:#ffffff;font-size:15px;">Payment Verification Portal</strong>
             </td>
           </tr>
-          <!-- Body -->
           <tr>
-            <td style="padding:28px 36px;">
-              <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-                Hello <strong style="color:#ffffff;">${name}</strong>,
-              </p>
-              <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-                We hope you are doing well.
-              </p>
-              <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-                This is a gentle reminder regarding your admission offer to Uget Academy's Cohort 1 for <strong style="color:#ffffff;">${track}</strong>. We noticed that you have not yet completed or confirmed your commitment fee payment.
-              </p>
-              <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#facc15;font-weight:600;">
-                ⚠️ <strong style="color:#ffffff;">Deadline:</strong> To secure your scholarship spot and participate in the upcoming cohort, please complete your payment and upload your receipt on your enrollment portal on or before <strong style="color:#ffffff;text-decoration:underline;">July 10th, 2026</strong>.
-              </p>
-              <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-                Please note that we have limited seats, and spots not secured by the deadline will be reassigned to applicants on our waiting list.
-              </p>
-
-              <!-- Payment Details Card -->
-              <table width="100%" cellpadding="0" cellspacing="0" style="margin:24px 0;border-radius:12px;overflow:hidden;border:1px solid rgba(120,100,220,0.3);background:rgba(120,80,220,0.05);font-size:14px;color:#d0c8f0;">
-                <tr>
-                  <td style="padding:16px 20px;background:rgba(120,80,220,0.1);border-bottom:1px solid rgba(120,100,220,0.15);">
-                    <strong style="color:#ffffff;font-size:15px;">Payment Verification Portal</strong>
-                  </td>
-                </tr>
-                <tr>
-                  <td style="padding:16px 20px;line-height:1.6;">
-                    If you have already paid or are about to pay, please visit your personalized portal to upload your receipt (Image or PDF) for immediate verification.
-                  </td>
-                </tr>
-              </table>
-
-              <!-- CTA button -->
-              <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="margin: 24px auto; width: 100%; text-align: center;">
-                <tr>
-                  <td align="center">
-                    <a href="${paymentUrl}"
-                       target="_blank"
-                       style="display: inline-block; background-color: #7c3aed; background-image: linear-gradient(135deg, #7c3aed, #06b6d4); padding: 14px 36px; font-family: Arial, sans-serif; font-size: 14px; font-weight: 800; color: #ffffff; text-decoration: none; letter-spacing: 0.05em; text-transform: uppercase; border-radius: 9999px; box-shadow: 0 4px 12px rgba(124,58,237,0.35);">
-                      GO TO PORTAL & UPLOAD RECEIPT
-                    </a>
-                  </td>
-                </tr>
-              </table>
-
-              <p style="margin:16px 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-                If you are an international student requiring localized payment options, or have any other questions, please contact our coordinator via WhatsApp at <a href="https://wa.me/2348106175131" style="color:#c4b5fd;text-decoration:none;font-weight:600;">+234 810 617 5131</a>.
-              </p>
-
-              <p style="margin:24px 0 0;font-size:15px;line-height:1.7;color:#d0c8f0;">
-                Warm regards,<br/>
-                <strong>Chiemena Erasmous</strong><br/>
-                Uget Technologies
-              </p>
-            </td>
-          </tr>
-          <!-- Footer -->
-          <tr>
-            <td style="padding:16px 36px;background:rgba(26,21,41,0.5);border-top:1px solid rgba(120,100,220,0.15);text-align:center;">
-              <p style="margin:0;font-size:12px;color:#635d7a;">© ${new Date().getFullYear()} Uget Academy / Uget Technologies. All rights reserved.</p>
+            <td style="padding:20px 24px;line-height:1.6;">
+              If you have already paid or are about to pay, please visit your personalized portal to upload your receipt (Image or PDF) for immediate verification.
             </td>
           </tr>
         </table>
+
+        <!-- CTA button -->
+        <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="margin: 32px auto; width: 100%; text-align: center;">
+          <tr>
+            <td align="center">
+              <a href="${paymentUrl}"
+                 target="_blank"
+                 style="display: inline-block; background: linear-gradient(135deg, #ef4444 0%, #7c3aed 100%); padding: 16px 40px; font-family: Arial, sans-serif; font-size: 14px; font-weight: 800; color: #ffffff; text-decoration: none; letter-spacing: 0.08em; text-transform: uppercase; border-radius: 9999px; box-shadow: 0 8px 24px rgba(239,68,68,0.35);">
+                GO TO PORTAL & UPLOAD RECEIPT
+              </a>
+            </td>
+          </tr>
+        </table>
+
+        <p style="margin:16px 0 32px;font-size:15px;line-height:1.7;color:#d0c8f0;">
+          If you are an international student requiring localized payment options, or have any other questions, please contact our coordinator via WhatsApp at <a href="https://wa.me/2348106175131" style="color:#06b6d4;text-decoration:none;font-weight:600;">+234 810 617 5131</a>.
+        </p>
+
+        <!-- Sign-off -->
+        <table width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid rgba(124,58,237,0.2);padding-top:24px;">
+          <tr>
+            <td>
+              <p style="margin:0;font-size:15px;line-height:1.7;color:#d0c8f0;">
+                Warm regards,<br/>
+                <strong style="color:#ffffff;">Chiemena Erasmous</strong><br/>
+                <span style="color:#8b83b0;font-size:13px;">Uget Technologies Team</span>
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+    <!-- Footer -->
+    <tr>
+      <td style="padding:24px 36px;background:#090714;border-top:1px solid rgba(124,58,237,0.15);text-align:center;">
+        <p style="margin:0;font-size:12px;color:#635d7a;">© ${new Date().getFullYear()} Uget Academy / Uget Technologies. All rights reserved.</p>
       </td>
     </tr>
   </table>
@@ -295,75 +294,76 @@ function buildClassStartsEmailHtml(name: string, track: string) {
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Class Commencement Alert — Uget Academy</title>
 </head>
-<body style="margin:0;padding:0;background:#13111c;font-family:Inter,Arial,sans-serif;color:#f0eeff;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:40px auto;">
+<body style="margin:0;padding:0;background:#0d0a1a;font-family:'Inter',Arial,sans-serif;color:#f0eeff;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:40px auto;background:#130f26;border-radius:24px;overflow:hidden;border:1px solid rgba(6,182,212,0.3);box-shadow:0 20px 40px rgba(0,0,0,0.5);">
+    <!-- Header Logo -->
     <tr>
-      <td style="background:linear-gradient(135deg,#13111c 0%,#1f1a30 50%,#181424 100%);border-radius:16px;padding:0;overflow:hidden;border:1px solid rgba(120,100,220,0.25);">
-        <!-- Header -->
-        <table width="100%" cellpadding="0" cellspacing="0">
+      <td style="padding:48px 36px 32px;background:linear-gradient(135deg,rgba(6,182,212,0.15) 0%,rgba(124,58,237,0.05) 100%);border-bottom:1px solid rgba(6,182,212,0.2);text-align:center;">
+        <img src="https://raw.githubusercontent.com/Ugettechnologies/uget-enroll/main/src/assets/uget-logo.png" alt="Uget Technologies Logo" style="width:160px;max-width:100%;height:auto;display:inline-block;margin-bottom:12px;" />
+        <p style="margin:0;font-size:11px;font-weight:800;letter-spacing:0.35em;text-transform:uppercase;color:#06b6d4;">Academy</p>
+      </td>
+    </tr>
+    <!-- Content Body -->
+    <tr>
+      <td style="padding:40px 36px 32px;">
+        <h2 style="margin:0 0 20px;font-size:22px;font-weight:800;color:#ffffff;letter-spacing:-0.02em;">Classes Start July 13th</h2>
+        
+        <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
+          Hello <strong style="color:#ffffff;">${name}</strong>,
+        </p>
+        <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
+          Congratulations once again on securing your spot in Uget Academy's Cohort 1 for <strong style="color:#ffffff;">${track}</strong>!
+        </p>
+        <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
+          We are pleased to inform you that your payment has been verified, and your enrollment is officially complete.
+        </p>
+        <p style="margin:0 0 24px;font-size:15px;line-height:1.7;color:#06b6d4;font-weight:600;background:rgba(6,182,212,0.1);padding:14px 20px;border-radius:12px;border:1px solid rgba(6,182,212,0.25);">
+          🚀 <strong style="color:#ffffff;">Start Date:</strong> Official classes will commence on <strong style="color:#ffffff;text-decoration:underline;">Monday, July 13th, 2026</strong>.
+        </p>
+        <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
+          In the coming days, you will receive an onboarding email containing your learning dashboard access credentials, Slack workspace invitation, and the schedule details for our first session.
+        </p>
+        <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
+          Please ensure you check your email regularly so you do not miss these setup instructions. If you have any immediate questions, feel free to reply directly to this email or chat with us on WhatsApp.
+        </p>
+
+        <!-- Support Card -->
+        <table width="100%" cellpadding="0" cellspacing="0" style="margin:24px 0;border-radius:16px;overflow:hidden;border:1px solid rgba(124,58,237,0.3);background:rgba(124,58,237,0.05);font-size:14px;color:#d0c8f0;">
           <tr>
-            <td style="padding:32px 36px 24px;background:linear-gradient(135deg,rgba(120,80,220,0.15),rgba(100,60,200,0.08));border-bottom:1px solid rgba(120,100,220,0.25);text-align:center;">
-              <p style="margin:0 0 4px;font-size:11px;font-weight:700;letter-spacing:0.3em;text-transform:uppercase;color:#06b6d4;">Uget Academy</p>
-              <h1 style="margin:0;font-size:20px;font-weight:800;color:#ffffff;text-transform:uppercase;letter-spacing:0.05em;">
-                Classes Start July 13th
-              </h1>
+            <td style="padding:18px 24px;background:rgba(124,58,237,0.12);border-bottom:1px solid rgba(124,58,237,0.25);">
+              <strong style="color:#ffffff;font-size:15px;">Need Help?</strong>
             </td>
           </tr>
-          <!-- Body -->
           <tr>
-            <td style="padding:28px 36px;">
-              <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-                Hello <strong style="color:#ffffff;">${name}</strong>,
-              </p>
-              <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-                Congratulations once again on securing your spot in Uget Academy's Cohort 1 for <strong style="color:#ffffff;">${track}</strong>!
-              </p>
-              <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-                We are pleased to inform you that your payment has been verified, and your enrollment is officially complete.
-              </p>
-              <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#06b6d4;font-weight:600;">
-                🚀 <strong style="color:#ffffff;">Start Date:</strong> Official classes will commence on <strong style="color:#ffffff;text-decoration:underline;">Monday, July 13th, 2026</strong>.
-              </p>
-              <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-                In the coming days, you will receive an onboarding email containing your learning dashboard access credentials, Slack workspace invitation, and the schedule details for our first session.
-              </p>
-              <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-                Please ensure you check your email regularly so you do not miss these setup instructions. If you have any immediate questions, feel free to reply directly to this email or chat with us on WhatsApp.
-              </p>
-
-              <!-- Support Card -->
-              <table width="100%" cellpadding="0" cellspacing="0" style="margin:24px 0;border-radius:12px;overflow:hidden;border:1px solid rgba(120,100,220,0.3);background:rgba(120,80,220,0.05);font-size:14px;color:#d0c8f0;">
-                <tr>
-                  <td style="padding:16px 20px;background:rgba(120,80,220,0.1);border-bottom:1px solid rgba(120,100,220,0.15);">
-                    <strong style="color:#ffffff;font-size:15px;">Need Help?</strong>
-                  </td>
-                </tr>
-                <tr>
-                  <td style="padding:16px 20px;line-height:1.6;">
-                    WhatsApp Support: <strong style="color:#ffffff;">+234 810 617 5131</strong><br/>
-                    Email: <a href="mailto:ugettechnologies@gmail.com" style="color:#c4b5fd;text-decoration:underline;">ugettechnologies@gmail.com</a>
-                  </td>
-                </tr>
-              </table>
-
-              <p style="margin:16px 0 0;font-size:15px;line-height:1.7;color:#d0c8f0;">
-                We are thrilled to welcome you to this cohort and look forward to an amazing learning journey together.
-              </p>
-
-              <p style="margin:24px 0 0;font-size:15px;line-height:1.7;color:#d0c8f0;">
-                Warm regards,<br/>
-                <strong>Chiemena Erasmous</strong><br/>
-                Uget Technologies
-              </p>
-            </td>
-          </tr>
-          <!-- Footer -->
-          <tr>
-            <td style="padding:16px 36px;background:rgba(26,21,41,0.5);border-top:1px solid rgba(120,100,220,0.15);text-align:center;">
-              <p style="margin:0;font-size:12px;color:#635d7a;">© ${new Date().getFullYear()} Uget Academy / Uget Technologies. All rights reserved.</p>
+            <td style="padding:20px 24px;line-height:1.6;">
+              WhatsApp Support: <strong style="color:#ffffff;">+234 810 617 5131</strong><br/>
+              Email: <a href="mailto:ugettechnologies@gmail.com" style="color:#06b6d4;text-decoration:underline;">ugettechnologies@gmail.com</a>
             </td>
           </tr>
         </table>
+
+        <p style="margin:16px 0 32px;font-size:15px;line-height:1.7;color:#d0c8f0;">
+          We are thrilled to welcome you to this cohort and look forward to an amazing learning journey together.
+        </p>
+
+        <!-- Sign-off -->
+        <table width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid rgba(124,58,237,0.2);padding-top:24px;">
+          <tr>
+            <td>
+              <p style="margin:0;font-size:15px;line-height:1.7;color:#d0c8f0;">
+                Warm regards,<br/>
+                <strong style="color:#ffffff;">Chiemena Erasmous</strong><br/>
+                <span style="color:#8b83b0;font-size:13px;">Uget Technologies Team</span>
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+    <!-- Footer -->
+    <tr>
+      <td style="padding:24px 36px;background:#090714;border-top:1px solid rgba(124,58,237,0.15);text-align:center;">
+        <p style="margin:0;font-size:12px;color:#635d7a;">© ${new Date().getFullYear()} Uget Academy / Uget Technologies. All rights reserved.</p>
       </td>
     </tr>
   </table>
