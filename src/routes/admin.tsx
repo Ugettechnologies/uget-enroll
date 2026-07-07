@@ -44,7 +44,7 @@ function buildEmailHtml(name: string, track: string, fee: number, paymentUrl: st
     <!-- Header Logo -->
     <tr>
       <td style="padding:48px 36px 32px;background:linear-gradient(135deg,rgba(124,58,237,0.15) 0%,rgba(6,182,212,0.05) 100%);border-bottom:1px solid rgba(124,58,237,0.2);text-align:center;">
-        <img src="https://raw.githubusercontent.com/Ugettechnologies/uget-enroll/main/src/assets/uget-logo.png" alt="Uget Technologies Logo" style="width:160px;max-width:100%;height:auto;display:inline-block;margin-bottom:12px;" />
+        <img src="https://uget-enroll.vercel.app/uget-logo.png" alt="Uget Technologies Logo" style="width:160px;max-width:100%;height:auto;display:inline-block;margin-bottom:12px;" />
         <p style="margin:0;font-size:11px;font-weight:800;letter-spacing:0.35em;text-transform:uppercase;color:#06b6d4;">Academy</p>
       </td>
     </tr>
@@ -185,7 +185,7 @@ function buildDeadlineEmailHtml(name: string, track: string, paymentUrl: string)
     <!-- Header Logo -->
     <tr>
       <td style="padding:48px 36px 32px;background:linear-gradient(135deg,rgba(239,68,68,0.15) 0%,rgba(6,182,212,0.05) 100%);border-bottom:1px solid rgba(239,68,68,0.2);text-align:center;">
-        <img src="https://raw.githubusercontent.com/Ugettechnologies/uget-enroll/main/src/assets/uget-logo.png" alt="Uget Technologies Logo" style="width:160px;max-width:100%;height:auto;display:inline-block;margin-bottom:12px;" />
+        <img src="https://uget-enroll.vercel.app/uget-logo.png" alt="Uget Technologies Logo" style="width:160px;max-width:100%;height:auto;display:inline-block;margin-bottom:12px;" />
         <p style="margin:0;font-size:11px;font-weight:800;letter-spacing:0.35em;text-transform:uppercase;color:#f87171;">Academy</p>
       </td>
     </tr>
@@ -299,7 +299,7 @@ function buildClassStartsEmailHtml(name: string, track: string) {
     <!-- Header Logo -->
     <tr>
       <td style="padding:48px 36px 32px;background:linear-gradient(135deg,rgba(6,182,212,0.15) 0%,rgba(124,58,237,0.05) 100%);border-bottom:1px solid rgba(6,182,212,0.2);text-align:center;">
-        <img src="https://raw.githubusercontent.com/Ugettechnologies/uget-enroll/main/src/assets/uget-logo.png" alt="Uget Technologies Logo" style="width:160px;max-width:100%;height:auto;display:inline-block;margin-bottom:12px;" />
+        <img src="https://uget-enroll.vercel.app/uget-logo.png" alt="Uget Technologies Logo" style="width:160px;max-width:100%;height:auto;display:inline-block;margin-bottom:12px;" />
         <p style="margin:0;font-size:11px;font-weight:800;letter-spacing:0.35em;text-transform:uppercase;color:#06b6d4;">Academy</p>
       </td>
     </tr>
