@@ -1439,36 +1439,64 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
 
   // Settings (persisted in localStorage or environment variables)
   const [emailProvider, setEmailProvider] = useState<"resend" | "brevo">(
-    () => (localStorage.getItem("uget_email_provider") as "resend" | "brevo" | null) || "resend",
+    () => {
+      if (typeof window !== "undefined") {
+        return (localStorage.getItem("uget_email_provider") as "resend" | "brevo" | null) || "resend";
+      }
+      return "resend";
+    }
   );
   const [resendKey, setResendKey] = useState(
-    () => localStorage.getItem("uget_resend_key") || (import.meta.env.VITE_RESEND_API_KEY as string | undefined) || "",
+    () => {
+      if (typeof window !== "undefined") {
+        return localStorage.getItem("uget_resend_key") || (import.meta.env.VITE_RESEND_API_KEY as string | undefined) || "";
+      }
+      return "";
+    }
   );
   const [brevoKey, setBrevoKey] = useState(
-    () => localStorage.getItem("uget_brevo_key") || (import.meta.env.VITE_BREVO_API_KEY as string | undefined) || "",
+    () => {
+      if (typeof window !== "undefined") {
+        return localStorage.getItem("uget_brevo_key") || (import.meta.env.VITE_BREVO_API_KEY as string | undefined) || "";
+      }
+      return "";
+    }
   );
   const [senderEmail, setSenderEmail] = useState(
-    () => localStorage.getItem("uget_sender_email") || (import.meta.env.VITE_SENDER_EMAIL as string | undefined) || "",
+    () => {
+      if (typeof window !== "undefined") {
+        return localStorage.getItem("uget_sender_email") || (import.meta.env.VITE_SENDER_EMAIL as string | undefined) || "";
+      }
+      return "";
+    }
   );
   const [paymentUrl, setPaymentUrl] = useState(
     () => {
-      const stored = localStorage.getItem("uget_payment_url");
-      if (stored === "https://enroll.vercel.app/payment") {
-        localStorage.setItem("uget_payment_url", "https://uget-enroll.vercel.app/payment");
-        return "https://uget-enroll.vercel.app/payment";
+      if (typeof window !== "undefined") {
+        const stored = localStorage.getItem("uget_payment_url");
+        if (
+          stored === "https://enroll.vercel.app/payment" ||
+          stored === "https://uget-enrollment.online/payment"
+        ) {
+          localStorage.setItem("uget_payment_url", "https://uget-enroll.vercel.app/payment");
+          return "https://uget-enroll.vercel.app/payment";
+        }
+        return stored ||
+          (import.meta.env.VITE_PAYMENT_URL as string | undefined) ||
+          "https://uget-enroll.vercel.app/payment";
       }
-      return stored ||
-        (import.meta.env.VITE_PAYMENT_URL as string | undefined) ||
-        "https://uget-enroll.vercel.app/payment";
+      return "https://uget-enroll.vercel.app/payment";
     }
   );
 
   function saveSettings(provider: "resend" | "brevo", resKey: string, brevKey: string, email: string, url: string) {
-    localStorage.setItem("uget_email_provider", provider);
-    localStorage.setItem("uget_resend_key", resKey);
-    localStorage.setItem("uget_brevo_key", brevKey);
-    localStorage.setItem("uget_sender_email", email);
-    localStorage.setItem("uget_payment_url", url);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("uget_email_provider", provider);
+      localStorage.setItem("uget_resend_key", resKey);
+      localStorage.setItem("uget_brevo_key", brevKey);
+      localStorage.setItem("uget_sender_email", email);
+      localStorage.setItem("uget_payment_url", url);
+    }
     setEmailProvider(provider);
     setResendKey(resKey);
     setBrevoKey(brevKey);
