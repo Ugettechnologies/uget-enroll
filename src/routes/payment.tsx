@@ -178,6 +178,40 @@ function PaymentPage() {
     }
   }
 
+  async function performIdLookup(idVal: string) {
+    if (!idVal.trim()) return;
+    setLookupStatus("loading");
+    setApplicant(null);
+
+    if (!supabase) {
+      setLookupStatus("not_found");
+      return;
+    }
+
+    const { data } = await supabase
+      .from("scholarship_applications")
+      .select("id, full_name, email, track, country, phone, payments(payment_status)")
+      .eq("id", idVal.trim())
+      .maybeSingle();
+
+    if (data) {
+      const p = Array.isArray(data.payments) ? data.payments[0] : (data.payments as any);
+      setApplicant({
+        id: data.id,
+        full_name: data.full_name,
+        email: data.email,
+        track: data.track,
+        country: data.country || "Nigeria",
+        phone: data.phone || "",
+        payment_status: p?.payment_status || "Unpaid",
+      });
+      setEmail(data.email);
+      setLookupStatus("found");
+    } else {
+      setLookupStatus("not_found");
+    }
+  }
+
   async function handleLookup(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     await performLookup(email);
@@ -186,11 +220,9 @@ function PaymentPage() {
   useEffect(() => {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
-      const emailParam = params.get("email");
-      if (emailParam) {
-        const decodedEmail = decodeURIComponent(emailParam).trim();
-        setEmail(decodedEmail);
-        performLookup(decodedEmail);
+      const idParam = params.get("id") || params.get("token");
+      if (idParam) {
+        performIdLookup(idParam.trim());
       }
     }
   }, []);

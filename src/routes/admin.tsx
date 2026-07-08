@@ -496,8 +496,8 @@ function NotifyModal({
 
   const fee = COURSE_FEES[app.track] ?? 0;
   const personalizedPaymentUrl = paymentUrl.includes("?")
-    ? `${paymentUrl}&email=${encodeURIComponent(app.email)}`
-    : `${paymentUrl}?email=${encodeURIComponent(app.email)}`;
+    ? `${paymentUrl}&id=${app.id}`
+    : `${paymentUrl}?id=${app.id}`;
 
   let subject = `Welcome to Uget Academy — ${app.track} Cohort 1`;
   let html = "";
@@ -771,8 +771,8 @@ function BulkEmailModal({
     for (const app of targets) {
       const fee = COURSE_FEES[app.track] ?? 0;
       const personalizedPaymentUrl = paymentUrl.includes("?")
-        ? `${paymentUrl}&email=${encodeURIComponent(app.email)}`
-        : `${paymentUrl}?email=${encodeURIComponent(app.email)}`;
+        ? `${paymentUrl}&id=${app.id}`
+        : `${paymentUrl}?id=${app.id}`;
       try {
         let subject = "";
         let html = "";
@@ -837,8 +837,8 @@ function BulkEmailModal({
 
   const getWhatsAppMsg = (app: any) => {
     const personalizedPaymentUrl = paymentUrl.includes("?")
-      ? `${paymentUrl}&email=${encodeURIComponent(app.email)}`
-      : `${paymentUrl}?email=${encodeURIComponent(app.email)}`;
+      ? `${paymentUrl}&id=${app.id}`
+      : `${paymentUrl}?id=${app.id}`;
     if (templateType === "class_starts") {
       return getClassStartsWhatsAppMessage(app);
     } else if (templateType === "deadline") {
@@ -870,11 +870,11 @@ function BulkEmailModal({
   };
 
   // Preview data based on first applicant in target list or placeholder
-  const previewApp = targets[0] ?? { full_name: "John Doe", track: "Full-Stack Development", email: "johndoe@example.com" };
+  const previewApp = targets[0] ?? { id: "placeholder-id", full_name: "John Doe", track: "Full-Stack Development", email: "johndoe@example.com" };
   const previewFee = COURSE_FEES[previewApp.track] ?? 0;
   const previewPaymentUrl = paymentUrl.includes("?")
-    ? `${paymentUrl}&email=${encodeURIComponent(previewApp.email || "")}`
-    : `${paymentUrl}?email=${encodeURIComponent(previewApp.email || "")}`;
+    ? `${paymentUrl}&id=${previewApp.id || ""}`
+    : `${paymentUrl}?id=${previewApp.id || ""}`;
 
   let previewSubject = "";
   let previewText = "";
@@ -1098,8 +1098,8 @@ function BulkEmailModal({
                   {targets.map((app) => {
                     const fee = COURSE_FEES[app.track] ?? 0;
                     const personalizedPaymentUrl = paymentUrl.includes("?")
-                      ? `${paymentUrl}&email=${encodeURIComponent(app.email)}`
-                      : `${paymentUrl}?email=${encodeURIComponent(app.email)}`;
+                      ? `${paymentUrl}&id=${app.id}`
+                      : `${paymentUrl}?id=${app.id}`;
                     
                     let subject = "";
                     let text = "";
@@ -1533,8 +1533,8 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
     for (const app of targets) {
       const fee = COURSE_FEES[app.track] ?? 0;
       const personalizedPaymentUrl = paymentUrl.includes("?")
-        ? `${paymentUrl}&email=${encodeURIComponent(app.email)}`
-        : `${paymentUrl}?email=${encodeURIComponent(app.email)}`;
+        ? `${paymentUrl}&id=${app.id}`
+        : `${paymentUrl}?id=${app.id}`;
 
       const htmlContent = `
         <!DOCTYPE html>
