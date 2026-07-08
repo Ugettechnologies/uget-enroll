@@ -56,7 +56,7 @@ if (!resendApiKey) {
 const supabase = createClient(supabaseUrl, supabaseKey);
 const resend = new Resend(resendApiKey);
 
-const FALLBACK_DOMAIN = "https://uget-blog-seven.vercel.app";
+const FALLBACK_DOMAIN = "https://uget-enroll.vercel.app";
 const FROM_ADDRESS = `Uget Academy <${senderEmail}>`;
 
 interface Student {

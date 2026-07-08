@@ -1478,14 +1478,14 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
           !stored ||
           stored === "https://enroll.vercel.app/payment" ||
           stored === "https://uget-enrollment.online/payment" ||
-          stored === "https://uget-enroll.vercel.app/payment"
+          stored === "https://uget-blog-seven.vercel.app/payment"
         ) {
-          localStorage.setItem("uget_payment_url", "https://uget-blog-seven.vercel.app/payment");
-          return "https://uget-blog-seven.vercel.app/payment";
+          localStorage.setItem("uget_payment_url", "https://uget-enroll.vercel.app/payment");
+          return "https://uget-enroll.vercel.app/payment";
         }
         return stored;
       }
-      return "https://uget-blog-seven.vercel.app/payment";
+      return "https://uget-enroll.vercel.app/payment";
     }
   );
 
