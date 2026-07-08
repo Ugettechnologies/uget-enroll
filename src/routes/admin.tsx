@@ -1475,17 +1475,17 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
       if (typeof window !== "undefined") {
         const stored = localStorage.getItem("uget_payment_url");
         if (
+          !stored ||
           stored === "https://enroll.vercel.app/payment" ||
-          stored === "https://uget-enrollment.online/payment"
+          stored === "https://uget-enrollment.online/payment" ||
+          stored === "https://uget-enroll.vercel.app/payment"
         ) {
-          localStorage.setItem("uget_payment_url", "https://uget-enroll.vercel.app/payment");
-          return "https://uget-enroll.vercel.app/payment";
+          localStorage.setItem("uget_payment_url", "https://uget-blog-seven.vercel.app/payment");
+          return "https://uget-blog-seven.vercel.app/payment";
         }
-        return stored ||
-          (import.meta.env.VITE_PAYMENT_URL as string | undefined) ||
-          "https://uget-enroll.vercel.app/payment";
+        return stored;
       }
-      return "https://uget-enroll.vercel.app/payment";
+      return "https://uget-blog-seven.vercel.app/payment";
     }
   );
 
