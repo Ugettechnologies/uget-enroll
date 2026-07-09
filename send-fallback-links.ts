@@ -56,7 +56,7 @@ if (!resendApiKey) {
 const supabase = createClient(supabaseUrl, supabaseKey);
 const resend = new Resend(resendApiKey);
 
-const FALLBACK_DOMAIN = "https://uget-enroll.vercel.app";
+const FALLBACK_DOMAIN = "https://www.uget-enrollment.online";
 const FROM_ADDRESS = `Uget Academy <${senderEmail}>`;
 
 interface Student {
@@ -67,27 +67,86 @@ interface Student {
 
 function buildEmailHtml(name: string | null, link: string) {
   return `
-    <div style="font-family: sans-serif; font-size: 15px; color: #222; line-height: 1.5; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 8px;">
-      <p>Hi ${name ?? "there"},</p>
-      <p>Quick update on registration for the cohort.</p>
-      <p>Our main site is showing a temporary browser security flag while we finish fixing it,
-      so please use the link below to complete your registration/payment instead:</p>
-      <p style="margin: 24px 0;">
-        <a href="${link}" style="background:#7c3aed;color:#fff;padding:12px 24px;
-        border-radius:30px;font-weight:bold;text-decoration:none;display:inline-block;box-shadow:0 4px 12px rgba(124,58,237,0.35);">
-          Complete Registration
-        </a>
-      </p>
-      <p>Or copy this link directly into your browser:<br/>
-      <a href="${link}" style="color:#7c3aed;">${link}</a></p>
-      <p>Sorry for the extra step — everything else about the process stays the same.
-      Thanks for your patience!</p>
-      <p style="margin-top:32px;border-top:1px solid #eee;padding-top:16px;font-size:13px;color:#666;">
-        Warm regards,<br/>
-        <strong>Uget Academy Team</strong>
-      </p>
-    </div>
-  `;
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Uget Academy Registration Update</title>
+</head>
+<body style="margin:0;padding:0;background:#0d0a1a;font-family:'Inter',Arial,sans-serif;color:#f0eeff;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:40px auto;background:#130f26;border-radius:24px;overflow:hidden;border:1px solid rgba(124,58,237,0.3);box-shadow:0 20px 40px rgba(0,0,0,0.5);">
+    <!-- Header Logo -->
+    <tr>
+      <td style="padding:48px 36px 32px;background:linear-gradient(135deg,rgba(124,58,237,0.15) 0%,rgba(6,182,212,0.05) 100%);border-bottom:1px solid rgba(124,58,237,0.2);text-align:center;">
+        <img src="https://www.uget-enrollment.online/uget-logo.png" alt="Uget Technologies Logo" style="width:160px;max-width:100%;height:auto;display:inline-block;margin-bottom:12px;" />
+        <p style="margin:0;font-size:11px;font-weight:800;letter-spacing:0.35em;text-transform:uppercase;color:#06b6d4;">Academy</p>
+      </td>
+    </tr>
+    <!-- Content Body -->
+    <tr>
+      <td style="padding:40px 36px 32px;">
+        <h2 style="margin:0 0 20px;font-size:22px;font-weight:800;color:#ffffff;letter-spacing:-0.02em;">Important Registration Update</h2>
+        
+        <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
+          Hello <strong style="color:#ffffff;">${name ?? "Candidate"}</strong>,
+        </p>
+        <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
+          This is a quick update regarding your cohort registration at Uget Academy.
+        </p>
+        <p style="margin:0 0 24px;font-size:15px;line-height:1.7;color:#d0c8f0;">
+          Our main website is currently undergoing scheduled maintenance and showing a temporary security notice. To ensure your registration is processed securely and without delay, please use our verified enrollment portal link below:
+        </p>
+
+        <!-- CTA button -->
+        <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="margin: 32px auto; width: 100%; text-align: center;">
+          <tr>
+            <td align="center">
+              <a href="${link}"
+                 target="_blank"
+                 style="display: inline-block; background: linear-gradient(135deg, #06b6d4 0%, #7c3aed 100%); padding: 16px 40px; font-family: Arial, sans-serif; font-size: 14px; font-weight: 800; color: #ffffff; text-decoration: none; letter-spacing: 0.08em; text-transform: uppercase; border-radius: 9999px; box-shadow: 0 8px 24px rgba(124,58,237,0.35);">
+                COMPLETE REGISTRATION & PAYMENT
+              </a>
+            </td>
+          </tr>
+        </table>
+
+        <p style="margin:16px 0 24px;font-size:14px;line-height:1.7;color:#8b83b0;text-align:center;">
+          Or copy and paste this link into your browser:<br/>
+          <a href="${link}" style="color:#06b6d4;text-decoration:underline;">${link}</a>
+        </p>
+
+        <p style="margin:16px 0;font-size:15px;line-height:1.7;color:#d0c8f0;">
+          All payment details, including course structures, discount offers, and registration status remain completely unaffected and secure.
+        </p>
+        <p style="margin:16px 0 32px;font-size:15px;line-height:1.7;color:#d0c8f0;">
+          Thank you for your patience and understanding as we optimize our systems.
+        </p>
+
+        <!-- Sign-off -->
+        <table width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid rgba(124,58,237,0.2);padding-top:24px;">
+          <tr>
+            <td>
+              <p style="margin:0;font-size:15px;line-height:1.7;color:#d0c8f0;">
+                Warm regards,<br/>
+                <strong style="color:#ffffff;">Uget Academy Team</strong><br/>
+                <span style="color:#8b83b0;font-size:13px;">Uget Technologies</span>
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+    <!-- Footer -->
+    <tr>
+      <td style="padding:24px 36px;background:#090714;border-top:1px solid rgba(124,58,237,0.15);text-align:center;">
+        <p style="margin:0;font-size:12px;color:#635d7a;">© ${new Date().getFullYear()} Uget Academy / Uget Technologies. All rights reserved.</p>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+  `.trim();
 }
 
 async function main() {

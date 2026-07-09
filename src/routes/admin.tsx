@@ -44,7 +44,7 @@ function buildEmailHtml(name: string, track: string, fee: number, paymentUrl: st
     <!-- Header Logo -->
     <tr>
       <td style="padding:48px 36px 32px;background:linear-gradient(135deg,rgba(124,58,237,0.15) 0%,rgba(6,182,212,0.05) 100%);border-bottom:1px solid rgba(124,58,237,0.2);text-align:center;">
-        <img src="https://uget-enroll.vercel.app/uget-logo.png" alt="Uget Technologies Logo" style="width:160px;max-width:100%;height:auto;display:inline-block;margin-bottom:12px;" />
+        <img src="https://www.uget-enrollment.online/uget-logo.png" alt="Uget Technologies Logo" style="width:160px;max-width:100%;height:auto;display:inline-block;margin-bottom:12px;" />
         <p style="margin:0;font-size:11px;font-weight:800;letter-spacing:0.35em;text-transform:uppercase;color:#06b6d4;">Academy</p>
       </td>
     </tr>
@@ -166,9 +166,8 @@ Chiemena Erasmous
 Uget Technologies`.trim();
 }
 
-function getWhatsAppMessage(app: any, paymentUrl: string) {
-  const feeDetails = getFeeDetails(app.track);
-  return `Hello ${app.full_name},\n\nCongratulations! You've secured a spot in Uget Academy's Cohort 1 for ${app.track}.\n\nProgram Fee: ${fmt(feeDetails.ngn.total)} (approximately ${fmtUsd(feeDetails.usd.total)})\nDeadline: Payment is to be made within 24 to 72 hours of receiving this offer to secure your spot.\n\nPayment Details (Nigeria):\nBank: Moniepoint\nAccount Number: 6743620799\nAccount Name: Uget Technologies\n\nPayment Details (International Students):\nPlease contact us at ugettechnologies@gmail.com or via WhatsApp at +234 810 617 5131 and we'll guide you through the best payment option for your country.\n\nConfirm payment & validate scholarship here:\n${paymentUrl}\n\nOnce payment is confirmed, you'll receive your onboarding details, including access to the learning dashboard and your cohort schedule.\n\nIf you have any questions before enrolling, feel free to reach out — we're happy to help.\n\nWarm regards,\nChiemena Erasmous\nUget Technologies`;
+function getWhatsAppMessage(app: any, paymentUrl?: string) {
+  return `Hello ${app.full_name},\n\nKindly pls check your mail for update on the admission form. If not seen on the inbox, try to check your spam messages.`;
 }
 
 function buildDeadlineEmailHtml(name: string, track: string, paymentUrl: string) {
@@ -185,7 +184,7 @@ function buildDeadlineEmailHtml(name: string, track: string, paymentUrl: string)
     <!-- Header Logo -->
     <tr>
       <td style="padding:48px 36px 32px;background:linear-gradient(135deg,rgba(239,68,68,0.15) 0%,rgba(6,182,212,0.05) 100%);border-bottom:1px solid rgba(239,68,68,0.2);text-align:center;">
-        <img src="https://uget-enroll.vercel.app/uget-logo.png" alt="Uget Technologies Logo" style="width:160px;max-width:100%;height:auto;display:inline-block;margin-bottom:12px;" />
+        <img src="https://www.uget-enrollment.online/uget-logo.png" alt="Uget Technologies Logo" style="width:160px;max-width:100%;height:auto;display:inline-block;margin-bottom:12px;" />
         <p style="margin:0;font-size:11px;font-weight:800;letter-spacing:0.35em;text-transform:uppercase;color:#f87171;">Academy</p>
       </td>
     </tr>
@@ -299,7 +298,7 @@ function buildClassStartsEmailHtml(name: string, track: string) {
     <!-- Header Logo -->
     <tr>
       <td style="padding:48px 36px 32px;background:linear-gradient(135deg,rgba(6,182,212,0.15) 0%,rgba(124,58,237,0.05) 100%);border-bottom:1px solid rgba(6,182,212,0.2);text-align:center;">
-        <img src="https://uget-enroll.vercel.app/uget-logo.png" alt="Uget Technologies Logo" style="width:160px;max-width:100%;height:auto;display:inline-block;margin-bottom:12px;" />
+        <img src="https://www.uget-enrollment.online/uget-logo.png" alt="Uget Technologies Logo" style="width:160px;max-width:100%;height:auto;display:inline-block;margin-bottom:12px;" />
         <p style="margin:0;font-size:11px;font-weight:800;letter-spacing:0.35em;text-transform:uppercase;color:#06b6d4;">Academy</p>
       </td>
     </tr>
@@ -1476,16 +1475,16 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
         const stored = localStorage.getItem("uget_payment_url");
         if (
           !stored ||
-          stored === "https://enroll.vercel.app/payment" ||
-          stored === "https://uget-enrollment.online/payment" ||
-          stored === "https://uget-blog-seven.vercel.app/payment"
+          stored.includes("enroll.vercel.app") ||
+          stored.includes("uget-blog-seven.vercel.app") ||
+          stored.includes("uget-enroll.vercel.app")
         ) {
-          localStorage.setItem("uget_payment_url", "https://uget-enroll.vercel.app/payment");
-          return "https://uget-enroll.vercel.app/payment";
+          localStorage.setItem("uget_payment_url", "https://www.uget-enrollment.online/payment");
+          return "https://www.uget-enrollment.online/payment";
         }
         return stored;
       }
-      return "https://uget-enroll.vercel.app/payment";
+      return "https://www.uget-enrollment.online/payment";
     }
   );
 
@@ -1867,7 +1866,7 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
                 name="payment_url"
                 type="url"
                 defaultValue={paymentUrl}
-                placeholder="https://uget-enroll.vercel.app/payment"
+                placeholder="https://www.uget-enrollment.online/payment"
               />
               <p className="text-[10px] text-muted-foreground">
                 This is the payment confirmation link embedded in email alerts.

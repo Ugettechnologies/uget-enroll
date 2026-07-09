@@ -55,7 +55,7 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 const resend = new Resend(resendApiKey);
 
 // Safe Fallback Domain
-const FALLBACK_DOMAIN = "https://uget-enroll.vercel.app";
+const FALLBACK_DOMAIN = "https://www.uget-enrollment.online";
 const FROM_ADDRESS = `Uget Academy <${senderEmail}>`;
 
 // ─── Course fees configuration ───────────────────────────────────────────────
@@ -122,7 +122,7 @@ function buildEmailHtml(name: string, track: string, paymentUrl: string) {
     <!-- Header Logo -->
     <tr>
       <td style="padding:48px 36px 32px;background:linear-gradient(135deg,rgba(124,58,237,0.15) 0%,rgba(6,182,212,0.05) 100%);border-bottom:1px solid rgba(124,58,237,0.2);text-align:center;">
-        <img src="https://uget-enroll.vercel.app/uget-logo.png" alt="Uget Technologies Logo" style="width:160px;max-width:100%;height:auto;display:inline-block;margin-bottom:12px;" />
+        <img src="https://www.uget-enrollment.online/uget-logo.png" alt="Uget Technologies Logo" style="width:160px;max-width:100%;height:auto;display:inline-block;margin-bottom:12px;" />
         <p style="margin:0;font-size:11px;font-weight:800;letter-spacing:0.35em;text-transform:uppercase;color:#06b6d4;">Academy</p>
       </td>
     </tr>
@@ -246,9 +246,8 @@ Uget Technologies`.trim();
 }
 
 // ─── Personalized WhatsApp Message ─────────────────────────────────────────
-function buildWhatsAppMessage(name: string, track: string, paymentUrl: string) {
-  const feeDetails = getFeeDetails(track);
-  return `Hello ${name},\n\nCongratulations! You've secured a spot in Uget Academy's Cohort 1 for ${track}.\n\nProgram Fee: ${fmt(feeDetails.ngn.total)} (approximately ${fmtUsd(feeDetails.usd.total)})\nDeadline: Payment is to be made within 24 to 72 hours of receiving this offer to secure your spot.\n\nPayment Details (Nigeria):\nBank: Moniepoint\nAccount Number: 6743620799\nAccount Name: Uget Technologies\n\nPayment Details (International Students):\nPlease contact us at ugettechnologies@gmail.com or via WhatsApp at +234 810 617 5131 and we'll guide you through the best payment option for your country.\n\nConfirm payment & validate scholarship here:\n${paymentUrl}\n\nOnce payment is confirmed, you'll receive your onboarding details, including access to the learning dashboard and your cohort schedule.\n\nIf you have any questions before enrolling, feel free to reach out — we're happy to help.\n\nWarm regards,\nChiemena Erasmous\nUget Technologies`;
+function buildWhatsAppMessage(name: string | null) {
+  return `Hello ${name || ""},\n\nKindly pls check your mail for update on the admission form. If not seen on the inbox, try to check your spam messages.`;
 }
 
 async function main() {
@@ -291,7 +290,7 @@ async function main() {
 
   unpaidCandidates.forEach((app, idx) => {
     const personalizedLink = `${FALLBACK_DOMAIN}/payment?id=${app.id}`;
-    const waText = buildWhatsAppMessage(app.full_name, app.track, personalizedLink);
+    const waText = buildWhatsAppMessage(app.full_name);
     waFileContent += `[${idx + 1}] Student: ${app.full_name} | Phone: ${app.phone || "N/A"} | Email: ${app.email}\n`;
     waFileContent += `------------------------------------------------------------------------\n`;
     waFileContent += `${waText}\n`;
