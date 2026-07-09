@@ -324,7 +324,7 @@ function buildClassStartsEmailHtml(name: string, track: string) {
           🚀 <strong style="color:#ffffff;">Start Date:</strong> Official classes will commence on <strong style="color:#ffffff;text-decoration:underline;">Monday, July 20th, 2026</strong>.
         </p>
         <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-          In the coming days, you will receive an onboarding email containing your learning dashboard access credentials, Slack workspace invitation, and the schedule details for our first session.
+          In the coming days, you will receive an onboarding email containing your learning dashboard access credentials, Discord workspace invitation, and the schedule details for our first session.
         </p>
         <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
           Please ensure you check your email regularly so you do not miss these setup instructions. If you have any immediate questions, feel free to reply directly to this email or chat with us on WhatsApp.
@@ -384,7 +384,7 @@ We are pleased to inform you that your payment has been verified, and your enrol
 
 Start Date: Official classes will commence on Monday, July 20th, 2026.
 
-In the coming days, you will receive an onboarding email containing your learning dashboard access credentials, Slack workspace invitation, and the schedule details for our first session.
+In the coming days, you will receive an onboarding email containing your learning dashboard access credentials, Discord workspace invitation, and the schedule details for our first session.
 
 Please ensure you check your email regularly so you do not miss these setup instructions. If you have any immediate questions, feel free to reply to this email or chat with us on WhatsApp at +234 810 617 5131.
 
@@ -398,7 +398,7 @@ function getDeadlineWhatsAppMessage(app: any, paymentUrl: string) {
 }
 
 function getClassStartsWhatsAppMessage(app: any) {
-  return `Hello ${app.full_name},\n\nCongratulations! Your payment has been verified, and your spot in Uget Academy Cohort 1 for ${app.track} is secured.\n\nStart Date: Official classes will commence on Monday, July 20th, 2026.\n\nKeep an eye on your email for dashboard access details and our Slack invitation. We look forward to starting this journey with you!\n\nWarm regards,\nChiemena Erasmous\nUget Technologies`;
+  return `Hello ${app.full_name},\n\nCongratulations! Your payment has been verified, and your spot in Uget Academy Cohort 1 for ${app.track} is secured.\n\nStart Date: Official classes will commence on Monday, July 20th, 2026.\n\nKeep an eye on your email for dashboard access details and our Discord invitation. We look forward to starting this journey with you!\n\nWarm regards,\nChiemena Erasmous\nUget Technologies`;
 }
 
 
