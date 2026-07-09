@@ -251,7 +251,7 @@ Uget Technologies`.trim();
 
 // ─── Personalized WhatsApp Message ─────────────────────────────────────────
 function buildWhatsAppMessage(name: string | null) {
-  return `Hello ${name || ""},\n\nThis is from Uget Academy Cohort 1. Kindly check your email for an update on the admission form. If you do not see it in your inbox, please check your spam folder.`;
+  return `Hello ${name || ""},\n\nThis is from *UGET ACADEMY COHORT 1*.\n\nKindly check your email for an update on the admission form. If you do not see it in your inbox, please check your spam folder.`;
 }
 
 async function main() {
