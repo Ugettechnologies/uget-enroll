@@ -171,7 +171,7 @@ Uget Technologies`.trim();
 }
 
 function getWhatsAppMessage(app: any, paymentUrl?: string) {
-  return `Hello ${app.full_name},\n\nThis is from *UGET ACADEMY COHORT 1*.\n\nKindly check your email for an update on the admission form. If you do not see it in your inbox, please check your spam folder.`;
+  return `Hello ${app.full_name},\n\nThis is from Uget Academy Cohort 1. Kindly check your email for an update on the admission form. If you do not see it in your inbox, please check your spam folder.`;
 }
 
 function buildDeadlineEmailHtml(name: string, track: string, paymentUrl: string) {
@@ -394,11 +394,11 @@ Uget Technologies`.trim();
 }
 
 function getDeadlineWhatsAppMessage(app: any, paymentUrl: string) {
-  return `Hello ${app.full_name},\n\nThis is a gentle reminder regarding your admission offer to *UGET ACADEMY COHORT 1* for ${app.track}.\n\nDeadline: To secure your scholarship spot, please complete your payment and upload your receipt on your enrollment portal on or before Wednesday, July 15th, 2026:\n${paymentUrl}\n\nIf you have any questions or require international payment options, please let us know or chat with our coordinator here. We look forward to welcoming you!\n\nWarm regards,\nChiemena Erasmous\nUget Technologies`;
+  return `Hello ${app.full_name},\n\nThis is a gentle reminder regarding your admission offer to Uget Academy Cohort 1 for ${app.track}.\n\nDeadline: To secure your scholarship spot, please complete your payment and upload your receipt on your enrollment portal on or before Wednesday, July 15th, 2026:\n${paymentUrl}\n\nIf you have any questions or require international payment options, please let us know or chat with our coordinator here. We look forward to welcoming you!\n\nWarm regards,\nChiemena Erasmous\nUget Technologies`;
 }
 
 function getClassStartsWhatsAppMessage(app: any) {
-  return `Hello ${app.full_name},\n\nCongratulations! Your payment has been verified, and your spot in *UGET ACADEMY COHORT 1* for ${app.track} is secured.\n\nStart Date: Official classes will commence on Monday, July 20th, 2026.\n\nKeep an eye on your email for dashboard access details and our Slack invitation. We look forward to starting this journey with you!\n\nWarm regards,\nChiemena Erasmous\nUget Technologies`;
+  return `Hello ${app.full_name},\n\nCongratulations! Your payment has been verified, and your spot in Uget Academy Cohort 1 for ${app.track} is secured.\n\nStart Date: Official classes will commence on Monday, July 20th, 2026.\n\nKeep an eye on your email for dashboard access details and our Slack invitation. We look forward to starting this journey with you!\n\nWarm regards,\nChiemena Erasmous\nUget Technologies`;
 }
 
 
