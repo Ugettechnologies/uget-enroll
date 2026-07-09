@@ -760,18 +760,23 @@ function BulkEmailModal({
   const [done, setDone] = useState(false);
   const [method, setMethod] = useState<"resend" | "mailto" | "whatsapp">("resend");
   const [copiedAppId, setCopiedAppId] = useState<string | null>(null);
+  const [sendLimit, setSendLimit] = useState<string>("");
 
   async function sendAll() {
     const activeKey = emailProvider === "brevo" ? brevoKey : resendKey;
     if (!activeKey) return;
     setRunning(true);
     setDone(false);
+    
+    const limitNum = sendLimit ? parseInt(sendLimit, 10) : 0;
+    const activeTargets = limitNum > 0 ? targets.slice(0, limitNum) : targets;
+
     const next: Record<string, "idle" | "ok" | "err"> = {};
-    targets.forEach((a) => (next[a.id] = "idle"));
+    activeTargets.forEach((a) => (next[a.id] = "idle"));
     setProgress({ ...next });
     const notifiedIds: string[] = [];
 
-    for (const app of targets) {
+    for (const app of activeTargets) {
       const fee = COURSE_FEES[app.track] ?? 0;
       const personalizedPaymentUrl = paymentUrl.includes("?")
         ? `${paymentUrl}&id=${app.id}`
@@ -1066,6 +1071,26 @@ function BulkEmailModal({
                   </p>
                 </div>
 
+                {/* Send Limit setting */}
+                <div className="space-y-1.5 bg-card/10 border border-border/40 rounded-xl p-3">
+                  <label htmlFor="send_limit" className="block text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+                    Limit Sending (first N recipients):
+                  </label>
+                  <Input
+                    id="send_limit"
+                    type="number"
+                    min="1"
+                    max={targets.length.toString()}
+                    value={sendLimit}
+                    onChange={(e) => setSendLimit(e.target.value)}
+                    placeholder={`e.g. 1, 5, 10... Leave empty to send to all ${targets.length}`}
+                    className="h-9 text-xs bg-background/50 border-border/80 focus-visible:ring-primary"
+                  />
+                  <p className="text-[9px] text-muted-foreground">
+                    Tip: Enter 1 to send a single email to the first unpaid student.
+                  </p>
+                </div>
+
                 {/* Template Preview */}
                 <div className="rounded-xl border border-border bg-card/20 overflow-hidden">
                   <div className="bg-card/65 px-4 py-2 border-b border-border/60 flex justify-between items-center text-[10px] uppercase tracking-wider text-muted-foreground font-bold">
@@ -1081,13 +1106,19 @@ function BulkEmailModal({
                   </div>
                 </div>
 
-                <Button
-                  onClick={sendAll}
-                  disabled={!(emailProvider === "brevo" ? brevoKey : resendKey) || targets.length === 0}
-                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
-                >
-                  Send to {targets.length} Student{targets.length !== 1 ? "s" : ""} via {emailProvider === "brevo" ? "Brevo" : "Resend"}
-                </Button>
+                {(() => {
+                  const limitNum = sendLimit ? parseInt(sendLimit, 10) : 0;
+                  const activeTargets = limitNum > 0 ? targets.slice(0, limitNum) : targets;
+                  return (
+                    <Button
+                      onClick={sendAll}
+                      disabled={!(emailProvider === "brevo" ? brevoKey : resendKey) || activeTargets.length === 0}
+                      className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
+                    >
+                      Send to {activeTargets.length} Student{activeTargets.length !== 1 ? "s" : ""} via {emailProvider === "brevo" ? "Brevo" : "Resend"}
+                    </Button>
+                  );
+                })()}
               </div>
             )}
 
@@ -1763,7 +1794,7 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
       )}
       {showBulk && (
         <BulkEmailModal
-          applications={applications}
+          applications={filteredAndSortedApplications}
           onClose={() => setShowBulk(false)}
           resendKey={resendKey}
           brevoKey={brevoKey}
