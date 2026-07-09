@@ -204,7 +204,7 @@ function buildDeadlineEmailHtml(name: string, track: string, paymentUrl: string)
           This is a gentle reminder regarding your admission offer to Uget Academy's Cohort 1 for <strong style="color:#ffffff;">${track}</strong>. We noticed that you have not yet completed or confirmed your commitment fee payment.
         </p>
         <p style="margin:0 0 24px;font-size:15px;line-height:1.7;color:#facc15;font-weight:600;background:rgba(250,204,21,0.1);padding:14px 20px;border-radius:12px;border:1px solid rgba(250,204,21,0.25);">
-          ⚠️ <strong style="color:#ffffff;">Deadline:</strong> To secure your scholarship spot and participate in the upcoming cohort, please complete your payment and upload your receipt on your enrollment portal on or before <strong style="color:#ffffff;text-decoration:underline;">July 10th, 2026</strong>.
+          ⚠️ <strong style="color:#ffffff;">Deadline:</strong> To secure your scholarship spot and participate in the upcoming cohort, please complete your payment and upload your receipt on your enrollment portal on or before <strong style="color:#ffffff;text-decoration:underline;">Wednesday, July 15th, 2026</strong>.
         </p>
         <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
           Please note that we have limited seats, and spots not secured by the deadline will be reassigned to applicants on our waiting list.
@@ -274,7 +274,7 @@ We hope you are doing well.
 
 This is a gentle reminder regarding your admission offer to Uget Academy's Cohort 1 for ${track}. We noticed that you have not yet completed or confirmed your commitment fee payment.
 
-Deadline: To secure your scholarship spot and participate in the upcoming cohort, please complete your payment and upload your receipt on your enrollment portal on or before July 10th, 2026.
+Deadline: To secure your scholarship spot and participate in the upcoming cohort, please complete your payment and upload your receipt on your enrollment portal on or before Wednesday, July 15th, 2026.
 
 Please note that we have limited seats, and spots not secured by the deadline will be reassigned to applicants on our waiting list.
 
@@ -309,7 +309,7 @@ function buildClassStartsEmailHtml(name: string, track: string) {
     <!-- Content Body -->
     <tr>
       <td style="padding:40px 36px 32px;">
-        <h2 style="margin:0 0 20px;font-size:22px;font-weight:800;color:#ffffff;letter-spacing:-0.02em;">Classes Start July 13th</h2>
+        <h2 style="margin:0 0 20px;font-size:22px;font-weight:800;color:#ffffff;letter-spacing:-0.02em;">Classes Start July 20th</h2>
         
         <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
           Hello <strong style="color:#ffffff;">${name}</strong>,
@@ -321,7 +321,7 @@ function buildClassStartsEmailHtml(name: string, track: string) {
           We are pleased to inform you that your payment has been verified, and your enrollment is officially complete.
         </p>
         <p style="margin:0 0 24px;font-size:15px;line-height:1.7;color:#06b6d4;font-weight:600;background:rgba(6,182,212,0.1);padding:14px 20px;border-radius:12px;border:1px solid rgba(6,182,212,0.25);">
-          🚀 <strong style="color:#ffffff;">Start Date:</strong> Official classes will commence on <strong style="color:#ffffff;text-decoration:underline;">Monday, July 13th, 2026</strong>.
+          🚀 <strong style="color:#ffffff;">Start Date:</strong> Official classes will commence on <strong style="color:#ffffff;text-decoration:underline;">Monday, July 20th, 2026</strong>.
         </p>
         <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
           In the coming days, you will receive an onboarding email containing your learning dashboard access credentials, Slack workspace invitation, and the schedule details for our first session.
@@ -382,7 +382,7 @@ Congratulations once again on securing your spot in Uget Academy's Cohort 1 for 
 
 We are pleased to inform you that your payment has been verified, and your enrollment is officially complete.
 
-Start Date: Official classes will commence on Monday, July 13th, 2026.
+Start Date: Official classes will commence on Monday, July 20th, 2026.
 
 In the coming days, you will receive an onboarding email containing your learning dashboard access credentials, Slack workspace invitation, and the schedule details for our first session.
 
@@ -394,11 +394,11 @@ Uget Technologies`.trim();
 }
 
 function getDeadlineWhatsAppMessage(app: any, paymentUrl: string) {
-  return `Hello ${app.full_name},\n\nThis is a gentle reminder regarding your admission offer to Uget Academy's Cohort 1 for ${app.track}.\n\nDeadline: To secure your scholarship spot, please complete your payment and upload your receipt on your enrollment portal on or before July 10th, 2026:\n${paymentUrl}\n\nIf you have any questions or require international payment options, please let us know or chat with our coordinator here. We look forward to welcoming you!\n\nWarm regards,\nChiemena Erasmous\nUget Technologies`;
+  return `Hello ${app.full_name},\n\nThis is a gentle reminder regarding your admission offer to Uget Academy's Cohort 1 for ${app.track}.\n\nDeadline: To secure your scholarship spot, please complete your payment and upload your receipt on your enrollment portal on or before Wednesday, July 15th, 2026:\n${paymentUrl}\n\nIf you have any questions or require international payment options, please let us know or chat with our coordinator here. We look forward to welcoming you!\n\nWarm regards,\nChiemena Erasmous\nUget Technologies`;
 }
 
 function getClassStartsWhatsAppMessage(app: any) {
-  return `Hello ${app.full_name},\n\nCongratulations! Your payment has been verified, and your spot in Uget Academy's Cohort 1 for ${app.track} is secured.\n\nStart Date: Official classes will commence on Monday, July 13th, 2026.\n\nKeep an eye on your email for dashboard access details and our Slack invitation. We look forward to starting this journey with you!\n\nWarm regards,\nChiemena Erasmous\nUget Technologies`;
+  return `Hello ${app.full_name},\n\nCongratulations! Your payment has been verified, and your spot in Uget Academy's Cohort 1 for ${app.track} is secured.\n\nStart Date: Official classes will commence on Monday, July 20th, 2026.\n\nKeep an eye on your email for dashboard access details and our Slack invitation. We look forward to starting this journey with you!\n\nWarm regards,\nChiemena Erasmous\nUget Technologies`;
 }
 
 
