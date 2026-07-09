@@ -58,6 +58,13 @@ const resend = new Resend(resendApiKey);
 const FALLBACK_DOMAIN = "https://www.uget-enrollment.online";
 const FROM_ADDRESS = `Uget Academy <${senderEmail}>`;
 
+// ─── Sending Limits and Controls ─────────────────────────────────────────────
+// Set MAX_SEND_LIMIT to control how many total emails are sent in one run.
+// (e.g. set to 100 to stay under Resend Free Tier daily limits). Set to null for no limit.
+const MAX_SEND_LIMIT: number | null = null; 
+const BATCH_SIZE = 100; // Resend batch API limit is 100
+const DELAY_BETWEEN_BATCHES_MS = 1000; // Delay between API calls in milliseconds
+
 // ─── Course fees configuration ───────────────────────────────────────────────
 const COURSE_FEES: Record<string, number> = {
   "Full-Stack Development": 30000,
@@ -272,14 +279,19 @@ async function main() {
   }
 
   // Filter out candidates who already paid or are pending verification
-  const unpaidCandidates = students.filter((app: any) => {
+  let unpaidCandidates = students.filter((app: any) => {
     const p = Array.isArray(app.payments) ? app.payments[0] : app.payments;
     const status = p?.payment_status || "Unpaid";
     return status !== "Paid" && status !== "Pending Verification";
   });
 
   console.log(`Total database candidates: ${students.length}`);
-  console.log(`Unpaid candidates to welcome: ${unpaidCandidates.length}`);
+  console.log(`Unpaid candidates found: ${unpaidCandidates.length}`);
+
+  if (MAX_SEND_LIMIT !== null && unpaidCandidates.length > MAX_SEND_LIMIT) {
+    console.log(`⚠️ Capping sending queue to MAX_SEND_LIMIT of ${MAX_SEND_LIMIT} candidates.`);
+    unpaidCandidates = unpaidCandidates.slice(0, MAX_SEND_LIMIT);
+  }
 
   if (unpaidCandidates.length === 0) {
     console.log("No unpaid candidates to notify. Exiting.");
@@ -307,11 +319,10 @@ async function main() {
   // 2. Send Emails via Resend Batch API
   console.log(`Preparing to batch email welcome offers to ${unpaidCandidates.length} students via Resend...`);
 
-  const chunkSize = 100;
   let sentCount = 0;
 
-  for (let i = 0; i < unpaidCandidates.length; i += chunkSize) {
-    const chunk = unpaidCandidates.slice(i, i + chunkSize);
+  for (let i = 0; i < unpaidCandidates.length; i += BATCH_SIZE) {
+    const chunk = unpaidCandidates.slice(i, i + BATCH_SIZE);
 
     const emailBatch = chunk.map((app) => {
       const personalizedLink = `${FALLBACK_DOMAIN}/payment?id=${app.id}`;
@@ -330,13 +341,19 @@ async function main() {
     try {
       const { data, error: sendError } = await resend.batch.send(emailBatch);
       if (sendError) {
-        console.error(`❌ Batch ${Math.floor(i / chunkSize) + 1} send failed:`, sendError.message);
+        console.error(`❌ Batch ${Math.floor(i / BATCH_SIZE) + 1} send failed:`, sendError.message);
       } else {
         sentCount += chunk.length;
-        console.log(`✅ Sent Batch ${Math.floor(i / chunkSize) + 1} (${chunk.length} emails):`, data);
+        console.log(`✅ Sent Batch ${Math.floor(i / BATCH_SIZE) + 1} (${chunk.length} emails):`, data);
       }
     } catch (e: any) {
-      console.error(`❌ Batch ${Math.floor(i / chunkSize) + 1} encountered an exception:`, e.message);
+      console.error(`❌ Batch ${Math.floor(i / BATCH_SIZE) + 1} encountered an exception:`, e.message);
+    }
+
+    // Wait between batches to respect Resend rate limits
+    if (i + BATCH_SIZE < unpaidCandidates.length) {
+      console.log(`Waiting ${DELAY_BETWEEN_BATCHES_MS}ms before sending next batch to respect rate limits...`);
+      await new Promise((resolve) => setTimeout(resolve, DELAY_BETWEEN_BATCHES_MS));
     }
   }
 

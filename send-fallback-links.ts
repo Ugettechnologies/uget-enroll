@@ -59,6 +59,13 @@ const resend = new Resend(resendApiKey);
 const FALLBACK_DOMAIN = "https://www.uget-enrollment.online";
 const FROM_ADDRESS = `Uget Academy <${senderEmail}>`;
 
+// ─── Sending Limits and Controls ─────────────────────────────────────────────
+// Set MAX_SEND_LIMIT to control how many total emails are sent in one run.
+// (e.g. set to 100 to stay under Resend Free Tier daily limits). Set to null for no limit.
+const MAX_SEND_LIMIT: number | null = null; 
+const BATCH_SIZE = 100; // Resend batch API limit is 100
+const DELAY_BETWEEN_BATCHES_MS = 1000; // Delay between API calls in milliseconds
+
 interface Student {
   id: string;
   email: string;
@@ -185,8 +192,13 @@ async function main() {
     });
   }
 
-  const unpaidStudents = students.filter((s) => !paidAppIds.has(s.id));
+  let unpaidStudents = students.filter((s) => !paidAppIds.has(s.id));
   console.log(`Found ${unpaidStudents.length} unpaid students to notify.`);
+
+  if (MAX_SEND_LIMIT !== null && unpaidStudents.length > MAX_SEND_LIMIT) {
+    console.log(`⚠️ Capping sending queue to MAX_SEND_LIMIT of ${MAX_SEND_LIMIT} candidates.`);
+    unpaidStudents = unpaidStudents.slice(0, MAX_SEND_LIMIT);
+  }
 
   if (unpaidStudents.length === 0) {
     console.log("No unpaid students found. Exiting.");
@@ -195,10 +207,8 @@ async function main() {
 
   console.log(`Preparing to send ${unpaidStudents.length} emails...`);
 
-  // Resend's batch endpoint accepts up to 100 emails per call
-  const chunkSize = 100;
-  for (let i = 0; i < unpaidStudents.length; i += chunkSize) {
-    const chunk = unpaidStudents.slice(i, i + chunkSize) as Student[];
+  for (let i = 0; i < unpaidStudents.length; i += BATCH_SIZE) {
+    const chunk = unpaidStudents.slice(i, i + BATCH_SIZE) as Student[];
 
     const batch = chunk.map((s) => {
       const link = `${FALLBACK_DOMAIN}/payment?id=${s.id}`;
@@ -215,7 +225,13 @@ async function main() {
     if (sendError) {
       console.error(`Chunk starting at index ${i} failed:`, sendError);
     } else {
-      console.log(`Sent chunk ${Math.floor(i / chunkSize) + 1}:`, data);
+      console.log(`Sent chunk ${Math.floor(i / BATCH_SIZE) + 1}:`, data);
+    }
+
+    // Wait between batches to respect Resend rate limits
+    if (i + BATCH_SIZE < unpaidStudents.length) {
+      console.log(`Waiting ${DELAY_BETWEEN_BATCHES_MS}ms before sending next batch to respect rate limits...`);
+      await new Promise((resolve) => setTimeout(resolve, DELAY_BETWEEN_BATCHES_MS));
     }
   }
 
