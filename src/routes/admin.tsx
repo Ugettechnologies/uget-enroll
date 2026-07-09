@@ -723,6 +723,7 @@ function BulkEmailModal({
   senderEmail,
   paymentUrl,
   onNotifiedBatch,
+  notifiedApps = {},
 }: {
   applications: any[];
   onClose: () => void;
@@ -732,6 +733,7 @@ function BulkEmailModal({
   senderEmail: string;
   paymentUrl: string;
   onNotifiedBatch?: (ids: string[]) => void;
+  notifiedApps?: Record<string, boolean>;
 }) {
   const unpaid = applications.filter(
     (a) => !a.payment_status || a.payment_status === "Unpaid",
@@ -761,6 +763,7 @@ function BulkEmailModal({
   const [method, setMethod] = useState<"resend" | "mailto" | "whatsapp">("resend");
   const [copiedAppId, setCopiedAppId] = useState<string | null>(null);
   const [sendLimit, setSendLimit] = useState<string>("");
+  const [messagedIds, setMessagedIds] = useState<Record<string, boolean>>(() => ({ ...notifiedApps }));
 
   async function sendAll() {
     const activeKey = emailProvider === "brevo" ? brevoKey : resendKey;
@@ -858,6 +861,7 @@ function BulkEmailModal({
   const handleCopyMsg = (app: any) => {
     navigator.clipboard.writeText(getWhatsAppMsg(app)).then(() => {
       setCopiedAppId(app.id);
+      setMessagedIds((prev) => ({ ...prev, [app.id]: true }));
       if (onNotifiedBatch) onNotifiedBatch([app.id]);
       setTimeout(() => setCopiedAppId(null), 2000);
     });
@@ -872,7 +876,15 @@ function BulkEmailModal({
       .join("\n\n");
     navigator.clipboard.writeText(allMsgs).then(() => {
       setCopiedAppId("all_wa");
-      if (onNotifiedBatch) onNotifiedBatch(targets.map((a) => a.id));
+      const ids = targets.map((a) => a.id);
+      setMessagedIds((prev) => {
+        const next = { ...prev };
+        ids.forEach((id) => {
+          next[id] = true;
+        });
+        return next;
+      });
+      if (onNotifiedBatch) onNotifiedBatch(ids);
       setTimeout(() => setCopiedAppId(null), 2000);
     });
   };
@@ -1203,7 +1215,14 @@ function BulkEmailModal({
                     return (
                       <div key={app.id} className="flex items-center justify-between p-3 text-xs">
                         <div className="truncate max-w-[50%] pr-2">
-                          <p className="font-semibold text-foreground truncate">{app.full_name}</p>
+                          <div className="flex items-center gap-1.5">
+                            <p className="font-semibold text-foreground truncate">{app.full_name}</p>
+                            {messagedIds[app.id] && (
+                              <span className="inline-flex items-center gap-0.5 rounded bg-green-500/20 px-1.5 py-0.5 text-[9px] font-semibold text-green-400 border border-green-500/30 shrink-0">
+                                ✓ Sent
+                              </span>
+                            )}
+                          </div>
                           <p className="text-muted-foreground text-[10px] truncate">
                             {app.phone || "No phone number"}
                           </p>
@@ -1226,6 +1245,10 @@ function BulkEmailModal({
                               href={waLink}
                               target="_blank"
                               rel="noopener noreferrer"
+                              onClick={() => {
+                                setMessagedIds((prev) => ({ ...prev, [app.id]: true }));
+                                if (onNotifiedBatch) onNotifiedBatch([app.id]);
+                              }}
                               className="inline-flex items-center gap-1 h-8 px-2.5 rounded-lg border border-border bg-card text-green-400 hover:text-green-300 hover:border-green-500/50 text-[11px] transition-all"
                             >
                               <MessageSquare className="h-3.5 w-3.5" /> Chat
@@ -1802,6 +1825,7 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
           senderEmail={senderEmail}
           paymentUrl={paymentUrl}
           onNotifiedBatch={markBatchNotified}
+          notifiedApps={notifiedApps}
         />
       )}
 
