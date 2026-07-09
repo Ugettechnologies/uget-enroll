@@ -44,7 +44,7 @@ function buildEmailHtml(name: string, track: string, fee: number, paymentUrl: st
     <!-- Header Logo -->
     <tr>
       <td style="padding:48px 36px 32px;background:linear-gradient(135deg,rgba(124,58,237,0.15) 0%,rgba(6,182,212,0.05) 100%);border-bottom:1px solid rgba(124,58,237,0.2);text-align:center;">
-        <img src="https://www.uget-enrollment.online/uget-logo.png" alt="Uget Technologies Logo" style="width:160px;max-width:100%;height:auto;display:inline-block;margin-bottom:12px;" />
+        <img src="https://uget-enroll.vercel.app/uget-logo.png" alt="Uget Technologies Logo" style="width:160px;max-width:100%;height:auto;display:inline-block;margin-bottom:12px;" />
         <p style="margin:0;font-size:11px;font-weight:800;letter-spacing:0.35em;text-transform:uppercase;color:#06b6d4;">Academy</p>
       </td>
     </tr>
@@ -188,7 +188,7 @@ function buildDeadlineEmailHtml(name: string, track: string, paymentUrl: string)
     <!-- Header Logo -->
     <tr>
       <td style="padding:48px 36px 32px;background:linear-gradient(135deg,rgba(239,68,68,0.15) 0%,rgba(6,182,212,0.05) 100%);border-bottom:1px solid rgba(239,68,68,0.2);text-align:center;">
-        <img src="https://www.uget-enrollment.online/uget-logo.png" alt="Uget Technologies Logo" style="width:160px;max-width:100%;height:auto;display:inline-block;margin-bottom:12px;" />
+        <img src="https://uget-enroll.vercel.app/uget-logo.png" alt="Uget Technologies Logo" style="width:160px;max-width:100%;height:auto;display:inline-block;margin-bottom:12px;" />
         <p style="margin:0;font-size:11px;font-weight:800;letter-spacing:0.35em;text-transform:uppercase;color:#f87171;">Academy</p>
       </td>
     </tr>
@@ -302,7 +302,7 @@ function buildClassStartsEmailHtml(name: string, track: string) {
     <!-- Header Logo -->
     <tr>
       <td style="padding:48px 36px 32px;background:linear-gradient(135deg,rgba(6,182,212,0.15) 0%,rgba(124,58,237,0.05) 100%);border-bottom:1px solid rgba(6,182,212,0.2);text-align:center;">
-        <img src="https://www.uget-enrollment.online/uget-logo.png" alt="Uget Technologies Logo" style="width:160px;max-width:100%;height:auto;display:inline-block;margin-bottom:12px;" />
+        <img src="https://uget-enroll.vercel.app/uget-logo.png" alt="Uget Technologies Logo" style="width:160px;max-width:100%;height:auto;display:inline-block;margin-bottom:12px;" />
         <p style="margin:0;font-size:11px;font-weight:800;letter-spacing:0.35em;text-transform:uppercase;color:#06b6d4;">Academy</p>
       </td>
     </tr>
@@ -1479,16 +1479,16 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
         const stored = localStorage.getItem("uget_payment_url");
         if (
           !stored ||
-          stored.includes("enroll.vercel.app") ||
+          stored.includes("uget-enrollment.online") ||
           stored.includes("uget-blog-seven.vercel.app") ||
-          stored.includes("uget-enroll.vercel.app")
+          stored.includes("enroll.vercel.app")
         ) {
-          localStorage.setItem("uget_payment_url", "https://www.uget-enrollment.online/payment");
-          return "https://www.uget-enrollment.online/payment";
+          localStorage.setItem("uget_payment_url", "https://uget-enroll.vercel.app/payment");
+          return "https://uget-enroll.vercel.app/payment";
         }
         return stored;
       }
-      return "https://www.uget-enrollment.online/payment";
+      return "https://uget-enroll.vercel.app/payment";
     }
   );
 
@@ -1870,7 +1870,7 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
                 name="payment_url"
                 type="url"
                 defaultValue={paymentUrl}
-                placeholder="https://www.uget-enrollment.online/payment"
+                placeholder="https://uget-enroll.vercel.app/payment"
               />
               <p className="text-[10px] text-muted-foreground">
                 This is the payment confirmation link embedded in email alerts.
