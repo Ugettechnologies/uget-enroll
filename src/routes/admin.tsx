@@ -171,7 +171,7 @@ Uget Technologies`.trim();
 }
 
 function getWhatsAppMessage(app: any, paymentUrl?: string) {
-  return `Hello ${app.full_name},\n\nKindly pls check your mail for update on the admission form. If not seen on the inbox, try to check your spam messages.`;
+  return `Hello ${app.full_name},\n\nThis is from Uget Academy Cohort 1. Kindly check your email for an update on the admission form. If you do not see it in your inbox, please check your spam folder.`;
 }
 
 function buildDeadlineEmailHtml(name: string, track: string, paymentUrl: string) {
