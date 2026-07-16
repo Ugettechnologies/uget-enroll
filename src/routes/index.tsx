@@ -4,7 +4,7 @@ import logo from "@/assets/uget-logo.png";
 import { supabase, supabaseConfigured } from "@/lib/supabase";
 
 // Toggle registration status (set to true to reopen, false to close)
-const REGISTRATION_OPEN = false;
+const REGISTRATION_OPEN = true;
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -134,17 +134,21 @@ function RegistrationPage() {
 
     setStatus("submitting");
     setMessage("");
-    const { error } = await supabase.from("scholarship_applications").insert(payload);
+    const { data: inserted, error } = await supabase
+      .from("scholarship_applications")
+      .insert(payload)
+      .select("id")
+      .single();
     if (error) {
       setStatus("error");
       setMessage(error.message);
       return;
     }
-    setStatus("success");
-    setMessage("Application received! We'll be in touch via email shortly.");
-    setFormData({});
-    setStep(1);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    // Registration is only complete once payment is made — redirect immediately
+    const paymentUrl = inserted?.id
+      ? `/payment?id=${inserted.id}`
+      : "/payment";
+    window.location.href = paymentUrl;
   }
 
   return (

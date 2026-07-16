@@ -55,7 +55,7 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 const resend = new Resend(resendApiKey);
 
 // Safe Fallback Domain
-const FALLBACK_DOMAIN = "https://uget-enroll.vercel.app";
+const FALLBACK_DOMAIN = "https://www.uget-enrollment.online";
 const FROM_ADDRESS = `Uget Academy <${senderEmail}>`;
 
 // ─── Sending Limits and Controls ─────────────────────────────────────────────
@@ -148,7 +148,7 @@ function buildEmailHtml(name: string, track: string, paymentUrl: string) {
           <strong style="color:#ffffff;">Program Fee:</strong> ${fmt(feeDetails.ngn.total)} (approximately ${fmtUsd(feeDetails.usd.total)})
         </p>
         <p style="margin:0 0 12px;font-size:15px;line-height:1.7;color:#facc15;font-weight:600;">
-          ⚠️ <strong style="color:#ffffff;">Payment Window:</strong> Open now from Thursday, July 9th until it closes on <strong>Wednesday, July 15th</strong>. Please complete your payment before the 15th to secure your spot and give us time to process all registrations ahead of the start date.
+          ⚠️ <strong style="color:#ffffff;">Payment Deadline:</strong> Payment must be completed by <strong>Sunday, July 19th</strong> to secure your slot before classes begin.
         </p>
         <p style="margin:0 0 20px;font-size:15px;line-height:1.7;color:#06b6d4;font-weight:600;">
           📅 <strong style="color:#ffffff;">Commencement Date:</strong> Cohort 1 classes officially commence on <strong>Monday, July 20th</strong>.
@@ -233,7 +233,7 @@ function buildEmailText(name: string, track: string, paymentUrl: string) {
 Congratulations! You've secured a spot in Uget Academy's Cohort 1 for ${track}.
 
 Program Fee: ${fmt(feeDetails.ngn.total)} (approximately ${fmtUsd(feeDetails.usd.total)})
-Payment Window: Open now from Thursday, July 9th until it closes on Wednesday, July 15th. Please complete your payment before the 15th to secure your spot and allow us time to process all registrations ahead of the start date.
+Payment Window: Payment must be completed by Sunday, July 19th to secure your slot before classes begin.
 Commencement Date: Cohort 1 classes officially commence on Monday, July 20th.
 
 Payment Details (Nigeria):

@@ -56,7 +56,7 @@ if (!resendApiKey) {
 const supabase = createClient(supabaseUrl, supabaseKey);
 const resend = new Resend(resendApiKey);
 
-const FALLBACK_DOMAIN = "https://uget-enroll.vercel.app";
+const FALLBACK_DOMAIN = "https://www.uget-enrollment.online";
 const FROM_ADDRESS = `Uget Academy <${senderEmail}>`;
 
 // ─── Sending Limits and Controls ─────────────────────────────────────────────
@@ -79,7 +79,7 @@ function buildEmailHtml(name: string | null, link: string) {
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Uget Academy Registration Update</title>
+  <title>Action Required — Complete Your Uget Academy Payment</title>
 </head>
 <body style="margin:0;padding:0;background:#0d0a1a;font-family:'Inter',Arial,sans-serif;color:#f0eeff;">
   <table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:40px auto;background:#130f26;border-radius:24px;overflow:hidden;border:1px solid rgba(124,58,237,0.3);box-shadow:0 20px 40px rgba(0,0,0,0.5);">
@@ -93,16 +93,19 @@ function buildEmailHtml(name: string | null, link: string) {
     <!-- Content Body -->
     <tr>
       <td style="padding:40px 36px 32px;">
-        <h2 style="margin:0 0 20px;font-size:22px;font-weight:800;color:#ffffff;letter-spacing:-0.02em;">Important Registration Update</h2>
+        <h2 style="margin:0 0 20px;font-size:22px;font-weight:800;color:#ffffff;letter-spacing:-0.02em;">⚠️ Action Required — Complete Your Payment</h2>
         
         <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
           Hello <strong style="color:#ffffff;">${name ?? "Candidate"}</strong>,
         </p>
         <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-          This is a quick update regarding your cohort registration at Uget Academy.
+          We noticed that your Uget Academy registration is still <strong style="color:#facc15;">incomplete</strong>. Your application has been received, but your spot is <strong style="color:#ffffff;">not secured</strong> until your course commitment fee is paid.
         </p>
-        <p style="margin:0 0 24px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-          Our main website is currently undergoing scheduled maintenance and showing a temporary security notice. To ensure your registration is processed securely and without delay, please use our verified enrollment portal link below:
+        <p style="margin:0 0 12px;font-size:15px;line-height:1.7;color:#facc15;font-weight:600;">
+          ⏰ <strong style="color:#ffffff;">Payment Deadline:</strong> Sunday, <strong>July 19th</strong>. Please complete your payment before this date to secure your slot.
+        </p>
+        <p style="margin:0 0 20px;font-size:15px;line-height:1.7;color:#06b6d4;font-weight:600;">
+          📅 <strong style="color:#ffffff;">Commencement Date:</strong> Classes officially commence on <strong>Monday, July 20th</strong>. Do not miss out!
         </p>
 
         <!-- CTA button -->
@@ -112,7 +115,7 @@ function buildEmailHtml(name: string | null, link: string) {
               <a href="${link}"
                  target="_blank"
                  style="display: inline-block; background: linear-gradient(135deg, #06b6d4 0%, #7c3aed 100%); padding: 16px 40px; font-family: Arial, sans-serif; font-size: 14px; font-weight: 800; color: #ffffff; text-decoration: none; letter-spacing: 0.08em; text-transform: uppercase; border-radius: 9999px; box-shadow: 0 8px 24px rgba(124,58,237,0.35);">
-                COMPLETE REGISTRATION & PAYMENT
+                COMPLETE PAYMENT NOW
               </a>
             </td>
           </tr>
@@ -123,11 +126,8 @@ function buildEmailHtml(name: string | null, link: string) {
           <a href="${link}" style="color:#06b6d4;text-decoration:underline;">${link}</a>
         </p>
 
-        <p style="margin:16px 0;font-size:15px;line-height:1.7;color:#d0c8f0;">
-          All payment details, including course structures, discount offers, and registration status remain completely unaffected and secure.
-        </p>
         <p style="margin:16px 0 32px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-          Thank you for your patience and understanding as we optimize our systems.
+          If you have already made your payment, please disregard this message — your slot is secure and we look forward to seeing you on the 20th!
         </p>
 
         <!-- Sign-off -->
@@ -215,7 +215,7 @@ async function main() {
       return {
         from: FROM_ADDRESS,
         to: s.email,
-        subject: "Updated registration link — Uget Academy Cohort",
+        subject: "⚠️ Payment Deadline Reminder — Uget Academy Cohort (July 19th)",
         html: buildEmailHtml(s.full_name, link),
       };
     });
