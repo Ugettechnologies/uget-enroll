@@ -99,10 +99,13 @@ function buildEmailHtml(name: string | null, link: string) {
           Hello <strong style="color:#ffffff;">${name ?? "Candidate"}</strong>,
         </p>
         <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
+          How are you doing? We hope this message finds you well!
+        </p>
+        <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
           This is a gentle reminder that Uget Academy's Cohort 1 officially starts on <strong style="color:#ffffff;">Monday, July 20th</strong>.
         </p>
         <p style="margin:0 0 24px;font-size:15px;line-height:1.7;color:#facc15;font-weight:600;background:rgba(250,204,21,0.08);padding:14px 20px;border-radius:12px;border:1px solid rgba(250,204,21,0.25);">
-          📢 <strong style="color:#ffffff;">Extended Window:</strong> Due to high demand for part-payment, we have integrated it and opened a <strong style="color:#ffffff;">two-week payment window starting from July 20th</strong> (during the cohort).
+          📢 <strong style="color:#ffffff;">Extended Window:</strong> Due to high demand for part-payment offer, we have integrated it and opened a <strong style="color:#ffffff;">two-week payment window starting now</strong> (during the cohort).
         </p>
 
         <!-- Part-Payment Offer Card -->

@@ -201,10 +201,13 @@ function buildDeadlineEmailHtml(name: string, track: string, paymentUrl: string)
           Hello <strong style="color:#ffffff;">${name}</strong>,
         </p>
         <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
+          How are you doing? We hope this message finds you well!
+        </p>
+        <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
           This is a gentle reminder regarding your admission offer to Uget Academy's Cohort 1 for <strong style="color:#ffffff;">${track}</strong>. We want to inform you that our classes will officially commence on <strong style="color:#ffffff;">Monday, July 20th, 2026</strong>.
         </p>
         <p style="margin:0 0 24px;font-size:15px;line-height:1.7;color:#facc15;font-weight:600;background:rgba(250,204,21,0.08);padding:14px 20px;border-radius:12px;border:1px solid rgba(250,204,21,0.25);">
-          📢 <strong style="color:#ffffff;">Extended Window:</strong> Due to extremely high demand for the part-payment option, we have opened a <strong style="color:#ffffff;">two-week payment window starting from July 20th</strong> (during the cohort).
+          📢 <strong style="color:#ffffff;">Extended Window:</strong> Due to extremely high demand for the part-payment option, we have opened a <strong style="color:#ffffff;">two-week payment window starting now</strong> (during the cohort).
         </p>
 
         <!-- Part-Payment Offer Card -->
@@ -286,11 +289,11 @@ function buildDeadlineEmailHtml(name: string, track: string, paymentUrl: string)
 function buildDeadlineEmailText(name: string, track: string, paymentUrl: string) {
   return `Hello ${name},
 
-We hope you are doing well.
+How are you doing? We hope this message finds you well!
 
 This is a gentle reminder regarding your admission offer to Uget Academy's Cohort 1 for ${track}. Official classes will commence on Monday, July 20th, 2026.
 
-Important Update: Due to extremely high demand for the part-payment option, we have opened a two-week payment window starting from July 20th (during the cohort).
+Important Update: Due to extremely high demand for the part-payment option, we have opened a two-week payment window starting now (during the cohort).
 
 --- 50% PART-PAYMENT OPTION AVAILABLE ---
 You can pay the 50% part-payment during the cohort:
@@ -415,7 +418,7 @@ Uget Technologies`.trim();
 }
 
 function getDeadlineWhatsAppMessage(app: any, paymentUrl: string) {
-  return `Hello ${app.full_name},\n\nThis is a gentle reminder regarding your Uget Academy Cohort 1 offer for ${app.track}.\n\nClasses officially start on Monday, July 20th.\n\n🎉 NEW — Cohort Part-Payment: Due to high demand, a two-week window starting July 20th is open. You can make a deposit of 50% during the cohort and spread the remaining 50% later before the cohort ends.\n\nVisit your enrollment portal to choose Full or Part-Payment and submit your confirmation:\n${paymentUrl}\n\nIf you have any questions, let us know. We look forward to welcoming you!\n\nWarm regards,\nChiemena Erasmous\nUget Technologies`;
+  return `Hello ${app.full_name},\n\nHow are you doing? We hope you are doing well!\n\nThis is a gentle reminder regarding your Uget Academy Cohort 1 offer for ${app.track}.\n\nClasses officially start on Monday, July 20th.\n\n🎉 NEW — Cohort Part-Payment: Due to high demand, a two-week window starting now is open (during the cohort). You can make a deposit of 50% during the cohort and spread the remaining 50% later before the cohort ends.\n\nVisit your enrollment portal to choose Full or Part-Payment and submit your confirmation:\n${paymentUrl}\n\nIf you have any questions, let us know. We look forward to welcoming you!\n\nWarm regards,\nChiemena Erasmous\nUget Technologies`;
 }
 
 function getClassStartsWhatsAppMessage(app: any) {
