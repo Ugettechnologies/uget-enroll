@@ -195,34 +195,31 @@ function buildDeadlineEmailHtml(name: string, track: string, paymentUrl: string)
     <!-- Content Body -->
     <tr>
       <td style="padding:40px 36px 32px;">
-        <h2 style="margin:0 0 20px;font-size:22px;font-weight:800;color:#ffffff;letter-spacing:-0.02em;">Payment Reminder — Secure Your Spot by July 19th</h2>
+        <h2 style="margin:0 0 20px;font-size:22px;font-weight:800;color:#ffffff;letter-spacing:-0.02em;">Important Update: Cohort Starts July 20th &amp; Part-Payment Window Open</h2>
         
         <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
           Hello <strong style="color:#ffffff;">${name}</strong>,
         </p>
         <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-          This is a gentle reminder regarding your admission offer to Uget Academy's Cohort 1 for <strong style="color:#ffffff;">${track}</strong>. We noticed that you have not yet completed or confirmed your cohort payment.
+          This is a gentle reminder regarding your admission offer to Uget Academy's Cohort 1 for <strong style="color:#ffffff;">${track}</strong>. We want to inform you that our classes will officially commence on <strong style="color:#ffffff;">Monday, July 20th, 2026</strong>.
         </p>
         <p style="margin:0 0 24px;font-size:15px;line-height:1.7;color:#facc15;font-weight:600;background:rgba(250,204,21,0.08);padding:14px 20px;border-radius:12px;border:1px solid rgba(250,204,21,0.25);">
-          ⚠️ <strong style="color:#ffffff;">Deadline:</strong> To secure your scholarship spot and participate in the upcoming cohort, please complete your payment on or before <strong style="color:#ffffff;text-decoration:underline;">Sunday, July 19th, 2026</strong>.
-        </p>
-        <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-          Please note that we have limited seats, and spots not secured by the deadline will be reassigned to applicants on our waiting list.
+          📢 <strong style="color:#ffffff;">Extended Window:</strong> Due to extremely high demand for the part-payment option, we have opened a <strong style="color:#ffffff;">two-week payment window starting from July 20th</strong> (during the cohort).
         </p>
 
         <!-- Part-Payment Offer Card -->
         <table width="100%" cellpadding="0" cellspacing="0" style="margin:20px 0;border-radius:16px;overflow:hidden;border:1px solid rgba(124,58,237,0.4);background:rgba(124,58,237,0.08);font-size:14px;color:#d0c8f0;">
           <tr>
             <td style="padding:16px 24px;background:rgba(124,58,237,0.18);border-bottom:1px solid rgba(124,58,237,0.3);">
-              <strong style="color:#ffffff;font-size:15px;">🎉 New: 50% Part-Payment Option Now Available!</strong>
+              <strong style="color:#ffffff;font-size:15px;">🎉 Part-Payment Terms — Pay Half During Cohort!</strong>
             </td>
           </tr>
           <tr>
             <td style="padding:18px 24px;line-height:1.7;">
-              <p style="margin:0 0 10px;">Due to high demand, we have opened a <strong style="color:#ffffff;">50% part-payment offer</strong>:</p>
+              <p style="margin:0 0 10px;">You can pay the 50% part-payment during the cohort:</p>
               <ul style="margin:0;padding-left:20px;line-height:1.9;">
-                <li>Pay <strong style="color:#06b6d4;">50% of your course fee now</strong> to secure your spot in the cohort.</li>
-                <li>Pay the <strong style="color:#ffffff;">remaining 50% at the end of the cohort</strong> to receive your certificate.</li>
+                <li>Make a deposit of <strong style="color:#06b6d4;">50% during the cohort</strong> within the 2-week window.</li>
+                <li>Spread and pay the <strong style="color:#ffffff;">remaining 50% balance later before the cohort ends</strong> to receive your certificate.</li>
               </ul>
               <p style="margin:10px 0 0;font-size:13px;color:#8b83b0;">Choose Full Payment or Part-Payment on your enrollment portal below.</p>
             </td>
@@ -291,20 +288,18 @@ function buildDeadlineEmailText(name: string, track: string, paymentUrl: string)
 
 We hope you are doing well.
 
-This is a gentle reminder regarding your admission offer to Uget Academy's Cohort 1 for ${track}. We noticed that you have not yet completed or confirmed your cohort payment.
+This is a gentle reminder regarding your admission offer to Uget Academy's Cohort 1 for ${track}. Official classes will commence on Monday, July 20th, 2026.
 
-Deadline: To secure your scholarship spot and participate in the upcoming cohort, please complete your payment on or before Sunday, July 19th, 2026.
+Important Update: Due to extremely high demand for the part-payment option, we have opened a two-week payment window starting from July 20th (during the cohort).
 
-Please note that we have limited seats, and spots not secured by the deadline will be reassigned to applicants on our waiting list.
-
---- NEW: 50% PART-PAYMENT OPTION AVAILABLE ---
-Due to high demand, we have opened a 50% part-payment offer:
-- Pay 50% of your course fee NOW to secure your cohort spot.
-- Pay the remaining 50% at the END of the cohort to receive your certificate.
+--- 50% PART-PAYMENT OPTION AVAILABLE ---
+You can pay the 50% part-payment during the cohort:
+- Make a deposit of 50% during the cohort (within the 2-week window).
+- Spread and pay the remaining 50% balance later before the cohort ends to receive your certificate.
 You can choose Full Payment or Part-Payment on your enrollment portal.
-----------------------------------------------
+-----------------------------------------
 
-Go to your portal to choose your payment type and upload your receipt:
+Go to your portal to choose your payment option and submit details:
 ${paymentUrl}
 
 If you are an international student requiring localized payment options, or have any other questions, please contact our coordinator via WhatsApp at +234 810 617 5131.
@@ -420,7 +415,7 @@ Uget Technologies`.trim();
 }
 
 function getDeadlineWhatsAppMessage(app: any, paymentUrl: string) {
-  return `Hello ${app.full_name},\n\nThis is a gentle reminder regarding your admission offer to Uget Academy Cohort 1 for ${app.track}.\n\nDeadline: Sunday, July 19th, 2026. Please complete your payment before this date to secure your cohort slot.\n\n🎉 NEW — 50% PART-PAYMENT OPTION: Due to high demand, you can now pay 50% of your course fee now and the remaining 50% at the end of the cohort to receive your certificate.\n\nVisit your enrollment portal to choose Full Payment or Part-Payment:\n${paymentUrl}\n\nIf you have any questions or require international payment options, please let us know. We look forward to welcoming you!\n\nWarm regards,\nChiemena Erasmous\nUget Technologies`;
+  return `Hello ${app.full_name},\n\nThis is a gentle reminder regarding your Uget Academy Cohort 1 offer for ${app.track}.\n\nClasses officially start on Monday, July 20th.\n\n🎉 NEW — Cohort Part-Payment: Due to high demand, a two-week window starting July 20th is open. You can make a deposit of 50% during the cohort and spread the remaining 50% later before the cohort ends.\n\nVisit your enrollment portal to choose Full or Part-Payment and submit your confirmation:\n${paymentUrl}\n\nIf you have any questions, let us know. We look forward to welcoming you!\n\nWarm regards,\nChiemena Erasmous\nUget Technologies`;
 }
 
 function getClassStartsWhatsAppMessage(app: any) {
