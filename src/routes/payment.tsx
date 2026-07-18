@@ -151,6 +151,31 @@ function PaymentPage() {
     setLookupStatus("loading");
     setApplicant(null);
 
+    // 1. Check sessionStorage for pending registration matching this email first
+    if (typeof window !== "undefined") {
+      const pendingStr = sessionStorage.getItem("pending_registration");
+      if (pendingStr) {
+        try {
+          const pending = JSON.parse(pendingStr);
+          if (pending.email && pending.email.trim().toLowerCase() === emailVal.trim().toLowerCase()) {
+            setApplicant({
+              id: pending.id,
+              full_name: pending.full_name,
+              email: pending.email,
+              track: pending.track,
+              country: pending.country || "Nigeria",
+              phone: pending.phone || "",
+              payment_status: "Unpaid",
+            });
+            setLookupStatus("found");
+            return;
+          }
+        } catch (e) {
+          console.error("Failed to parse pending registration:", e);
+        }
+      }
+    }
+
     if (!supabase) {
       setLookupStatus("not_found");
       return;
@@ -183,6 +208,32 @@ function PaymentPage() {
     if (!idVal.trim()) return;
     setLookupStatus("loading");
     setApplicant(null);
+
+    // 1. Check sessionStorage for pending registration matching this temp ID first
+    if (idVal.startsWith("temp_") && typeof window !== "undefined") {
+      const pendingStr = sessionStorage.getItem("pending_registration");
+      if (pendingStr) {
+        try {
+          const pending = JSON.parse(pendingStr);
+          if (pending.id === idVal) {
+            setApplicant({
+              id: pending.id,
+              full_name: pending.full_name,
+              email: pending.email,
+              track: pending.track,
+              country: pending.country || "Nigeria",
+              phone: pending.phone || "",
+              payment_status: "Unpaid",
+            });
+            setEmail(pending.email);
+            setLookupStatus("found");
+            return;
+          }
+        } catch (e) {
+          console.error("Failed to parse pending registration:", e);
+        }
+      }
+    }
 
     if (!supabase) {
       setLookupStatus("not_found");
@@ -250,12 +301,56 @@ function PaymentPage() {
     e.preventDefault();
     if (!applicant || !supabase || !feeDetails) return;
 
+    setSubmitStatus("submitting");
+    setSubmitError("");
+
+    let applicationId = applicant.id;
+
+    // Check if it's a temporary ID, meaning we need to save the registration first
+    if (applicationId.startsWith("temp_")) {
+      const pendingStr = sessionStorage.getItem("pending_registration");
+      if (!pendingStr) {
+        setSubmitStatus("error");
+        setSubmitError("Pending registration details not found. Please register again.");
+        return;
+      }
+      try {
+        const pendingPayload = JSON.parse(pendingStr);
+        // Remove the temporary id field so Supabase auto-generates a real UUID
+        delete pendingPayload.id;
+
+        const { data: inserted, error: insertError } = await supabase
+          .from("scholarship_applications")
+          .insert(pendingPayload)
+          .select("id")
+          .single();
+
+        if (insertError) {
+          setSubmitStatus("error");
+          setSubmitError("Failed to save registration: " + insertError.message);
+          return;
+        }
+
+        if (inserted && inserted.id) {
+          applicationId = inserted.id;
+        } else {
+          setSubmitStatus("error");
+          setSubmitError("Failed to retrieve generated application ID.");
+          return;
+        }
+      } catch (err: any) {
+        setSubmitStatus("error");
+        setSubmitError("Failed to process registration: " + (err.message || err));
+        return;
+      }
+    }
+
     const fd = new FormData(e.currentTarget);
     const refText = fd.get("transaction_ref") as string || "";
     // Prefix with [PART-PAYMENT] in payment_ref so admin can identify part-payers
     const partPaymentPrefix = paymentType === "part" ? "[PART-PAYMENT] " : "";
     const payload = {
-      application_id: applicant.id,
+      application_id: applicationId,
       payment_status: "Pending Verification",
       payment_sender: fd.get("sender_name") as string,
       payment_amount: Number(fd.get("amount_paid")),
@@ -265,19 +360,18 @@ function PaymentPage() {
         : `${partPaymentPrefix}${refText}`,
     };
 
-    setSubmitStatus("submitting");
-    setSubmitError("");
-
-    const { error } = await supabase
+    const { error: paymentError } = await supabase
       .from("payments")
       .upsert(payload, { onConflict: "application_id" });
 
-    if (error) {
+    if (paymentError) {
       setSubmitStatus("error");
-      setSubmitError(error.message);
+      setSubmitError(paymentError.message);
     } else {
+      // Clear pending registration on success
+      sessionStorage.removeItem("pending_registration");
       setSubmitStatus("success");
-      setApplicant((a) => a && { ...a, payment_status: "Pending Verification" });
+      setApplicant((a) => a && { ...a, id: applicationId, payment_status: "Pending Verification" });
     }
   }
 

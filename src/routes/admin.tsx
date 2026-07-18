@@ -1789,6 +1789,21 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
     }
   };
 
+  const deleteApplication = async (id: string) => {
+    if (!supabase) return;
+    if (!confirm("Are you sure you want to delete this applicant and all their associated payment records?")) return;
+
+    // First delete from payments due to foreign key constraints
+    await supabase.from("payments").delete().eq("application_id", id);
+    // Then delete from scholarship_applications
+    const { error } = await supabase.from("scholarship_applications").delete().eq("id", id);
+    if (!error) {
+      setApplications((prev) => prev.filter((a) => a.id !== id));
+    } else {
+      alert("Error deleting application: " + error.message);
+    }
+  };
+
   async function updatePaymentStatus(id: string, status: string) {
     if (!supabase) return;
     const { error } = await supabase
@@ -1999,7 +2014,7 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
         </SheetContent>
       </Sheet>
 
-      <div className="container mx-auto py-6 sm:py-10 px-4 max-w-[95vw]">
+      <div className="container mx-auto py-4 sm:py-10 px-3 sm:px-4 max-w-[100vw] sm:max-w-[95vw]">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
           <h1 className="text-2xl sm:text-3xl font-bold">Uget Academy — Admin</h1>
           <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
@@ -2036,8 +2051,9 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
         </div>
 
         {/* Search & Sort Panel */}
-        <div className="flex flex-col md:flex-row gap-4 mb-6 items-center bg-card/45 border border-border/60 rounded-xl p-4 backdrop-blur-sm shadow-sm">
-          <div className="relative w-full md:flex-1">
+        <div className="flex flex-col gap-3 mb-6 bg-card/45 border border-border/60 rounded-xl p-3 sm:p-4 backdrop-blur-sm shadow-sm">
+          {/* Search row */}
+          <div className="relative w-full">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               type="text"
@@ -2056,28 +2072,25 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
               </button>
             )}
           </div>
-          
-          <div className="flex items-center justify-between md:justify-end gap-4 w-full md:w-auto shrink-0">
+
+          {/* Filters row */}
+          <div className="flex flex-wrap items-center gap-2 justify-between">
             <span className="text-xs text-muted-foreground whitespace-nowrap">
-              Showing <strong className="text-foreground">{filteredAndSortedApplications.length}</strong> of <strong className="text-foreground">{applications.length}</strong> applications
+              Showing <strong className="text-foreground">{filteredAndSortedApplications.length}</strong> of <strong className="text-foreground">{applications.length}</strong>
             </span>
-            
-            <div className="flex items-center gap-2">
-              <label htmlFor="filter-notified" className="text-xs text-muted-foreground whitespace-nowrap">Notification:</label>
+
+            <div className="flex flex-wrap items-center gap-2">
               <select
                 id="filter-notified"
                 value={notifiedFilter}
                 onChange={(e) => setNotifiedFilter(e.target.value as "all" | "yes" | "no")}
-                className="h-10 bg-background/50 border border-border/80 rounded-lg px-3 py-1 text-sm font-medium focus:outline-none focus:ring-1 focus:ring-primary text-foreground transition-colors cursor-pointer hover:bg-background/80"
+                className="h-9 bg-background/50 border border-border/80 rounded-lg px-2 py-1 text-xs font-medium focus:outline-none focus:ring-1 focus:ring-primary text-foreground transition-colors cursor-pointer hover:bg-background/80"
               >
-                <option value="all">All</option>
+                <option value="all">All Notifications</option>
                 <option value="no">⏳ Not Sent</option>
                 <option value="yes">✅ Notified</option>
               </select>
-            </div>
 
-            <div className="flex items-center gap-2">
-              <label htmlFor="sort-by" className="text-xs text-muted-foreground whitespace-nowrap">Sort by:</label>
               <select
                 id="sort-by"
                 value={`${sortField}-${sortDirection}`}
@@ -2086,7 +2099,7 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
                   setSortField(field);
                   setSortDirection(direction as "asc" | "desc");
                 }}
-                className="h-10 bg-background/50 border border-border/80 rounded-lg px-3 py-1 text-sm font-medium focus:outline-none focus:ring-1 focus:ring-primary text-foreground transition-colors cursor-pointer hover:bg-background/80"
+                className="h-9 bg-background/50 border border-border/80 rounded-lg px-2 py-1 text-xs font-medium focus:outline-none focus:ring-1 focus:ring-primary text-foreground transition-colors cursor-pointer hover:bg-background/80"
               >
                 <option value="created_at-desc">Date (Newest)</option>
                 <option value="created_at-asc">Date (Oldest)</option>
@@ -2101,17 +2114,17 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
         </div>
 
         <Tabs defaultValue="payments" className="w-full">
-          <TabsList className="mb-4 flex-wrap h-auto gap-1">
-            <TabsTrigger value="payments">
+          <TabsList className="mb-4 flex flex-wrap h-auto gap-1 w-full">
+            <TabsTrigger value="payments" className="text-xs sm:text-sm flex-1 min-w-[120px]">
               Payments ({paid.length + pending.length}/{applications.length})
             </TabsTrigger>
-            <TabsTrigger value="part-payment" className="text-orange-400 data-[state=active]:text-orange-300">
-              ⚡ Part-Payment ({applications.filter(a => a.payment_ref && a.payment_ref.includes('[PART-PAYMENT]')).length})
+            <TabsTrigger value="part-payment" className="text-orange-400 data-[state=active]:text-orange-300 text-xs sm:text-sm flex-1 min-w-[120px]">
+              ⚡ Part-Pay ({applications.filter(a => a.payment_ref && a.payment_ref.includes('[PART-PAYMENT]')).length})
             </TabsTrigger>
-            <TabsTrigger value="applications">
-              All Applications ({applications.length})
+            <TabsTrigger value="applications" className="text-xs sm:text-sm flex-1 min-w-[120px]">
+              All ({applications.length})
             </TabsTrigger>
-            <TabsTrigger value="referrers">Referrers ({referrals.length})</TabsTrigger>
+            <TabsTrigger value="referrers" className="text-xs sm:text-sm flex-1 min-w-[90px]">Referrers ({referrals.length})</TabsTrigger>
           </TabsList>
 
           {/* ── PAYMENTS TAB ─────────────────────────────────────────────── */}
@@ -2266,6 +2279,14 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
                                   >
                                     Notify
                                   </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="destructive"
+                                    className="text-xs font-semibold py-1 bg-red-600/90 hover:bg-red-700 text-white"
+                                    onClick={() => deleteApplication(app.id)}
+                                  >
+                                    Delete
+                                  </Button>
                                 </div>
                               </TableCell>
                             </TableRow>
@@ -2388,7 +2409,7 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
                             <PaymentBadge status={app.payment_status} />
                           </TableCell>
                           <TableCell onClick={(e) => e.stopPropagation()}>
-                            <div className="flex gap-1.5 items-center">
+                            <div className="flex gap-1.5 items-center flex-wrap">
                               <Button
                                 size="sm"
                                 variant="outline"
@@ -2408,6 +2429,14 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
                                 ) : (
                                   <ChevronDown className="h-4 w-4" />
                                 )}
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                className="text-xs font-semibold bg-red-600/90 hover:bg-red-700 text-white"
+                                onClick={() => deleteApplication(app.id)}
+                              >
+                                Delete
                               </Button>
                             </div>
                           </TableCell>
@@ -2506,6 +2535,14 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
                                     onClick={() => setNotifyApp(app)}
                                   >
                                     Notify Student
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="destructive"
+                                    className="text-xs font-semibold px-4 bg-red-600/90 hover:bg-red-700 text-white"
+                                    onClick={() => deleteApplication(app.id)}
+                                  >
+                                    Delete
                                   </Button>
                                 </div>
                               </div>
@@ -2674,7 +2711,7 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
                                   </div>
                                 </TableCell>
                                 <TableCell onClick={(e) => e.stopPropagation()}>
-                                  <div className="flex gap-1.5 items-center">
+                                  <div className="flex gap-1.5 items-center flex-wrap">
                                     <Button
                                       size="sm"
                                       variant="outline"
@@ -2692,6 +2729,14 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
                                       <option value="Pending Verification">Pending</option>
                                       <option value="Paid">Paid ✓</option>
                                     </select>
+                                    <Button
+                                      size="sm"
+                                      variant="destructive"
+                                      className="text-xs font-semibold bg-red-600/90 hover:bg-red-700 text-white"
+                                      onClick={() => deleteApplication(app.id)}
+                                    >
+                                      Delete
+                                    </Button>
                                   </div>
                                 </TableCell>
                               </TableRow>

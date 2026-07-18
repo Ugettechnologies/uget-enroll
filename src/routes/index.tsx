@@ -134,21 +134,22 @@ function RegistrationPage() {
 
     setStatus("submitting");
     setMessage("");
-    const { data: inserted, error } = await supabase
-      .from("scholarship_applications")
-      .insert(payload)
-      .select("id")
-      .single();
-    if (error) {
+
+    // Save details to sessionStorage instead of the database to prevent unpaid database entries
+    const tempId = "temp_" + Math.random().toString(36).substring(2, 11);
+    const pendingPayload = {
+      ...payload,
+      id: tempId,
+    };
+
+    try {
+      sessionStorage.setItem("pending_registration", JSON.stringify(pendingPayload));
+      // Redirect immediately to payment page with temp ID
+      window.location.href = `/payment?id=${tempId}`;
+    } catch (err: any) {
       setStatus("error");
-      setMessage(error.message);
-      return;
+      setMessage("Failed to store pending registration details: " + (err.message || err));
     }
-    // Registration is only complete once payment is made — redirect immediately
-    const paymentUrl = inserted?.id
-      ? `/payment?id=${inserted.id}`
-      : "/payment";
-    window.location.href = paymentUrl;
   }
 
   return (
