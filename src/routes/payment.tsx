@@ -104,6 +104,7 @@ function PaymentPage() {
   const [currency, setCurrency] = useState<"NGN" | "OTHER_AFRICA" | "USD">("NGN");
   const [receiptBase64, setReceiptBase64] = useState("");
   const [fileError, setFileError] = useState("");
+  const [paymentType, setPaymentType] = useState<"full" | "part">("full");
 
   useEffect(() => {
     if (applicant) {
@@ -251,6 +252,8 @@ function PaymentPage() {
 
     const fd = new FormData(e.currentTarget);
     const refText = fd.get("transaction_ref") as string || "";
+    // Prefix with [PART-PAYMENT] in payment_ref so admin can identify part-payers
+    const partPaymentPrefix = paymentType === "part" ? "[PART-PAYMENT] " : "";
     const payload = {
       application_id: applicant.id,
       payment_status: "Pending Verification",
@@ -258,8 +261,8 @@ function PaymentPage() {
       payment_amount: Number(fd.get("amount_paid")),
       payment_date: fd.get("payment_date") as string,
       payment_ref: receiptBase64 
-        ? (refText ? `${refText} | ${receiptBase64}` : receiptBase64)
-        : refText,
+        ? (refText ? `${partPaymentPrefix}${refText} | ${receiptBase64}` : `${partPaymentPrefix}${receiptBase64}`)
+        : `${partPaymentPrefix}${refText}`,
     };
 
     setSubmitStatus("submitting");
@@ -558,6 +561,84 @@ function PaymentPage() {
                     </div>
                   )}
 
+                  {/* ── Payment Type Selector ── */}
+                  {feeDetails && (
+                    <div className="mt-6 space-y-3">
+                      <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                        🎉 Payment Option — Due to High Demand
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {/* Full Payment Card */}
+                        <button
+                          type="button"
+                          onClick={() => setPaymentType("full")}
+                          className={`rounded-xl border p-4 text-left transition-all duration-200 ${
+                            paymentType === "full"
+                              ? "border-primary bg-primary/10 shadow-[0_0_0_2px_hsl(var(--primary)/0.3)]"
+                              : "border-border bg-card/30 hover:border-border/80"
+                          }`}
+                        >
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className={`h-4 w-4 rounded-full border-2 flex items-center justify-center ${
+                              paymentType === "full" ? "border-primary bg-primary" : "border-border"
+                            }`}>
+                              {paymentType === "full" && <div className="h-1.5 w-1.5 rounded-full bg-primary-foreground" />}
+                            </div>
+                            <span className="text-xs font-bold uppercase tracking-wider text-foreground">Full Payment</span>
+                          </div>
+                          <div className="text-xl font-extrabold text-foreground">
+                            {currency === "USD" ? fmtUsd(feeDetails.usd.total) : fmt(feeDetails.ngn.total)}
+                          </div>
+                          <div className="text-[10px] text-muted-foreground mt-1">Pay full amount now · Enroll immediately</div>
+                        </button>
+
+                        {/* Part-Payment Card */}
+                        <button
+                          type="button"
+                          onClick={() => setPaymentType("part")}
+                          className={`rounded-xl border p-4 text-left transition-all duration-200 relative ${
+                            paymentType === "part"
+                              ? "border-orange-500 bg-orange-500/10 shadow-[0_0_0_2px_rgba(249,115,22,0.3)]"
+                              : "border-border bg-card/30 hover:border-orange-500/40"
+                          }`}
+                        >
+                          <div className="absolute -top-2.5 right-3 rounded-full bg-orange-500 px-2 py-0.5 text-[9px] font-bold text-white uppercase tracking-wider">
+                            High Demand Offer
+                          </div>
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className={`h-4 w-4 rounded-full border-2 flex items-center justify-center ${
+                              paymentType === "part" ? "border-orange-500 bg-orange-500" : "border-border"
+                            }`}>
+                              {paymentType === "part" && <div className="h-1.5 w-1.5 rounded-full bg-white" />}
+                            </div>
+                            <span className="text-xs font-bold uppercase tracking-wider text-foreground">50% Part-Payment</span>
+                          </div>
+                          <div className="text-xl font-extrabold text-orange-400">
+                            {currency === "USD"
+                              ? fmtUsd(Math.round(feeDetails.usd.total * 0.5 * 100) / 100)
+                              : fmt(Math.round(feeDetails.ngn.total * 0.5))}
+                            <span className="text-xs font-normal text-muted-foreground ml-1">now</span>
+                          </div>
+                          <div className="text-[10px] text-muted-foreground mt-1">
+                            Balance ({currency === "USD"
+                              ? fmtUsd(Math.round(feeDetails.usd.total * 0.5 * 100) / 100)
+                              : fmt(Math.round(feeDetails.ngn.total * 0.5))}) due at end of cohort
+                          </div>
+                        </button>
+                      </div>
+
+                      {/* Part-payment notice */}
+                      {paymentType === "part" && (
+                        <div className="rounded-xl border border-orange-500/30 bg-orange-500/5 px-4 py-3 text-xs leading-relaxed animate-fade-in">
+                          <p className="font-semibold text-orange-300 mb-1">⚡ Part-Payment Terms</p>
+                          <p className="text-muted-foreground">
+                            You are paying <strong className="text-orange-400">{currency === "USD" ? fmtUsd(Math.round(feeDetails.usd.total * 0.5 * 100) / 100) : fmt(Math.round(feeDetails.ngn.total * 0.5))}</strong> now to secure your spot. The remaining <strong className="text-orange-400">{currency === "USD" ? fmtUsd(Math.round(feeDetails.usd.total * 0.5 * 100) / 100) : fmt(Math.round(feeDetails.ngn.total * 0.5))}</strong> is due at the <strong className="text-foreground">end of the cohort</strong> before your certificate is issued.
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                   {/* ────────────────── Payment Methods based on currency selection ────────────────── */}
 
                   {/* Option A: NGN Naira (Manual Bank Transfer form) */}
@@ -621,12 +702,20 @@ function PaymentPage() {
                             <div>
                               <label className="block text-xs font-medium text-foreground mb-1">
                                 Amount Paid (₦) <span className="text-accent">*</span>
+                                {paymentType === "part" && (
+                                  <span className="ml-1 text-orange-400 font-semibold text-[10px]">(50% Part-Payment)</span>
+                                )}
                               </label>
                               <input
                                 name="amount_paid"
                                 type="number"
                                 required
-                                defaultValue={feeDetails.ngn.total}
+                                key={`amount-${paymentType}-${currency}`}
+                                defaultValue={
+                                  paymentType === "part"
+                                    ? Math.round(feeDetails.ngn.total * 0.5)
+                                    : feeDetails.ngn.total
+                                }
                                 className={inputCls}
                               />
                             </div>

@@ -181,7 +181,7 @@ function buildDeadlineEmailHtml(name: string, track: string, paymentUrl: string)
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Action Required: Secure Your Spot</title>
+  <title>Payment Reminder — Secure Your Spot by July 19th</title>
 </head>
 <body style="margin:0;padding:0;background:#0d0a1a;font-family:'Inter',Arial,sans-serif;color:#f0eeff;">
   <table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:40px auto;background:#130f26;border-radius:24px;overflow:hidden;border:1px solid rgba(239,68,68,0.3);box-shadow:0 20px 40px rgba(0,0,0,0.5);">
@@ -195,20 +195,39 @@ function buildDeadlineEmailHtml(name: string, track: string, paymentUrl: string)
     <!-- Content Body -->
     <tr>
       <td style="padding:40px 36px 32px;">
-        <h2 style="margin:0 0 20px;font-size:22px;font-weight:800;color:#ffffff;letter-spacing:-0.02em;">Secure Your Scholarship Spot</h2>
+        <h2 style="margin:0 0 20px;font-size:22px;font-weight:800;color:#ffffff;letter-spacing:-0.02em;">Payment Reminder — Secure Your Spot by July 19th</h2>
         
         <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
           Hello <strong style="color:#ffffff;">${name}</strong>,
         </p>
         <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-          This is a gentle reminder regarding your admission offer to Uget Academy's Cohort 1 for <strong style="color:#ffffff;">${track}</strong>. We noticed that you have not yet completed or confirmed your commitment fee payment.
+          This is a gentle reminder regarding your admission offer to Uget Academy's Cohort 1 for <strong style="color:#ffffff;">${track}</strong>. We noticed that you have not yet completed or confirmed your cohort payment.
         </p>
-        <p style="margin:0 0 24px;font-size:15px;line-height:1.7;color:#facc15;font-weight:600;background:rgba(250,204,21,0.1);padding:14px 20px;border-radius:12px;border:1px solid rgba(250,204,21,0.25);">
-          ⚠️ <strong style="color:#ffffff;">Deadline:</strong> To secure your scholarship spot and participate in the upcoming cohort, please complete your payment and upload your receipt on your enrollment portal on or before <strong style="color:#ffffff;text-decoration:underline;">Wednesday, July 15th, 2026</strong>.
+        <p style="margin:0 0 24px;font-size:15px;line-height:1.7;color:#facc15;font-weight:600;background:rgba(250,204,21,0.08);padding:14px 20px;border-radius:12px;border:1px solid rgba(250,204,21,0.25);">
+          ⚠️ <strong style="color:#ffffff;">Deadline:</strong> To secure your scholarship spot and participate in the upcoming cohort, please complete your payment on or before <strong style="color:#ffffff;text-decoration:underline;">Sunday, July 19th, 2026</strong>.
         </p>
         <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
           Please note that we have limited seats, and spots not secured by the deadline will be reassigned to applicants on our waiting list.
         </p>
+
+        <!-- Part-Payment Offer Card -->
+        <table width="100%" cellpadding="0" cellspacing="0" style="margin:20px 0;border-radius:16px;overflow:hidden;border:1px solid rgba(124,58,237,0.4);background:rgba(124,58,237,0.08);font-size:14px;color:#d0c8f0;">
+          <tr>
+            <td style="padding:16px 24px;background:rgba(124,58,237,0.18);border-bottom:1px solid rgba(124,58,237,0.3);">
+              <strong style="color:#ffffff;font-size:15px;">🎉 New: 50% Part-Payment Option Now Available!</strong>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:18px 24px;line-height:1.7;">
+              <p style="margin:0 0 10px;">Due to high demand, we have opened a <strong style="color:#ffffff;">50% part-payment offer</strong>:</p>
+              <ul style="margin:0;padding-left:20px;line-height:1.9;">
+                <li>Pay <strong style="color:#06b6d4;">50% of your course fee now</strong> to secure your spot in the cohort.</li>
+                <li>Pay the <strong style="color:#ffffff;">remaining 50% at the end of the cohort</strong> to receive your certificate.</li>
+              </ul>
+              <p style="margin:10px 0 0;font-size:13px;color:#8b83b0;">Choose Full Payment or Part-Payment on your enrollment portal below.</p>
+            </td>
+          </tr>
+        </table>
 
         <!-- Portal Details Card -->
         <table width="100%" cellpadding="0" cellspacing="0" style="margin:28px 0;border-radius:16px;overflow:hidden;border:1px solid rgba(239,68,68,0.2);background:rgba(239,68,68,0.02);font-size:14px;color:#d0c8f0;">
@@ -219,7 +238,7 @@ function buildDeadlineEmailHtml(name: string, track: string, paymentUrl: string)
           </tr>
           <tr>
             <td style="padding:20px 24px;line-height:1.6;">
-              If you have already paid or are about to pay, please visit your personalized portal to upload your receipt (Image or PDF) for immediate verification.
+              Visit your personalized portal to choose your payment type (Full or Part-Payment), make the transfer, and upload your receipt for immediate verification.
             </td>
           </tr>
         </table>
@@ -231,7 +250,7 @@ function buildDeadlineEmailHtml(name: string, track: string, paymentUrl: string)
               <a href="${paymentUrl}"
                  target="_blank"
                  style="display: inline-block; background: linear-gradient(135deg, #ef4444 0%, #7c3aed 100%); padding: 16px 40px; font-family: Arial, sans-serif; font-size: 14px; font-weight: 800; color: #ffffff; text-decoration: none; letter-spacing: 0.08em; text-transform: uppercase; border-radius: 9999px; box-shadow: 0 8px 24px rgba(239,68,68,0.35);">
-                GO TO PORTAL & UPLOAD RECEIPT
+                GO TO PORTAL &amp; COMPLETE PAYMENT
               </a>
             </td>
           </tr>
@@ -272,13 +291,20 @@ function buildDeadlineEmailText(name: string, track: string, paymentUrl: string)
 
 We hope you are doing well.
 
-This is a gentle reminder regarding your admission offer to Uget Academy's Cohort 1 for ${track}. We noticed that you have not yet completed or confirmed your commitment fee payment.
+This is a gentle reminder regarding your admission offer to Uget Academy's Cohort 1 for ${track}. We noticed that you have not yet completed or confirmed your cohort payment.
 
-Deadline: To secure your scholarship spot and participate in the upcoming cohort, please complete your payment and upload your receipt on your enrollment portal on or before Wednesday, July 15th, 2026.
+Deadline: To secure your scholarship spot and participate in the upcoming cohort, please complete your payment on or before Sunday, July 19th, 2026.
 
 Please note that we have limited seats, and spots not secured by the deadline will be reassigned to applicants on our waiting list.
 
-Go to your portal to upload your receipt for immediate verification:
+--- NEW: 50% PART-PAYMENT OPTION AVAILABLE ---
+Due to high demand, we have opened a 50% part-payment offer:
+- Pay 50% of your course fee NOW to secure your cohort spot.
+- Pay the remaining 50% at the END of the cohort to receive your certificate.
+You can choose Full Payment or Part-Payment on your enrollment portal.
+----------------------------------------------
+
+Go to your portal to choose your payment type and upload your receipt:
 ${paymentUrl}
 
 If you are an international student requiring localized payment options, or have any other questions, please contact our coordinator via WhatsApp at +234 810 617 5131.
@@ -394,7 +420,7 @@ Uget Technologies`.trim();
 }
 
 function getDeadlineWhatsAppMessage(app: any, paymentUrl: string) {
-  return `Hello ${app.full_name},\n\nThis is a gentle reminder regarding your admission offer to Uget Academy Cohort 1 for ${app.track}.\n\nDeadline: To secure your scholarship spot, please complete your payment and upload your receipt on your enrollment portal on or before Wednesday, July 15th, 2026:\n${paymentUrl}\n\nIf you have any questions or require international payment options, please let us know or chat with our coordinator here. We look forward to welcoming you!\n\nWarm regards,\nChiemena Erasmous\nUget Technologies`;
+  return `Hello ${app.full_name},\n\nThis is a gentle reminder regarding your admission offer to Uget Academy Cohort 1 for ${app.track}.\n\nDeadline: Sunday, July 19th, 2026. Please complete your payment before this date to secure your cohort slot.\n\n🎉 NEW — 50% PART-PAYMENT OPTION: Due to high demand, you can now pay 50% of your course fee now and the remaining 50% at the end of the cohort to receive your certificate.\n\nVisit your enrollment portal to choose Full Payment or Part-Payment:\n${paymentUrl}\n\nIf you have any questions or require international payment options, please let us know. We look forward to welcoming you!\n\nWarm regards,\nChiemena Erasmous\nUget Technologies`;
 }
 
 function getClassStartsWhatsAppMessage(app: any) {
@@ -610,7 +636,7 @@ function NotifyModal({
             className="w-full h-10 bg-background border border-border rounded-lg px-3 py-1 text-sm font-medium focus:outline-none focus:ring-1 focus:ring-primary text-foreground transition-colors cursor-pointer hover:bg-background/80"
           >
             <option value="offer">Welcome Offer (Original)</option>
-            <option value="deadline">Payment Deadline Reminder (July 10)</option>
+            <option value="deadline">Payment Reminder — July 19th (Part-Payment Offer)</option>
             <option value="class_starts">Class Start Notification (July 13)</option>
           </select>
         </div>
@@ -998,7 +1024,7 @@ function BulkEmailModal({
               className="w-full h-10 bg-background border border-border rounded-xl px-3 py-1 text-sm font-medium focus:outline-none focus:ring-1 focus:ring-primary text-foreground transition-colors cursor-pointer hover:bg-background/80"
             >
               <option value="offer">Welcome Offer (Original)</option>
-              <option value="deadline">Payment Deadline Reminder (July 10)</option>
+              <option value="deadline">Payment Reminder — July 19th (Part-Payment Offer)</option>
               <option value="class_starts">Class Start Notification (July 13)</option>
             </select>
           </div>
@@ -2079,6 +2105,9 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
             <TabsTrigger value="payments">
               Payments ({paid.length + pending.length}/{applications.length})
             </TabsTrigger>
+            <TabsTrigger value="part-payment" className="text-orange-400 data-[state=active]:text-orange-300">
+              ⚡ Part-Payment ({applications.filter(a => a.payment_ref && a.payment_ref.includes('[PART-PAYMENT]')).length})
+            </TabsTrigger>
             <TabsTrigger value="applications">
               All Applications ({applications.length})
             </TabsTrigger>
@@ -2561,6 +2590,120 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
                 </Table>
               </div>
             </div>
+          </TabsContent>
+
+          {/* ── PART-PAYMENT TAB ─────────────────────────────────────────────── */}
+          <TabsContent value="part-payment" className="space-y-6">
+            {/* Summary cards */}
+            {(() => {
+              const partPayers = applications.filter(
+                (a) => a.payment_ref && a.payment_ref.includes("[PART-PAYMENT]")
+              );
+              const partPending = partPayers.filter((a) => a.payment_status === "Pending Verification");
+              const partPaid = partPayers.filter((a) => a.payment_status === "Paid");
+              return (
+                <>
+                  <div className="rounded-xl border border-orange-500/30 bg-orange-500/5 p-4 flex items-start gap-3">
+                    <span className="text-2xl">⚡</span>
+                    <div>
+                      <h3 className="text-sm font-bold text-orange-300">Part-Payment Applicants</h3>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        These applicants have paid 50% of their course fee. The remaining 50% is due at the end of the cohort before they receive their certificate.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid gap-4 sm:grid-cols-3">
+                    {[
+                      { label: "Total Part-Payers", count: partPayers.length, color: "text-orange-400", bg: "bg-orange-500/10 border-orange-500/30" },
+                      { label: "Verified Part-Paid", count: partPaid.length, color: "text-primary", bg: "bg-primary/10 border-primary/30" },
+                      { label: "Pending Verification", count: partPending.length, color: "text-yellow-400", bg: "bg-yellow-500/10 border-yellow-500/30" },
+                    ].map((s) => (
+                      <div key={s.label} className={`rounded-xl border p-4 ${s.bg}`}>
+                        <div className={`text-2xl font-bold ${s.color}`}>{s.count}</div>
+                        <div className="text-xs text-muted-foreground mt-1">{s.label}</div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="border rounded-lg overflow-x-auto shadow-sm">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Name</TableHead>
+                          <TableHead>Email</TableHead>
+                          <TableHead>Track</TableHead>
+                          <TableHead>Full Fee</TableHead>
+                          <TableHead>Paid (50%)</TableHead>
+                          <TableHead>Balance Due</TableHead>
+                          <TableHead>Date</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {partPayers.length === 0 ? (
+                          <TableRow>
+                            <TableCell colSpan={9} className="text-center py-8 text-muted-foreground text-sm">
+                              No part-payment applicants found yet.
+                            </TableCell>
+                          </TableRow>
+                        ) : (
+                          partPayers.map((app, i) => {
+                            const fullFee = COURSE_FEES[app.track] ?? 0;
+                            const feeDetails = getFeeDetails(app.track);
+                            const partAmount = app.payment_amount ?? Math.round(feeDetails.ngn.total * 0.5);
+                            const balance = feeDetails.ngn.total - partAmount;
+                            return (
+                              <TableRow key={i}>
+                                <TableCell className="font-medium whitespace-nowrap">{app.full_name}</TableCell>
+                                <TableCell className="whitespace-nowrap text-xs">{app.email}</TableCell>
+                                <TableCell className="whitespace-nowrap text-xs">{app.track}</TableCell>
+                                <TableCell className="whitespace-nowrap text-xs text-muted-foreground">{fullFee > 0 ? fmt(feeDetails.ngn.total) : "—"}</TableCell>
+                                <TableCell className="whitespace-nowrap font-semibold text-orange-400">{partAmount > 0 ? fmt(partAmount) : "—"}</TableCell>
+                                <TableCell className="whitespace-nowrap font-semibold text-destructive">{balance > 0 ? fmt(balance) : "—"}</TableCell>
+                                <TableCell className="whitespace-nowrap text-xs text-muted-foreground">
+                                  {app.payment_date ? new Date(app.payment_date).toLocaleDateString() : "—"}
+                                </TableCell>
+                                <TableCell>
+                                  <span className="inline-flex items-center rounded-full bg-orange-500/15 px-2 py-0.5 text-xs font-semibold text-orange-400 border border-orange-500/20">
+                                    ⚡ Part-Paid
+                                  </span>
+                                  <div className="mt-1">
+                                    <PaymentBadge status={app.payment_status} />
+                                  </div>
+                                </TableCell>
+                                <TableCell onClick={(e) => e.stopPropagation()}>
+                                  <div className="flex gap-1.5 items-center">
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      className="text-xs whitespace-nowrap"
+                                      onClick={() => setNotifyApp(app)}
+                                    >
+                                      Notify
+                                    </Button>
+                                    <select
+                                      value={app.payment_status}
+                                      onChange={(e) => updatePaymentStatus(app.id, e.target.value)}
+                                      className="text-xs bg-background border border-border rounded px-1.5 py-1 text-foreground focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
+                                    >
+                                      <option value="Unpaid">Unpaid</option>
+                                      <option value="Pending Verification">Pending</option>
+                                      <option value="Paid">Paid ✓</option>
+                                    </select>
+                                  </div>
+                                </TableCell>
+                              </TableRow>
+                            );
+                          })
+                        )}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </>
+              );
+            })()}
           </TabsContent>
 
         </Tabs>

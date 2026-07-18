@@ -93,20 +93,39 @@ function buildEmailHtml(name: string | null, link: string) {
     <!-- Content Body -->
     <tr>
       <td style="padding:40px 36px 32px;">
-        <h2 style="margin:0 0 20px;font-size:22px;font-weight:800;color:#ffffff;letter-spacing:-0.02em;">⚠️ Action Required — Complete Your Payment</h2>
+        <h2 style="margin:0 0 20px;font-size:22px;font-weight:800;color:#ffffff;letter-spacing:-0.02em;">⚠️ Payment Reminder — Secure Your Spot Before July 19th</h2>
         
         <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
           Hello <strong style="color:#ffffff;">${name ?? "Candidate"}</strong>,
         </p>
         <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-          We noticed that your Uget Academy registration is still <strong style="color:#facc15;">incomplete</strong>. Your application has been received, but your spot is <strong style="color:#ffffff;">not secured</strong> until your course commitment fee is paid.
+          We noticed that your Uget Academy registration is still <strong style="color:#facc15;">incomplete</strong>. Your application has been received, but your spot is <strong style="color:#ffffff;">not secured</strong> until your cohort payment is completed.
         </p>
-        <p style="margin:0 0 12px;font-size:15px;line-height:1.7;color:#facc15;font-weight:600;">
-          ⏰ <strong style="color:#ffffff;">Payment Deadline:</strong> Sunday, <strong>July 19th</strong>. Please complete your payment before this date to secure your slot.
+        <p style="margin:0 0 12px;font-size:15px;line-height:1.7;color:#facc15;font-weight:600;background:rgba(250,204,21,0.08);padding:14px 20px;border-radius:12px;border:1px solid rgba(250,204,21,0.25);">
+          ⏰ <strong style="color:#ffffff;">Payment Deadline:</strong> Sunday, <strong>July 19th</strong>. Please complete your payment before this date to secure your cohort slot.
         </p>
         <p style="margin:0 0 20px;font-size:15px;line-height:1.7;color:#06b6d4;font-weight:600;">
           📅 <strong style="color:#ffffff;">Commencement Date:</strong> Classes officially commence on <strong>Monday, July 20th</strong>. Do not miss out!
         </p>
+
+        <!-- Part-Payment Offer Card -->
+        <table width="100%" cellpadding="0" cellspacing="0" style="margin:20px 0;border-radius:16px;overflow:hidden;border:1px solid rgba(124,58,237,0.4);background:rgba(124,58,237,0.08);font-size:14px;color:#d0c8f0;">
+          <tr>
+            <td style="padding:16px 24px;background:rgba(124,58,237,0.18);border-bottom:1px solid rgba(124,58,237,0.3);">
+              <strong style="color:#ffffff;font-size:15px;">🎉 New: 50% Part-Payment Option Available!</strong>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:18px 24px;line-height:1.7;">
+              <p style="margin:0 0 10px;">Due to high demand, we have opened a <strong style="color:#ffffff;">50% part-payment offer</strong> to make enrollment more accessible:</p>
+              <ul style="margin:0;padding-left:20px;line-height:1.9;">
+                <li>Pay <strong style="color:#06b6d4;">50% of your course fee now</strong> to secure your spot in the cohort.</li>
+                <li>Pay the <strong style="color:#ffffff;">remaining 50% at the end of the cohort</strong> to receive your certificate.</li>
+              </ul>
+              <p style="margin:10px 0 0;font-size:13px;color:#8b83b0;">You can choose between Full Payment or Part-Payment on your enrollment portal.</p>
+            </td>
+          </tr>
+        </table>
 
         <!-- CTA button -->
         <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="margin: 32px auto; width: 100%; text-align: center;">
@@ -215,7 +234,7 @@ async function main() {
       return {
         from: FROM_ADDRESS,
         to: s.email,
-        subject: "⚠️ Payment Deadline Reminder — Uget Academy Cohort (July 19th)",
+        subject: "⚠️ Payment Reminder — Secure Your Spot by July 19th (Part-Payment Now Available)",
         html: buildEmailHtml(s.full_name, link),
       };
     });
