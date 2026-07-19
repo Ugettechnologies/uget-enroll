@@ -91,58 +91,42 @@ function buildEmailHtml(name: string | null, track: string | null) {
     <tr>
       <td style="padding:40px 36px 32px;">
 
-        <!-- Success banner -->
-        <div style="background:linear-gradient(135deg,rgba(34,197,94,0.15) 0%,rgba(6,182,212,0.1) 100%);border:1px solid rgba(34,197,94,0.35);border-radius:16px;padding:20px 24px;margin-bottom:28px;text-align:center;">
-          <p style="margin:0;font-size:28px;">🎉</p>
-          <p style="margin:6px 0 0;font-size:17px;font-weight:800;color:#22c55e;">Congratulations, and Welcome to UGET Academy!</p>
-          <p style="margin:4px 0 0;font-size:13px;color:#d0c8f0;">Your spot in Cohort 01 is officially secured.</p>
-        </div>
-
         <h2 style="margin:0 0 20px;font-size:22px;font-weight:800;color:#ffffff;letter-spacing:-0.02em;">Dear ${name ?? "Cohort 01 Learner"},</h2>
 
         <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-          We're thrilled to have you on board as part of our very first cohort${track ? `, officially joining the <strong style="color:#ffffff;">${track}</strong> track` : ""}. This is the beginning of an exciting learning journey, and we're glad you've decided to take it with us.
+          Congratulations, and welcome to UGET Academy!
         </p>
 
-        <!-- Commencement notice -->
-        <table width="100%" cellpadding="0" cellspacing="0" style="margin:24px 0;border-radius:16px;overflow:hidden;border:1px solid rgba(6,182,212,0.3);background:rgba(6,182,212,0.05);">
+        <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
+          We're thrilled to have you on board as part of our very first cohort, officially kicking off tomorrow, Monday, 20th. This is the beginning of an exciting learning journey, and we're glad you've decided to take it with us.
+        </p>
+
+        <p style="margin:0 0 8px;font-size:15px;line-height:1.7;color:#d0c8f0;">
+          To get started, please join our community WhatsApp group using the link below. All further details — schedules, resources, and updates — will be shared there:
+        </p>
+
+        <!-- WhatsApp CTA -->
+        <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;margin:16px 0;">
           <tr>
-            <td style="padding:20px 24px;">
-              <p style="margin:0 0 8px;font-size:15px;font-weight:800;color:#06b6d4;">🚀 Cohort 01 Kicks Off — Monday, 20th!</p>
-              <p style="margin:0;font-size:14px;line-height:1.7;color:#d0c8f0;">
-                Your cohort officially starts this <strong style="color:#ffffff;">Monday, July 20th, 2026</strong>. Get ready for an exciting learning journey!
-              </p>
+            <td align="center">
+              <a href="${WHATSAPP_GROUP_LINK}"
+                 target="_blank"
+                 style="display:inline-block;background:linear-gradient(135deg,#25d366 0%,#128c7e 100%);padding:14px 36px;font-family:Arial,sans-serif;font-size:14px;font-weight:800;color:#ffffff;text-decoration:none;letter-spacing:0.06em;text-transform:uppercase;border-radius:9999px;box-shadow:0 8px 24px rgba(37,211,102,0.3);">👉 Join WhatsApp Group</a>
             </td>
           </tr>
         </table>
+        <p style="margin:4px 0 20px;font-size:12px;text-align:center;color:#8b80a8;">Or copy: ${WHATSAPP_GROUP_LINK}</p>
 
-        <!-- WhatsApp group notice -->
-        <table width="100%" cellpadding="0" cellspacing="0" style="margin:24px 0;border-radius:16px;overflow:hidden;border:1px solid rgba(37,211,102,0.35);background:rgba(37,211,102,0.05);">
-          <tr>
-            <td style="padding:20px 24px;">
-              <p style="margin:0 0 8px;font-size:15px;font-weight:800;color:#25d366;">💬 Join the Community WhatsApp Group</p>
-              <p style="margin:0 0 16px;font-size:14px;line-height:1.7;color:#d0c8f0;">
-                To get started, please join our community WhatsApp group using the link below. All further details — schedules, resources, and updates — will be shared there. Once you join, you will be directed to your respective area of learning.
-              </p>
-              <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;">
-                <tr>
-                  <td align="center">
-                    <a href="${WHATSAPP_GROUP_LINK}"
-                       target="_blank"
-                       style="display:inline-block;background:linear-gradient(135deg,#25d366 0%,#128c7e 100%);padding:14px 36px;font-family:Arial,sans-serif;font-size:14px;font-weight:800;color:#ffffff;text-decoration:none;letter-spacing:0.06em;text-transform:uppercase;border-radius:9999px;box-shadow:0 8px 24px rgba(37,211,102,0.3);">👉 Join WhatsApp Group</a>
-                  </td>
-                </tr>
-              </table>
-            </td>
-          </tr>
-        </table>
+        <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
+          Once you join, you will be directed to your respective area of learning.
+        </p>
 
-        <p style="margin:16px 0;font-size:15px;line-height:1.7;color:#d0c8f0;">
+        <p style="margin:0 0 32px;font-size:15px;line-height:1.7;color:#d0c8f0;">
           We're excited to work with you and can't wait to see what you'll achieve. See you tomorrow!
         </p>
 
         <!-- Sign-off -->
-        <table width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid rgba(124,58,237,0.2);margin-top:28px;padding-top:24px;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid rgba(124,58,237,0.2);padding-top:24px;">
           <tr>
             <td>
               <p style="margin:0;font-size:15px;line-height:1.7;color:#d0c8f0;">
@@ -167,14 +151,14 @@ function buildEmailHtml(name: string | null, track: string | null) {
 }
 
 // ─── Plain Text Version ──────────────────────────────────────────────────────
-function buildEmailText(name: string | null, track: string | null) {
+function buildEmailText(name: string | null, _track: string | null) {
   return `Subject: Welcome to UGET Academy — Cohort 01 🎉
 
 Dear ${name ?? "Cohort 01 Learner"},
 
 Congratulations, and welcome to UGET Academy!
 
-We're thrilled to have you on board as part of our very first cohort${track ? ` — ${track} track` : ""}, officially kicking off tomorrow, Monday, 20th. This is the beginning of an exciting learning journey, and we're glad you've decided to take it with us.
+We're thrilled to have you on board as part of our very first cohort, officially kicking off tomorrow, Monday, 20th. This is the beginning of an exciting learning journey, and we're glad you've decided to take it with us.
 
 To get started, please join our community WhatsApp group using the link below. All further details — schedules, resources, and updates — will be shared there:
 
