@@ -1008,7 +1008,15 @@ function BulkEmailModal({
         let subject = "";
         let html = "";
         let text = "";
-        if (templateType === "class_starts") {
+        if (templateType === "welcome_cohort") {
+          subject = `Welcome to UGET Academy — Cohort 01 🎉`;
+          html = buildWelcomeCohortEmailHtml(app.full_name);
+          text = buildWelcomeCohortEmailText(app.full_name);
+        } else if (templateType === "webinar") {
+          subject = `A Special Webinar Just for You — Cohort 01! 🎙️`;
+          html = buildWebinarEmailHtml(app.full_name);
+          text = buildWebinarEmailText(app.full_name);
+        } else if (templateType === "class_starts") {
           subject = `Congratulations! Class Commences July 13th — Uget Academy`;
           html = buildClassStartsEmailHtml(app.full_name, app.track);
           text = buildClassStartsEmailText(app.full_name, app.track);
