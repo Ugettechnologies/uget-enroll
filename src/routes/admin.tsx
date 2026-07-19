@@ -426,6 +426,99 @@ function getClassStartsWhatsAppMessage(app: any) {
 }
 
 
+const WEBINAR_WA_LINK = "https://chat.whatsapp.com/HM8hzDeMHTYCZA8qY12Eek";
+
+function buildWebinarEmailHtml(name: string) {
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>You're Invited: UGET Academy Webinar — July 22nd 🎙️</title>
+</head>
+<body style="margin:0;padding:0;background:#0d0a1a;font-family:'Inter',Arial,sans-serif;color:#f0eeff;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:40px auto;background:#130f26;border-radius:24px;overflow:hidden;border:1px solid rgba(124,58,237,0.3);box-shadow:0 20px 40px rgba(0,0,0,0.5);">
+    <tr>
+      <td style="padding:48px 36px 32px;background:linear-gradient(135deg,rgba(124,58,237,0.15) 0%,rgba(6,182,212,0.05) 100%);border-bottom:1px solid rgba(124,58,237,0.2);text-align:center;">
+        <img src="https://uget-enroll.vercel.app/uget-logo.png" alt="Uget Technologies Logo" style="width:160px;max-width:100%;height:auto;display:inline-block;margin-bottom:12px;" />
+        <p style="margin:0;font-size:11px;font-weight:800;letter-spacing:0.35em;text-transform:uppercase;color:#06b6d4;">Academy</p>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:40px 36px 32px;">
+        <div style="background:linear-gradient(135deg,rgba(124,58,237,0.2) 0%,rgba(6,182,212,0.1) 100%);border:1px solid rgba(124,58,237,0.4);border-radius:16px;padding:24px;margin-bottom:28px;text-align:center;">
+          <p style="margin:0;font-size:32px;">🎙️</p>
+          <p style="margin:8px 0 4px;font-size:18px;font-weight:800;color:#ffffff;">A Special Webinar Just for You!</p>
+          <p style="margin:0;font-size:13px;color:#a78bfa;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;">Cohort 01 — Wednesday, July 22nd · 8:00 PM</p>
+        </div>
+        <h2 style="margin:0 0 20px;font-size:22px;font-weight:800;color:#ffffff;letter-spacing:-0.02em;">Dear ${name},</h2>
+        <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
+          As a valued member of <strong style="color:#ffffff;">UGET Academy Cohort 01</strong>, we're excited to invite you to a special webinar happening this <strong style="color:#ffffff;">Wednesday, 22nd of July, by 8:00 PM sharp</strong> — no African time, we're starting on the dot! ⏰
+        </p>
+        <table width="100%" cellpadding="0" cellspacing="0" style="margin:24px 0;border-radius:16px;overflow:hidden;border:1px solid rgba(124,58,237,0.3);background:rgba(124,58,237,0.05);">
+          <tr><td style="padding:18px 24px;background:rgba(124,58,237,0.12);border-bottom:1px solid rgba(124,58,237,0.25);"><strong style="color:#ffffff;font-size:15px;">✨ Here's what to expect:</strong></td></tr>
+          <tr><td style="padding:20px 24px;">
+            <p style="margin:0 0 10px;font-size:14px;line-height:1.6;color:#d0c8f0;">👥 <strong style="color:#ffffff;">Meet our instructors</strong> — get to know the experts who'll be guiding your learning journey</p>
+            <p style="margin:0 0 10px;font-size:14px;line-height:1.6;color:#d0c8f0;">🌍 <strong style="color:#ffffff;">Real impact stories</strong> — hear how tech is shaping and transforming society today</p>
+            <p style="margin:0 0 10px;font-size:14px;line-height:1.6;color:#d0c8f0;">🎓 <strong style="color:#ffffff;">A deeper look at UGET Academy</strong> — how the program works and how it'll benefit you</p>
+            <p style="margin:0;font-size:14px;line-height:1.6;color:#d0c8f0;">🤖 <strong style="color:#ffffff;">Future-proofing yourself</strong> — in this era, getting a job isn't as easy as it used to be. The ability to build and reinvent yourself is key to adapting in this age of AI, which is reshaping everything</p>
+          </td></tr>
+        </table>
+        <p style="margin:16px 0 24px;font-size:15px;line-height:1.7;color:#d0c8f0;">This promises to be an exciting and inspiring session, so <strong style="color:#ffffff;">don't miss it!</strong></p>
+        <table width="100%" cellpadding="0" cellspacing="0" style="margin:24px 0;border-radius:16px;overflow:hidden;border:1px solid rgba(37,211,102,0.35);background:rgba(37,211,102,0.05);">
+          <tr><td style="padding:20px 24px;">
+            <p style="margin:0 0 8px;font-size:15px;font-weight:800;color:#25d366;">💬 Join Our Webinar Community Group</p>
+            <p style="margin:0 0 16px;font-size:14px;line-height:1.7;color:#d0c8f0;">Join our webinar community group below for all details and the live session link:</p>
+            <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;"><tr><td align="center">
+              <a href="${WEBINAR_WA_LINK}" target="_blank" style="display:inline-block;background:linear-gradient(135deg,#25d366 0%,#128c7e 100%);padding:14px 36px;font-family:Arial,sans-serif;font-size:14px;font-weight:800;color:#ffffff;text-decoration:none;letter-spacing:0.06em;text-transform:uppercase;border-radius:9999px;box-shadow:0 8px 24px rgba(37,211,102,0.3);">👉 Join Webinar Group</a>
+            </td></tr></table>
+          </td></tr>
+        </table>
+        <p style="margin:16px 0 32px;font-size:15px;line-height:1.7;color:#d0c8f0;">See you there — on time! 😉</p>
+        <table width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid rgba(124,58,237,0.2);margin-top:4px;padding-top:24px;">
+          <tr><td><p style="margin:0;font-size:15px;line-height:1.7;color:#d0c8f0;">Warm regards,<br/><strong style="color:#ffffff;">The UGET Academy Team</strong></p></td></tr>
+        </table>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:24px 36px;background:#090714;border-top:1px solid rgba(124,58,237,0.15);text-align:center;">
+        <p style="margin:0;font-size:12px;color:#635d7a;">© ${new Date().getFullYear()} Uget Academy / Uget Technologies. All rights reserved.</p>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+  `.trim();
+}
+
+function buildWebinarEmailText(name: string) {
+  return `Dear ${name},
+
+As a valued member of UGET Academy Cohort 01, we're excited to invite you to a special webinar happening this Wednesday, 22nd of July, by 8:00 PM sharp — no African time, we're starting on the dot! ⏰
+
+Here's what to expect:
+
+👥 Meet our instructors — get to know the experts who'll be guiding your learning journey
+🌍 Real impact stories — hear how tech is shaping and transforming society today
+🎓 A deeper look at UGET Academy — how the program works and how it'll benefit you
+🤖 Future-proofing yourself — in this era, getting a job isn't as easy as it used to be. The ability to build and reinvent yourself is key to adapting in this age of AI, which is reshaping everything
+
+This promises to be an exciting and inspiring session, so don't miss it!
+
+Join our webinar community group for all details and the live session link:
+👉 ${WEBINAR_WA_LINK}
+
+See you there — on time! 😉
+
+Warm regards,
+The UGET Academy Team`.trim();
+}
+
+function getWebinarWhatsAppMessage(app: any) {
+  return `Hello ${app.full_name},\n\nAs a valued member of UGET Academy Cohort 01, we're excited to invite you to a special webinar this Wednesday, 22nd of July, by 8:00 PM sharp — no African time, we're starting on the dot! ⏰\n\nHere's what to expect:\n👥 Meet our instructors\n🌍 Real impact stories from tech\n🎓 A deeper look at UGET Academy\n🤖 Future-proofing yourself in the age of AI\n\nJoin our webinar community group for all details and the live session link:\n👉 ${WEBINAR_WA_LINK}\n\nSee you there — on time! 😉\n\nWarm regards,\nThe UGET Academy Team`;
+}
+
 // ─── Auth wrapper ─────────────────────────────────────────────────────────────
 function AdminWrapper() {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
@@ -517,7 +610,7 @@ function NotifyModal({
   paymentUrl: string;
   onNotified: () => void;
 }) {
-  const [templateType, setTemplateType] = useState<"offer" | "deadline" | "class_starts">(() => {
+  const [templateType, setTemplateType] = useState<"offer" | "deadline" | "class_starts" | "webinar">(() => {
     return app.payment_status === "Paid" ? "class_starts" : "deadline";
   });
 
@@ -541,6 +634,11 @@ function NotifyModal({
     html = buildDeadlineEmailHtml(app.full_name, app.track, personalizedPaymentUrl);
     text = buildDeadlineEmailText(app.full_name, app.track, personalizedPaymentUrl);
     waTextRaw = getDeadlineWhatsAppMessage(app, personalizedPaymentUrl);
+  } else if (templateType === "webinar") {
+    subject = `A Special Webinar Just for You — Cohort 01! 🎙️`;
+    html = buildWebinarEmailHtml(app.full_name);
+    text = buildWebinarEmailText(app.full_name);
+    waTextRaw = getWebinarWhatsAppMessage(app);
   } else {
     subject = `Welcome to Uget Academy — ${app.track} Cohort 1`;
     html = buildEmailHtml(app.full_name, app.track, fee, personalizedPaymentUrl);
@@ -636,6 +734,7 @@ function NotifyModal({
             <option value="offer">Welcome Offer (Original)</option>
             <option value="deadline">Payment Reminder — July 19th (Part-Payment Offer)</option>
             <option value="class_starts">Class Start Notification (July 13)</option>
+            <option value="webinar">🎙️ Webinar Invite — July 22nd (Unpaid Registrants)</option>
           </select>
         </div>
 
@@ -659,10 +758,16 @@ function NotifyModal({
               <strong className="text-primary">{fee > 0 ? fmt(fee) : "—"}</strong>
             </p>
           )}
-          {templateType !== "class_starts" && (
+          {templateType !== "class_starts" && templateType !== "webinar" && (
             <p>
               <span className="text-muted-foreground">Link:</span>{" "}
               <span className="text-primary/80">{personalizedPaymentUrl}</span>
+            </p>
+          )}
+          {templateType === "webinar" && (
+            <p>
+              <span className="text-muted-foreground">WhatsApp Group:</span>{" "}
+              <span className="text-green-400/80 text-xs break-all">{WEBINAR_WA_LINK}</span>
             </p>
           )}
         </div>
