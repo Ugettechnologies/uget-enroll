@@ -417,6 +417,91 @@ Chiemena Erasmous
 Uget Technologies`.trim();
 }
 
+// ─── Welcome Cohort 01 (new simple welcome + WhatsApp link) ──────────────────
+const COHORT_WA_LINK = "https://chat.whatsapp.com/HRy8MCg1l42EMH6hvOtzOf";
+
+function buildWelcomeCohortEmailHtml(name: string | null) {
+  const displayName = name ?? "Cohort 01 Learner";
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Welcome to Uget Academy — Cohort 01 🎉</title>
+</head>
+<body style="margin:0;padding:0;background:#0d0a1a;font-family:'Inter',Arial,sans-serif;color:#f0eeff;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:40px auto;background:#130f26;border-radius:24px;overflow:hidden;border:1px solid rgba(124,58,237,0.3);box-shadow:0 20px 40px rgba(0,0,0,0.5);">
+    <tr>
+      <td style="padding:48px 36px 32px;background:linear-gradient(135deg,rgba(124,58,237,0.15) 0%,rgba(6,182,212,0.05) 100%);border-bottom:1px solid rgba(124,58,237,0.2);text-align:center;">
+        <img src="https://uget-enroll.vercel.app/uget-logo.png" alt="Uget Technologies Logo" style="width:160px;max-width:100%;height:auto;display:inline-block;margin-bottom:12px;" />
+        <p style="margin:0;font-size:11px;font-weight:800;letter-spacing:0.35em;text-transform:uppercase;color:#06b6d4;">Academy</p>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:40px 36px 32px;">
+        <h2 style="margin:0 0 20px;font-size:22px;font-weight:800;color:#ffffff;letter-spacing:-0.02em;">Dear ${displayName},</h2>
+        <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">Congratulations, and welcome to UGET Academy!</p>
+        <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
+          We're thrilled to have you on board as part of our very first cohort, officially kicking off tomorrow, Monday, 20th. This is the beginning of an exciting learning journey, and we're glad you've decided to take it with us.
+        </p>
+        <p style="margin:0 0 8px;font-size:15px;line-height:1.7;color:#d0c8f0;">
+          To get started, please join our community WhatsApp group using the link below. All further details — schedules, resources, and updates — will be shared there:
+        </p>
+        <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;margin:16px 0;">
+          <tr>
+            <td align="center">
+              <a href="${COHORT_WA_LINK}" target="_blank" style="display:inline-block;background:linear-gradient(135deg,#25d366 0%,#128c7e 100%);padding:14px 36px;font-family:Arial,sans-serif;font-size:14px;font-weight:800;color:#ffffff;text-decoration:none;letter-spacing:0.06em;text-transform:uppercase;border-radius:9999px;box-shadow:0 8px 24px rgba(37,211,102,0.3);">👉 Join WhatsApp Group</a>
+            </td>
+          </tr>
+        </table>
+        <p style="margin:4px 0 20px;font-size:12px;text-align:center;color:#8b80a8;">Or copy: ${COHORT_WA_LINK}</p>
+        <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">Once you join, you will be directed to your respective area of learning.</p>
+        <p style="margin:0 0 32px;font-size:15px;line-height:1.7;color:#d0c8f0;">We're excited to work with you and can't wait to see what you'll achieve. See you tomorrow!</p>
+        <table width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid rgba(124,58,237,0.2);padding-top:24px;">
+          <tr><td>
+            <p style="margin:0;font-size:15px;line-height:1.7;color:#d0c8f0;">Warm regards,<br/><strong style="color:#ffffff;">The UGET Academy Team</strong></p>
+          </td></tr>
+        </table>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:24px 36px;background:#090714;border-top:1px solid rgba(124,58,237,0.15);text-align:center;">
+        <p style="margin:0;font-size:12px;color:#635d7a;">© ${new Date().getFullYear()} Uget Academy / Uget Technologies. All rights reserved.</p>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+  `.trim();
+}
+
+function buildWelcomeCohortEmailText(name: string | null) {
+  const displayName = name ?? "Cohort 01 Learner";
+  return `Subject: Welcome to UGET Academy — Cohort 01 🎉
+
+Dear ${displayName},
+
+Congratulations, and welcome to UGET Academy!
+
+We're thrilled to have you on board as part of our very first cohort, officially kicking off tomorrow, Monday, 20th. This is the beginning of an exciting learning journey, and we're glad you've decided to take it with us.
+
+To get started, please join our community WhatsApp group using the link below. All further details — schedules, resources, and updates — will be shared there:
+
+👉 ${COHORT_WA_LINK}
+
+Once you join, you will be directed to your respective area of learning.
+
+We're excited to work with you and can't wait to see what you'll achieve. See you tomorrow!
+
+Warm regards,
+The UGET Academy Team`.trim();
+}
+
+function getWelcomeCohortWhatsAppMessage(app: any) {
+  return `Hello ${app.full_name},\n\nCongratulations, and welcome to UGET Academy!\n\nWe're thrilled to have you on board as part of our very first cohort, officially kicking off tomorrow, Monday, 20th.\n\nTo get started, please join our community WhatsApp group below. All further details — schedules, resources, and updates — will be shared there:\n\n👉 ${COHORT_WA_LINK}\n\nOnce you join, you will be directed to your respective area of learning. See you tomorrow!\n\nWarm regards,\nThe UGET Academy Team`;
+}
+
 function getDeadlineWhatsAppMessage(app: any, paymentUrl: string) {
   return `Hello ${app.full_name},\n\nHow are you doing? We hope you are doing well!\n\nThis is a gentle reminder regarding your Uget Academy Cohort 1 offer for ${app.track}.\n\nClasses officially start on Monday, July 20th.\n\n🎉 NEW — Cohort Part-Payment: Due to high demand, a two-week window starting now is open (during the cohort). You can make a deposit of 50% during the cohort and spread the remaining 50% later before the cohort ends.\n\nVisit your enrollment portal to choose Full or Part-Payment and submit your confirmation:\n${paymentUrl}\n\nIf you have any questions, let us know. We look forward to welcoming you!\n\nWarm regards,\nChiemena Erasmous\nUget Technologies`;
 }
@@ -610,8 +695,8 @@ function NotifyModal({
   paymentUrl: string;
   onNotified: () => void;
 }) {
-  const [templateType, setTemplateType] = useState<"offer" | "deadline" | "class_starts" | "webinar">(() => {
-    return app.payment_status === "Paid" ? "class_starts" : "deadline";
+  const [templateType, setTemplateType] = useState<"offer" | "deadline" | "class_starts" | "webinar" | "welcome_cohort">(() => {
+    return app.payment_status === "Paid" ? "welcome_cohort" : "deadline";
   });
 
   const fee = COURSE_FEES[app.track] ?? 0;
@@ -624,8 +709,13 @@ function NotifyModal({
   let text = "";
   let waTextRaw = "";
 
-  if (templateType === "class_starts") {
-    subject = `Congratulations! Class Commences July 13th — Uget Academy`;
+  if (templateType === "welcome_cohort") {
+    subject = `Welcome to UGET Academy — Cohort 01 🎉`;
+    html = buildWelcomeCohortEmailHtml(app.full_name);
+    text = buildWelcomeCohortEmailText(app.full_name);
+    waTextRaw = getWelcomeCohortWhatsAppMessage(app);
+  } else if (templateType === "class_starts") {
+    subject = `Welcome to UGET Academy — Cohort 01 🎉`;
     html = buildClassStartsEmailHtml(app.full_name, app.track);
     text = buildClassStartsEmailText(app.full_name, app.track);
     waTextRaw = getClassStartsWhatsAppMessage(app);
@@ -731,10 +821,11 @@ function NotifyModal({
             onChange={(e) => setTemplateType(e.target.value as any)}
             className="w-full h-10 bg-background border border-border rounded-lg px-3 py-1 text-sm font-medium focus:outline-none focus:ring-1 focus:ring-primary text-foreground transition-colors cursor-pointer hover:bg-background/80"
           >
+            <option value="welcome_cohort">✅ Welcome to UGET Academy — Cohort 01 (Paid Students)</option>
+            <option value="webinar">🎙️ Webinar Invite — July 22nd</option>
             <option value="offer">Welcome Offer (Original)</option>
             <option value="deadline">Payment Reminder — July 19th (Part-Payment Offer)</option>
-            <option value="class_starts">Class Start Notification (July 13)</option>
-            <option value="webinar">🎙️ Webinar Invite — July 22nd (Unpaid Registrants)</option>
+            <option value="class_starts">Class Start Notification (old)</option>
           </select>
         </div>
 
@@ -979,7 +1070,11 @@ function BulkEmailModal({
     const personalizedPaymentUrl = paymentUrl.includes("?")
       ? `${paymentUrl}&id=${app.id}`
       : `${paymentUrl}?id=${app.id}`;
-    if (templateType === "class_starts") {
+    if (templateType === "welcome_cohort") {
+      return getWelcomeCohortWhatsAppMessage(app);
+    } else if (templateType === "webinar") {
+      return getWebinarWhatsAppMessage(app);
+    } else if (templateType === "class_starts") {
       return getClassStartsWhatsAppMessage(app);
     } else if (templateType === "deadline") {
       return getDeadlineWhatsAppMessage(app, personalizedPaymentUrl);
@@ -1027,12 +1122,18 @@ function BulkEmailModal({
 
   let previewSubject = "";
   let previewText = "";
-  if (templateType === "class_starts") {
-    previewSubject = `Congratulations! Class Commences July 13th — Uget Academy`;
+  if (templateType === "welcome_cohort") {
+    previewSubject = `Welcome to UGET Academy — Cohort 01 🎉`;
+    previewText = buildWelcomeCohortEmailText(previewApp.full_name);
+  } else if (templateType === "class_starts") {
+    previewSubject = `Welcome to UGET Academy — Cohort 01 🎉`;
     previewText = buildClassStartsEmailText(previewApp.full_name, previewApp.track);
   } else if (templateType === "deadline") {
     previewSubject = `Action Required: Secure Your Spot at Uget Academy`;
     previewText = buildDeadlineEmailText(previewApp.full_name, previewApp.track, previewPaymentUrl);
+  } else if (templateType === "webinar") {
+    previewSubject = `A Special Webinar Just for You — Cohort 01! 🎙️`;
+    previewText = buildWebinarEmailText(previewApp.full_name);
   } else {
     previewSubject = `Welcome to Uget Academy — ${previewApp.track} Cohort 1`;
     previewText = buildEmailText(previewApp.full_name, previewApp.track, previewFee, previewPaymentUrl);
@@ -1126,9 +1227,11 @@ function BulkEmailModal({
               onChange={(e) => setTemplateType(e.target.value as any)}
               className="w-full h-10 bg-background border border-border rounded-xl px-3 py-1 text-sm font-medium focus:outline-none focus:ring-1 focus:ring-primary text-foreground transition-colors cursor-pointer hover:bg-background/80"
             >
+              <option value="welcome_cohort">✅ Welcome to UGET Academy — Cohort 01 (Paid Students)</option>
+              <option value="webinar">🎙️ Webinar Invite — July 22nd</option>
               <option value="offer">Welcome Offer (Original)</option>
               <option value="deadline">Payment Reminder — July 19th (Part-Payment Offer)</option>
-              <option value="class_starts">Class Start Notification (July 13)</option>
+              <option value="class_starts">Class Start Notification (old)</option>
             </select>
           </div>
         )}
@@ -1278,8 +1381,14 @@ function BulkEmailModal({
                     
                     let subject = "";
                     let text = "";
-                    if (templateType === "class_starts") {
-                      subject = `Congratulations! Class Commences July 13th — Uget Academy`;
+                    if (templateType === "welcome_cohort") {
+                      subject = `Welcome to UGET Academy — Cohort 01 🎉`;
+                      text = buildWelcomeCohortEmailText(app.full_name);
+                    } else if (templateType === "webinar") {
+                      subject = `A Special Webinar Just for You — Cohort 01! 🎙️`;
+                      text = buildWebinarEmailText(app.full_name);
+                    } else if (templateType === "class_starts") {
+                      subject = `Welcome to UGET Academy — Cohort 01 🎉`;
                       text = buildClassStartsEmailText(app.full_name, app.track);
                     } else if (templateType === "deadline") {
                       subject = `Action Required: Secure Your Spot at Uget Academy`;
