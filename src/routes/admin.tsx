@@ -964,7 +964,7 @@ function BulkEmailModal({
   const [target, setTarget] = useState<"all" | "unpaid" | "paid">("unpaid");
   const targets = target === "all" ? applications : target === "paid" ? paid : unpaid;
 
-  const [templateType, setTemplateType] = useState<"offer" | "deadline" | "class_starts">("deadline");
+  const [templateType, setTemplateType] = useState<"offer" | "deadline" | "class_starts" | "webinar" | "welcome_cohort">("deadline");
 
   const handleTargetChange = (newTarget: "all" | "unpaid" | "paid") => {
     setTarget(newTarget);
