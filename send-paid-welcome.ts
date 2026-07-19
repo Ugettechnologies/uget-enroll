@@ -1,8 +1,9 @@
 /**
  * One-off script: send a welcome email to all PAID cohort students.
  * Notifies them that:
- *   - Classes officially commence on Monday, July 20th.
- *   - They need a Discord account to be added to their respective class.
+ *   - They are officially welcomed as Cohort 01 learners.
+ *   - Classes kick off Monday, July 20th.
+ *   - They should join the WhatsApp group to get started.
  *
  * Run with:
  *   npx tsx send-paid-welcome.ts
@@ -65,6 +66,8 @@ interface Student {
   track: string | null;
 }
 
+const WHATSAPP_GROUP_LINK = "https://chat.whatsapp.com/HRy8MCg1l42EMH6hvOtzOf";
+
 // ─── Welcome Email HTML ──────────────────────────────────────────────────────
 function buildEmailHtml(name: string | null, track: string | null) {
   return `
@@ -73,7 +76,7 @@ function buildEmailHtml(name: string | null, track: string | null) {
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Welcome to Uget Academy — Classes Start July 20th!</title>
+  <title>Welcome to Uget Academy — Cohort 01 🎉</title>
 </head>
 <body style="margin:0;padding:0;background:#0d0a1a;font-family:'Inter',Arial,sans-serif;color:#f0eeff;">
   <table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:40px auto;background:#130f26;border-radius:24px;overflow:hidden;border:1px solid rgba(124,58,237,0.3);box-shadow:0 20px 40px rgba(0,0,0,0.5);">
@@ -90,61 +93,61 @@ function buildEmailHtml(name: string | null, track: string | null) {
 
         <!-- Success banner -->
         <div style="background:linear-gradient(135deg,rgba(34,197,94,0.15) 0%,rgba(6,182,212,0.1) 100%);border:1px solid rgba(34,197,94,0.35);border-radius:16px;padding:20px 24px;margin-bottom:28px;text-align:center;">
-          <p style="margin:0;font-size:22px;">🎉</p>
-          <p style="margin:6px 0 0;font-size:16px;font-weight:800;color:#22c55e;">Payment Confirmed!</p>
-          <p style="margin:4px 0 0;font-size:13px;color:#d0c8f0;">Your spot in Cohort 1 is officially secured.</p>
+          <p style="margin:0;font-size:28px;">🎉</p>
+          <p style="margin:6px 0 0;font-size:17px;font-weight:800;color:#22c55e;">Congratulations, and Welcome to UGET Academy!</p>
+          <p style="margin:4px 0 0;font-size:13px;color:#d0c8f0;">Your spot in Cohort 01 is officially secured.</p>
         </div>
 
-        <h2 style="margin:0 0 20px;font-size:22px;font-weight:800;color:#ffffff;letter-spacing:-0.02em;">Welcome to Uget Academy, ${name ?? "Scholar"}!</h2>
+        <h2 style="margin:0 0 20px;font-size:22px;font-weight:800;color:#ffffff;letter-spacing:-0.02em;">Dear ${name ?? "Cohort 01 Learner"},</h2>
 
         <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-          We are thrilled to officially welcome you to <strong style="color:#ffffff;">Uget Academy Cohort 1</strong>${track ? ` — <strong style="color:#ffffff;">${track}</strong> track` : ""}. Your payment has been received and your place in the cohort is confirmed.
+          We're thrilled to have you on board as part of our very first cohort${track ? `, officially joining the <strong style="color:#ffffff;">${track}</strong> track` : ""}. This is the beginning of an exciting learning journey, and we're glad you've decided to take it with us.
         </p>
 
         <!-- Commencement notice -->
         <table width="100%" cellpadding="0" cellspacing="0" style="margin:24px 0;border-radius:16px;overflow:hidden;border:1px solid rgba(6,182,212,0.3);background:rgba(6,182,212,0.05);">
           <tr>
             <td style="padding:20px 24px;">
-              <p style="margin:0 0 8px;font-size:15px;font-weight:800;color:#06b6d4;">📅 Classes Commence — Monday, July 20th</p>
+              <p style="margin:0 0 8px;font-size:15px;font-weight:800;color:#06b6d4;">🚀 Cohort 01 Kicks Off — Monday, 20th!</p>
               <p style="margin:0;font-size:14px;line-height:1.7;color:#d0c8f0;">
-                Cohort 1 officially begins on <strong style="color:#ffffff;">Monday, July 20th, 2026</strong>. Make sure you are available and ready to start on day one!
+                Your cohort officially starts this <strong style="color:#ffffff;">Monday, July 20th, 2026</strong>. Get ready for an exciting learning journey!
               </p>
             </td>
           </tr>
         </table>
 
-        <!-- Discord notice -->
-        <table width="100%" cellpadding="0" cellspacing="0" style="margin:24px 0;border-radius:16px;overflow:hidden;border:1px solid rgba(124,58,237,0.3);background:rgba(124,58,237,0.05);">
+        <!-- WhatsApp group notice -->
+        <table width="100%" cellpadding="0" cellspacing="0" style="margin:24px 0;border-radius:16px;overflow:hidden;border:1px solid rgba(37,211,102,0.35);background:rgba(37,211,102,0.05);">
           <tr>
             <td style="padding:20px 24px;">
-              <p style="margin:0 0 8px;font-size:15px;font-weight:800;color:#a78bfa;">🎮 Action Required — Set Up Your Discord Account</p>
-              <p style="margin:0 0 12px;font-size:14px;line-height:1.7;color:#d0c8f0;">
-                All classes and cohort communication will take place on <strong style="color:#ffffff;">Discord</strong>. Please ensure you have an active Discord account before July 20th — you will be added to your respective class channel ahead of the start date.
+              <p style="margin:0 0 8px;font-size:15px;font-weight:800;color:#25d366;">💬 Join the Community WhatsApp Group</p>
+              <p style="margin:0 0 16px;font-size:14px;line-height:1.7;color:#d0c8f0;">
+                To get started, please join our community WhatsApp group using the link below. All further details — schedules, resources, and updates — will be shared there. Once you join, you will be directed to your respective area of learning.
               </p>
-              <p style="margin:0;font-size:13px;line-height:1.7;color:#8b83b0;">
-                If you don't have Discord yet, download it for free at 
-                <a href="https://discord.com/download" target="_blank" style="color:#06b6d4;text-decoration:underline;">discord.com/download</a>.
-                Once you have your account, reply to this email with your <strong style="color:#ffffff;">Discord username</strong> so we can add you to the right class.
-              </p>
+              <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;">
+                <tr>
+                  <td align="center">
+                    <a href="${WHATSAPP_GROUP_LINK}"
+                       target="_blank"
+                       style="display:inline-block;background:linear-gradient(135deg,#25d366 0%,#128c7e 100%);padding:14px 36px;font-family:Arial,sans-serif;font-size:14px;font-weight:800;color:#ffffff;text-decoration:none;letter-spacing:0.06em;text-transform:uppercase;border-radius:9999px;box-shadow:0 8px 24px rgba(37,211,102,0.3);">👉 Join WhatsApp Group</a>
+                  </td>
+                </tr>
+              </table>
             </td>
           </tr>
         </table>
 
         <p style="margin:16px 0;font-size:15px;line-height:1.7;color:#d0c8f0;">
-          We are excited to have you on this journey. Get ready for an intensive 12 weeks of learning, mentorship, hands-on projects, and community — all designed to fast-track your career in tech.
-        </p>
-        <p style="margin:16px 0 32px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-          If you have any questions in the meantime, do not hesitate to reach out at <a href="mailto:ugettechnologies@gmail.com" style="color:#06b6d4;text-decoration:underline;">ugettechnologies@gmail.com</a> or on WhatsApp at <a href="https://wa.me/2348106175131" style="color:#06b6d4;text-decoration:none;font-weight:600;">+234 810 617 5131</a>.
+          We're excited to work with you and can't wait to see what you'll achieve. See you tomorrow!
         </p>
 
         <!-- Sign-off -->
-        <table width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid rgba(124,58,237,0.2);padding-top:24px;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid rgba(124,58,237,0.2);margin-top:28px;padding-top:24px;">
           <tr>
             <td>
               <p style="margin:0;font-size:15px;line-height:1.7;color:#d0c8f0;">
-                See you on the 20th! 🚀<br/>
-                <strong style="color:#ffffff;">Chiemena Erasmous</strong><br/>
-                <span style="color:#8b83b0;font-size:13px;">Uget Technologies Team</span>
+                Warm regards,<br/>
+                <strong style="color:#ffffff;">The UGET Academy Team</strong>
               </p>
             </td>
           </tr>
@@ -165,28 +168,24 @@ function buildEmailHtml(name: string | null, track: string | null) {
 
 // ─── Plain Text Version ──────────────────────────────────────────────────────
 function buildEmailText(name: string | null, track: string | null) {
-  return `Welcome to Uget Academy, ${name ?? "Scholar"}!
+  return `Subject: Welcome to UGET Academy — Cohort 01 🎉
 
-🎉 Payment Confirmed — Your Spot is Secured!
+Dear ${name ?? "Cohort 01 Learner"},
 
-We are thrilled to officially welcome you to Uget Academy Cohort 1${track ? ` (${track} track)` : ""}. Your payment has been received and your place is confirmed.
+Congratulations, and welcome to UGET Academy!
 
-📅 Classes Commence: Monday, July 20th, 2026.
-Make sure you are available and ready to start on day one!
+We're thrilled to have you on board as part of our very first cohort${track ? ` — ${track} track` : ""}, officially kicking off tomorrow, Monday, 20th. This is the beginning of an exciting learning journey, and we're glad you've decided to take it with us.
 
-🎮 Action Required — Set Up Your Discord Account
-All classes and cohort communication will take place on Discord. Please ensure you have an active Discord account before July 20th — you will be added to your respective class channel ahead of the start date.
+To get started, please join our community WhatsApp group using the link below. All further details — schedules, resources, and updates — will be shared there:
 
-If you don't have Discord yet, download it for free at: https://discord.com/download
-Once you have your account, reply to this email with your Discord username so we can add you to the right class.
+👉 ${WHATSAPP_GROUP_LINK}
 
-We are excited to have you on this journey. Get ready for 12 weeks of learning, mentorship, and real-world projects!
+Once you join, you will be directed to your respective area of learning.
 
-If you have any questions, reach out at ugettechnologies@gmail.com or WhatsApp: +234 810 617 5131.
+We're excited to work with you and can't wait to see what you'll achieve. See you tomorrow!
 
-See you on the 20th! 🚀
-Chiemena Erasmous
-Uget Technologies`.trim();
+Warm regards,
+The UGET Academy Team`.trim();
 }
 
 // ─── Main ────────────────────────────────────────────────────────────────────
@@ -254,7 +253,7 @@ async function main() {
     const batch = chunk.map((s) => ({
       from: FROM_ADDRESS,
       to: s.email,
-      subject: `🎉 Welcome to Uget Academy Cohort 1 — Classes Start July 20th!`,
+      subject: `Welcome to UGET Academy — Cohort 01 🎉`,
       html: buildEmailHtml(s.full_name, s.track),
       text: buildEmailText(s.full_name, s.track),
     }));
@@ -277,7 +276,7 @@ async function main() {
     }
   }
 
-  console.log(`\n🎉 Done! Sent welcome emails to ${sentCount} paid students.`);
+  console.log(`\n🎉 Done! Sent Cohort 01 welcome emails to ${sentCount} paid students.`);
 }
 
 main();
