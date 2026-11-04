@@ -70,59 +70,77 @@ const WHATSAPP_GROUP_LINK = "https://chat.whatsapp.com/HRy8MCg1l42EMH6hvOtzOf";
 
 // ─── Welcome Email HTML ──────────────────────────────────────────────────────
 function buildEmailHtml(name: string | null, track: string | null) {
+  const displayName = name ?? "Cohort 2 Learner";
+  const displayTrack = track ? `for <strong style="color:#06b6d4;">${track}</strong>` : "";
   return `
 <!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Welcome to Uget Academy — Cohort 01 🎉</title>
+  <title>Welcome to Uget Academy Cohort 2 🎉</title>
 </head>
 <body style="margin:0;padding:0;background:#0d0a1a;font-family:'Inter',Arial,sans-serif;color:#f0eeff;">
   <table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:40px auto;background:#130f26;border-radius:24px;overflow:hidden;border:1px solid rgba(124,58,237,0.3);box-shadow:0 20px 40px rgba(0,0,0,0.5);">
     <!-- Header Logo -->
     <tr>
-      <td style="padding:48px 36px 32px;background:linear-gradient(135deg,rgba(124,58,237,0.15) 0%,rgba(6,182,212,0.05) 100%);border-bottom:1px solid rgba(124,58,237,0.2);text-align:center;">
-        <img src="https://uget-enroll.vercel.app/uget-logo.png" alt="Uget Technologies Logo" style="width:160px;max-width:100%;height:auto;display:inline-block;margin-bottom:12px;" />
-        <p style="margin:0;font-size:11px;font-weight:800;letter-spacing:0.35em;text-transform:uppercase;color:#06b6d4;">Academy</p>
+      <td style="padding:48px 36px 32px;background:linear-gradient(135deg,rgba(124,58,237,0.18) 0%,rgba(6,182,212,0.08) 100%);border-bottom:1px solid rgba(124,58,237,0.25);text-align:center;">
+        <img src="https://uget-enrollment.online/uget-logo.png" alt="Uget Technologies Logo" style="width:160px;max-width:100%;height:auto;display:inline-block;margin-bottom:12px;" />
+        <p style="margin:0;font-size:11px;font-weight:800;letter-spacing:0.35em;text-transform:uppercase;color:#06b6d4;">Academy · Cohort 2</p>
       </td>
     </tr>
     <!-- Content Body -->
     <tr>
       <td style="padding:40px 36px 32px;">
-
-        <h2 style="margin:0 0 20px;font-size:22px;font-weight:800;color:#ffffff;letter-spacing:-0.02em;">Dear ${name ?? "Cohort 01 Learner"},</h2>
+        <h2 style="margin:0 0 20px;font-size:22px;font-weight:800;color:#ffffff;letter-spacing:-0.02em;">Welcome to Uget Academy Cohort 2 🎉</h2>
+        
+        <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
+          Hello <strong style="color:#ffffff;">${displayName}</strong>,
+        </p>
 
         <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-          Congratulations, and welcome to UGET Academy!
+          Congratulations! Your registration and enrollment payment of <strong style="color:#ffffff;">₦3,000</strong> ${displayTrack} have been verified and confirmed.
         </p>
 
-        <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-          We're thrilled to have you on board as part of our very first cohort, officially kicking off tomorrow, Monday, 20th. This is the beginning of an exciting learning journey, and we're glad you've decided to take it with us.
+        <p style="margin:0 0 20px;font-size:15px;line-height:1.7;color:#d0c8f0;">
+          Your seat in <strong style="color:#ffffff;">Cohort 2</strong> is officially secured. We are excited to support you on your 12-week intensive learning journey to master practical digital skills.
         </p>
 
-        <p style="margin:0 0 8px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-          To get started, please join our community WhatsApp group using the link below. All further details — schedules, resources, and updates — will be shared there:
-        </p>
-
-        <!-- WhatsApp CTA -->
-        <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;margin:16px 0;">
+        <!-- Community WhatsApp CTA Box -->
+        <table width="100%" cellpadding="0" cellspacing="0" style="margin:24px 0;border-radius:16px;overflow:hidden;border:1px solid rgba(37,211,102,0.35);background:rgba(37,211,102,0.06);">
           <tr>
-            <td align="center">
-              <a href="${WHATSAPP_GROUP_LINK}"
-                 target="_blank"
-                 style="display:inline-block;background:linear-gradient(135deg,#25d366 0%,#128c7e 100%);padding:14px 36px;font-family:Arial,sans-serif;font-size:14px;font-weight:800;color:#ffffff;text-decoration:none;letter-spacing:0.06em;text-transform:uppercase;border-radius:9999px;box-shadow:0 8px 24px rgba(37,211,102,0.3);">👉 Join WhatsApp Group</a>
+            <td style="padding:22px 24px;text-align:center;">
+              <p style="margin:0 0 8px;font-size:16px;font-weight:800;color:#25d366;">💬 Join Official Cohort 2 WhatsApp Group</p>
+              <p style="margin:0 0 18px;font-size:14px;line-height:1.6;color:#d0c8f0;">
+                All class schedules, live sessions, project links, and mentor announcements will be shared inside the WhatsApp group. Join now:
+              </p>
+              <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="margin:0 auto;">
+                <tr>
+                  <td align="center">
+                    <a href="${WHATSAPP_GROUP_LINK}" target="_blank" style="display:inline-block;background:linear-gradient(135deg,#25d366 0%,#128c7e 100%);padding:14px 36px;font-family:Arial,sans-serif;font-size:14px;font-weight:800;color:#ffffff;text-decoration:none;letter-spacing:0.06em;text-transform:uppercase;border-radius:9999px;box-shadow:0 8px 24px rgba(37,211,102,0.35);">
+                      👉 Join WhatsApp Group
+                    </a>
+                  </td>
+                </tr>
+              </table>
+              <p style="margin:12px 0 0;font-size:12px;color:#8b80a8;">Or direct link: <a href="${WHATSAPP_GROUP_LINK}" style="color:#06b6d4;">${WHATSAPP_GROUP_LINK}</a></p>
             </td>
           </tr>
         </table>
-        <p style="margin:4px 0 20px;font-size:12px;text-align:center;color:#8b80a8;">Or copy: ${WHATSAPP_GROUP_LINK}</p>
 
-        <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-          Once you join, you will be directed to your respective area of learning.
-        </p>
+        <!-- Support Box -->
+        <table width="100%" cellpadding="0" cellspacing="0" style="margin:24px 0;border-radius:16px;overflow:hidden;border:1px solid rgba(124,58,237,0.3);background:rgba(124,58,237,0.05);font-size:14px;color:#d0c8f0;">
+          <tr>
+            <td style="padding:18px 24px;line-height:1.6;">
+              <strong style="color:#ffffff;">Need Assistance?</strong><br/>
+              WhatsApp Support: <a href="https://wa.me/2348106175131" style="color:#06b6d4;font-weight:600;text-decoration:none;">+234 810 617 5131</a><br/>
+              Email: <a href="mailto:ugettechnologies@gmail.com" style="color:#06b6d4;text-decoration:underline;">ugettechnologies@gmail.com</a>
+            </td>
+          </tr>
+        </table>
 
-        <p style="margin:0 0 32px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-          We're excited to work with you and can't wait to see what you'll achieve. See you tomorrow!
+        <p style="margin:20px 0 32px;font-size:15px;line-height:1.7;color:#d0c8f0;">
+          We look forward to seeing what you'll achieve in Cohort 2!
         </p>
 
         <!-- Sign-off -->
@@ -131,7 +149,8 @@ function buildEmailHtml(name: string | null, track: string | null) {
             <td>
               <p style="margin:0;font-size:15px;line-height:1.7;color:#d0c8f0;">
                 Warm regards,<br/>
-                <strong style="color:#ffffff;">The UGET Academy Team</strong>
+                <strong style="color:#ffffff;">The Uget Academy Team</strong><br/>
+                <span style="color:#8b83b0;font-size:13px;">Uget Technologies</span>
               </p>
             </td>
           </tr>
@@ -151,25 +170,30 @@ function buildEmailHtml(name: string | null, track: string | null) {
 }
 
 // ─── Plain Text Version ──────────────────────────────────────────────────────
-function buildEmailText(name: string | null, _track: string | null) {
-  return `Subject: Welcome to UGET Academy — Cohort 01 🎉
+function buildEmailText(name: string | null, track: string | null) {
+  const displayName = name ?? "Cohort 2 Learner";
+  const trackLine = track ? ` for ${track}` : "";
+  return `Subject: Welcome to Uget Academy Cohort 2 🎉 — Enrollment Confirmed
 
-Dear ${name ?? "Cohort 01 Learner"},
+Hello ${displayName},
 
-Congratulations, and welcome to UGET Academy!
+Congratulations! Your registration and enrollment payment of ₦3,000${trackLine} have been verified and confirmed.
 
-We're thrilled to have you on board as part of our very first cohort, officially kicking off tomorrow, Monday, 20th. This is the beginning of an exciting learning journey, and we're glad you've decided to take it with us.
+Your seat in Cohort 2 is officially secured. We are excited to support you on your 12-week learning journey!
 
-To get started, please join our community WhatsApp group using the link below. All further details — schedules, resources, and updates — will be shared there:
+All class schedules, live sessions, project links, and mentor announcements will be shared inside our official WhatsApp community. Join now using the link below:
 
 👉 ${WHATSAPP_GROUP_LINK}
 
-Once you join, you will be directed to your respective area of learning.
+Once you join, our coordinators will direct you into your specialized learning channel.
 
-We're excited to work with you and can't wait to see what you'll achieve. See you tomorrow!
+Need Assistance?
+WhatsApp Support: +234 810 617 5131
+Email: ugettechnologies@gmail.com
 
 Warm regards,
-The UGET Academy Team`.trim();
+The Uget Academy Team
+Uget Technologies`.trim();
 }
 
 // ─── Main ────────────────────────────────────────────────────────────────────

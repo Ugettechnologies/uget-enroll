@@ -1,0 +1,14 @@
+# Netlify configuration for TanStack Start + Nitro
+[build]
+  command = "npm run build"
+  publish = ".output/public"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# Redirect all SSR and API requests to the Nitro Netlify Server function
+[[redirects]]
+  from = "/*"
+  to = "/.netlify/functions/server"
+  status = 200
+

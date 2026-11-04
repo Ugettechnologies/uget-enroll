@@ -1,19 +1,23 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, type FormEvent, type ReactNode } from "react";
+import { useState, useEffect, type FormEvent, type ReactNode } from "react";
 import logo from "@/assets/uget-logo.png";
 import { supabase, supabaseConfigured } from "@/lib/supabase";
+import { fmt } from "./payment";
+import { payWithPaystack, getPaystackMode, setPaystackMode, getActivePaystackPublicKey } from "@/lib/paystack";
+import { StudentBioExtractor } from "@/components/StudentBioExtractor";
 
 // Toggle registration status (set to true to reopen, false to close)
 const REGISTRATION_OPEN = true;
+const UNIFORM_FEE = 3000;
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Uget Academy Tech Scholarship Cohort — Apply" },
+      { title: "Uget Academy Cohort 2 Tech Scholarship — Apply & Enroll" },
       {
         name: "description",
         content:
-          "Apply to the Uget Academy 12-week online tech scholarship. Mentorship, hands-on projects and certification across 12 in-demand tracks.",
+          "Apply to the Uget Academy 12-week online tech scholarship Cohort 2. Mentorship, hands-on projects and certification across in-demand tracks.",
       },
     ],
   }),
@@ -22,7 +26,10 @@ export const Route = createFileRoute("/")({
 
 const TRACKS = [
   "Cybersecurity",
-  "AI Automation & Data Annotation",
+  "AI Automation",
+  "Customer Representative",
+  "User-Generated Content (UGC)",
+  "Project Management",
   "UI/UX Design",
   "Frontend Development",
   "Backend Development",
@@ -36,16 +43,16 @@ const TRACKS = [
 ];
 
 const HIGHLIGHTS = [
+  { label: "Cohort", value: "Cohort 2" },
   { label: "Duration", value: "12 Weeks" },
   { label: "Mode", value: "100% Online" },
-  { label: "Tracks", value: "12 Skills" },
   { label: "Certificate", value: "On Completion" },
 ];
 
 const STEPS = [
   { id: 1, title: "About You", hint: "Track & personal info" },
   { id: 2, title: "Background", hint: "Education & motivation" },
-  { id: 3, title: "Final Details", hint: "Contact & commitment" },
+  { id: 3, title: "Payment & Commitment", hint: "Tuition & final details" },
 ];
 
 type Status = "idle" | "submitting" | "success" | "error";
@@ -55,6 +62,18 @@ function RegistrationPage() {
   const [status, setStatus] = useState<Status>("idle");
   const [message, setMessage] = useState("");
   const [formData, setFormData] = useState<Record<string, FormDataEntryValue>>({});
+  const [paystackMode, setLocalPaystackMode] = useState<"test" | "live">(() => getPaystackMode());
+  const [enrolledStudent, setEnrolledStudent] = useState<any | null>(null);
+
+  useEffect(() => {
+    setLocalPaystackMode(getPaystackMode());
+  }, []);
+
+  function handleModeToggle() {
+    const next = paystackMode === "test" ? "live" : "test";
+    setPaystackMode(next);
+    setLocalPaystackMode(next);
+  }
 
   function captureStep(form: HTMLFormElement) {
     const fd = new FormData(form);
@@ -78,6 +97,9 @@ function RegistrationPage() {
     window.scrollTo({ top: document.getElementById("apply")?.offsetTop ?? 0, behavior: "smooth" });
   }
 
+  const selectedTrack = str(formData.track);
+  const payableAmount = UNIFORM_FEE;
+
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const final = captureStep(e.currentTarget);
@@ -87,6 +109,13 @@ function RegistrationPage() {
       setMessage("You must agree to the terms and conditions to submit.");
       return;
     }
+
+    if (!final.signature || !String(final.signature).trim()) {
+      setStatus("error");
+      setMessage("Please provide your digital signature (full name) to proceed.");
+      return;
+    }
+
     if (!supabase) {
       setStatus("error");
       setMessage(
@@ -95,11 +124,20 @@ function RegistrationPage() {
       return;
     }
 
-    const payload = {
+    const currentTrack = String(final.track || "");
+    if (!currentTrack) {
+      setStatus("error");
+      setMessage("Please go back to Step 1 and select your learning track.");
+      return;
+    }
+
+    const amountToCharge = UNIFORM_FEE;
+
+    const applicantPayload = {
       track: final.track,
       track_reason: final.track_reason,
       full_name: final.full_name,
-      email: final.email,
+      email: String(final.email).trim().toLowerCase(),
       phone: final.phone,
       gender: final.gender,
       date_of_birth: final.date_of_birth || null,
@@ -127,28 +165,78 @@ function RegistrationPage() {
       emergency_relationship: final.emergency_relationship,
       emergency_phone: final.emergency_phone,
       heard_from: final.heard_from,
-      referral_code: final.referral_code,
+      referral_code: final.referral_code || null,
       signature: final.signature,
       agreed_to_terms: true,
+      cohort: "Cohort 2",
     };
 
     setStatus("submitting");
     setMessage("");
 
-    // Save details to sessionStorage instead of the database to prevent unpaid database entries
-    const tempId = "temp_" + Math.random().toString(36).substring(2, 11);
-    const pendingPayload = {
-      ...payload,
-      id: tempId,
-    };
-
     try {
-      sessionStorage.setItem("pending_registration", JSON.stringify(pendingPayload));
-      // Redirect immediately to payment page with temp ID
-      window.location.href = `/payment?id=${tempId}`;
+      await payWithPaystack({
+        email: applicantPayload.email,
+        amount: amountToCharge,
+        currency: "NGN",
+        metadata: {
+          custom_fields: [
+            { display_name: "Full Name", variable_name: "full_name", value: applicantPayload.full_name },
+            { display_name: "Track", variable_name: "track", value: applicantPayload.track },
+            { display_name: "Cohort", variable_name: "cohort", value: "Cohort 2" },
+            { display_name: "Payment Plan", variable_name: "payment_plan", value: "Full Payment (₦3,000)" },
+            { display_name: "Phone", variable_name: "phone", value: applicantPayload.phone },
+          ],
+        },
+        onSuccess: async (response) => {
+          // =========================================================================
+          // CRITICAL: APPLICANT DATA IS STORED ONLY AFTER SUCCESSFUL PAYMENT
+          // =========================================================================
+          const completedRecord = {
+            ...applicantPayload,
+            payment_status: "Paid",
+            payment_amount: amountToCharge,
+            payment_sender: String(applicantPayload.full_name),
+            payment_date: new Date().toISOString().split("T")[0],
+            payment_ref: response.reference,
+          };
+
+          if (!supabase) {
+            console.error("Database storage notice: Supabase not configured.");
+            setEnrolledStudent(completedRecord);
+            setStatus("success");
+            return;
+          }
+
+          const { data: inserted, error: insertError } = await supabase
+            .from("scholarship_applications")
+            .insert([completedRecord])
+            .select()
+            .single();
+
+          if (insertError) {
+            console.error("Database storage notice:", insertError);
+          }
+
+          setEnrolledStudent(inserted || completedRecord);
+          setStatus("success");
+          setMessage("Congratulations! Your payment of ₦3,000 has been verified and your enrollment in Cohort 2 is confirmed.");
+          window.scrollTo({ top: document.getElementById("apply")?.offsetTop ?? 0, behavior: "smooth" });
+        },
+        onClose: () => {
+          // =========================================================================
+          // PAYMENT CANCELLED OR INCOMPLETE: NO DATA IS STORED IN DATABASE
+          // =========================================================================
+          setStatus("idle");
+          setMessage(
+            "Payment was not completed. In accordance with Cohort 2 policy, your registration details were NOT stored in the database. You can retry at any time to reserve your seat.",
+          );
+        },
+      });
     } catch (err: any) {
+      console.error("Paystack checkout error:", err);
       setStatus("error");
-      setMessage("Failed to store pending registration details: " + (err.message || err));
+      setMessage(err.message || "Failed to initialize Paystack checkout. Please try again.");
     }
   }
 
@@ -193,7 +281,7 @@ function RegistrationPage() {
             style={{ animationDelay: "80ms", animationFillMode: "backwards" }}
           >
             {REGISTRATION_OPEN
-              ? "Uget Academy · Cohort Applications Open"
+              ? "Uget Academy · Cohort 2 Applications Open"
               : "Uget Academy · Cohort Registration Closed"}
           </p>
           <h1
@@ -205,15 +293,15 @@ function RegistrationPage() {
               className="bg-clip-text text-transparent"
               style={{ backgroundImage: "var(--gradient-brand)" }}
             >
-              Cohort
+              Cohort 2
             </span>
           </h1>
           <p
             className="mx-auto mt-5 max-w-2xl text-base sm:text-lg text-muted-foreground animate-fade-in"
             style={{ animationDelay: "240ms", animationFillMode: "backwards" }}
           >
-            A 12-week online program equipping aspiring professionals with practical, in-demand
-            digital skills — through expert-led training, mentorship and real-world projects.
+            A 12-week intensive online program equipping aspiring professionals with practical, in-demand
+            digital skills. Mentorship, real-world capstones, and industry certification across 15 in-demand tracks.
           </p>
 
           <div className="mt-10 grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-3xl mx-auto">
@@ -233,18 +321,6 @@ function RegistrationPage() {
             ))}
           </div>
 
-          {/* <a
-            href="/referral/signup"
-            className="mt-10 inline-flex items-center justify-center rounded-full px-20 py-3.5 text-sm font-semibold text-primary-foreground shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-[var(--shadow-glow)] animate-fade-in"
-            style={{
-              background: "var(--gradient-brand)",
-              boxShadow: "var(--shadow-glow)",
-              animationDelay: "640ms",
-              animationFillMode: "backwards",
-            }}
-          >
-            Refer 
-          </a> */}
           <a
             href={REGISTRATION_OPEN ? "#apply" : "/payment"}
             className="mt-10 inline-flex items-center justify-center rounded-full px-8 py-3.5 text-sm font-semibold text-primary-foreground shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-[var(--shadow-glow)] animate-fade-in"
@@ -255,7 +331,7 @@ function RegistrationPage() {
               animationFillMode: "backwards",
             }}
           >
-            {REGISTRATION_OPEN ? "Begin Application" : "Proceed to Payment"}{" "}
+            {REGISTRATION_OPEN ? "Enroll in Cohort 2" : "Proceed to Payment"}{" "}
             <span className="ml-2 transition-transform group-hover:translate-x-1">→</span>
           </a>
         </div>
@@ -271,435 +347,640 @@ function RegistrationPage() {
         </div>
       )}
 
-      {/* Stepper + Form / Registration Closed Notice */}
+      {/* Stepper + Form / Registration Closed Notice / Success Screen */}
       {REGISTRATION_OPEN ? (
         <main id="apply" className="mx-auto max-w-3xl px-6 py-16 scroll-mt-8">
-          {status === "success" && (
-            <div className="mb-8 rounded-2xl border border-primary/40 bg-primary/10 p-6 text-center animate-scale-in">
-              <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-primary/20">
-                <svg
-                  className="h-6 w-6 text-primary"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="3"
-                >
+          {status === "success" && enrolledStudent ? (
+            <div className="rounded-2xl border border-primary/40 bg-card/70 p-6 sm:p-10 text-center backdrop-blur-md shadow-2xl animate-scale-in">
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                <svg className="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                 </svg>
               </div>
-              <p className="text-base font-semibold">{message}</p>
+
+              <span className="rounded-full bg-primary/20 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-primary border border-primary/30">
+                Cohort 2 Officially Enrolled
+              </span>
+
+              <h2 className="mt-4 text-2xl sm:text-3xl font-extrabold tracking-tight">
+                Welcome to Uget Academy, <span className="text-primary">{enrolledStudent.full_name}</span>!
+              </h2>
+
+              <p className="mt-2 text-sm text-muted-foreground max-w-lg mx-auto">
+                Your scholarship admission and payment for <strong className="text-foreground">{enrolledStudent.track}</strong> have been verified.
+              </p>
+
+              {/* Receipt Summary Card */}
+              <div className="mt-6 mx-auto max-w-md rounded-xl border border-border/80 bg-input/40 p-4 text-left text-xs space-y-2.5">
+                <div className="flex justify-between border-b border-border/40 pb-2">
+                  <span className="text-muted-foreground">Payment Reference:</span>
+                  <span className="font-mono font-bold text-primary">{enrolledStudent.payment_ref}</span>
+                </div>
+                <div className="flex justify-between border-b border-border/40 pb-2">
+                  <span className="text-muted-foreground">Amount Paid:</span>
+                  <span className="font-bold text-foreground">{fmt(enrolledStudent.payment_amount)}</span>
+                </div>
+                <div className="flex justify-between border-b border-border/40 pb-2">
+                  <span className="text-muted-foreground">Enrolled Track:</span>
+                  <span className="font-semibold text-foreground">{enrolledStudent.track}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Cohort:</span>
+                  <span className="font-semibold text-primary">Cohort 2 (Starting This Month)</span>
+                </div>
+              </div>
+
+              {/* Next Steps: WhatsApp Community */}
+              <div className="mt-8 space-y-3">
+                <a
+                  href="https://chat.whatsapp.com/HRy8MCg1l42EMH6hvOtzOf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 rounded-full px-8 py-3.5 text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-500 shadow-lg hover:scale-105 transition-all"
+                >
+                  <span>💬 Join Cohort 2 WhatsApp Group</span>
+                </a>
+                <p className="text-[11px] text-muted-foreground">
+                  Connect with fellow learners, coordinators, and mentors for your track.
+                </p>
+              </div>
+
+              {/* Bio Extractor */}
+              <div className="mt-8 pt-6 border-t border-border/50 text-left">
+                <StudentBioExtractor student={enrolledStudent} title="Your Enrollment Bio & Admission Record" />
+              </div>
             </div>
-          )}
+          ) : (
+            <>
+              {message && status === "idle" && (
+                <div className="mb-8 rounded-xl border border-amber-500/40 bg-amber-500/10 px-5 py-4 text-xs sm:text-sm text-amber-300 animate-fade-in flex items-start gap-3">
+                  <span className="text-base">⚠️</span>
+                  <div>{message}</div>
+                </div>
+              )}
 
-          <Stepper currentStep={step} />
+              <Stepper currentStep={step} />
 
-          <div key={step} className="mt-10 animate-fade-in">
-            {step === 1 && (
-              <form onSubmit={goNext} className="space-y-8">
-                <Section title="Scholarship Track" subtitle="Choose what you want to master.">
-                  <Field label="Track" required>
-                    <select
-                      name="track"
-                      required
-                      defaultValue={str(formData.track)}
-                      className={selectCls}
+              <div key={step} className="mt-10 animate-fade-in">
+                {step === 1 && (
+                  <form onSubmit={goNext} className="space-y-8">
+                    <Section
+                      title="1. Learning Track"
+                      subtitle="Choose the specialization that best matches your career goals"
                     >
-                      <option value="">Choose a track…</option>
-                      {TRACKS.map((t) => (
-                        <option key={t} value={t}>
-                          {t}
-                        </option>
-                      ))}
-                    </select>
-                  </Field>
-                  <Field label="Why should you be chosen for this Scholarship?" required>
-                    <textarea
-                      name="track_reason"
-                      required
-                      defaultValue={str(formData.track_reason)}
-                      rows={3}
-                      className={inputCls}
-                    />
-                  </Field>
-                </Section>
+                      <Field label="Selected Track" required>
+                        <select
+                          name="track"
+                          required
+                          defaultValue={str(formData.track)}
+                          className={selectCls}
+                        >
+                          <option value="">Select a track…</option>
+                          {TRACKS.map((t) => (
+                            <option key={t}>{t}</option>
+                          ))}
+                        </select>
+                      </Field>
+                      <Field label="Why are you choosing this track?" required>
+                        <textarea
+                          name="track_reason"
+                          required
+                          rows={3}
+                          defaultValue={str(formData.track_reason)}
+                          placeholder="Tell us what sparked your interest in this field…"
+                          className={inputCls}
+                        />
+                      </Field>
+                    </Section>
 
-                <Section title="Personal Information">
-                  <Grid>
-                    <Field label="Full Name" required>
-                      <input
-                        name="full_name"
-                        required
-                        defaultValue={str(formData.full_name)}
-                        className={inputCls}
-                      />
-                    </Field>
-                    <Field label="Email Address" required>
-                      <input
-                        type="email"
-                        name="email"
-                        required
-                        defaultValue={str(formData.email)}
-                        className={inputCls}
-                      />
-                    </Field>
-                    <Field label="Phone (WhatsApp Preferred)" required>
-                      <input
-                        name="phone"
-                        required
-                        defaultValue={str(formData.phone)}
-                        className={inputCls}
-                      />
-                    </Field>
-                    <Field label="Gender" required>
-                      <select
-                        name="gender"
-                        required
-                        defaultValue={str(formData.gender)}
-                        className={selectCls}
-                      >
-                        <option value="">Select…</option>
-                        <option>Male</option>
-                        <option>Female</option>
-                        <option>Prefer not to say</option>
-                      </select>
-                    </Field>
-                    <Field label="Date of Birth">
-                      <input
-                        type="date"
-                        name="date_of_birth"
-                        defaultValue={str(formData.date_of_birth)}
-                        className={inputCls}
-                      />
-                    </Field>
-                    <Field label="State / Region" required>
-                      <input
-                        name="state_region"
-                        required
-                        defaultValue={str(formData.state_region)}
-                        className={inputCls}
-                      />
-                    </Field>
-                    <Field label="Country" required>
-                      <input
-                        name="country"
-                        required
-                        defaultValue={str(formData.country)}
-                        className={inputCls}
-                      />
-                    </Field>
-                    <Field label="LinkedIn (optional)">
-                      <input
-                        name="linkedin_url"
-                        type="url"
-                        defaultValue={str(formData.linkedin_url)}
-                        className={inputCls}
-                      />
-                    </Field>
-                  </Grid>
-                  <Field label="Residential Address">
-                    <textarea
-                      name="residential_address"
-                      required
-                      defaultValue={str(formData.residential_address)}
-                      rows={2}
-                      className={inputCls}
-                    />
-                  </Field>
-                </Section>
+                    <Section title="2. Personal Information">
+                      <Grid>
+                        <Field label="Full Name" required>
+                          <input
+                            name="full_name"
+                            required
+                            defaultValue={str(formData.full_name)}
+                            placeholder="e.g. Blessed Frankie"
+                            className={inputCls}
+                          />
+                        </Field>
+                        <Field label="Email Address" required>
+                          <input
+                            name="email"
+                            type="email"
+                            required
+                            defaultValue={str(formData.email)}
+                            placeholder="you@example.com"
+                            className={inputCls}
+                          />
+                        </Field>
+                      </Grid>
 
-                <NavButtons step={step} />
-              </form>
-            )}
+                      <Grid>
+                        <Field label="WhatsApp / Phone Number" required>
+                          <input
+                            name="phone"
+                            type="tel"
+                            required
+                            defaultValue={str(formData.phone)}
+                            placeholder="+234 800 000 0000"
+                            className={inputCls}
+                          />
+                        </Field>
+                        <Field label="Gender" required>
+                          <select
+                            name="gender"
+                            required
+                            defaultValue={str(formData.gender)}
+                            className={selectCls}
+                          >
+                            <option value="">Select…</option>
+                            <option>Male</option>
+                            <option>Female</option>
+                            <option>Prefer not to say</option>
+                          </select>
+                        </Field>
+                      </Grid>
 
-            {step === 2 && (
-              <form onSubmit={goNext} className="space-y-8">
-                <Section title="Educational Background">
-                  <Grid>
-                    <Field label="Highest Qualification" required>
-                      <select
-                        name="highest_qualification"
-                        required
-                        defaultValue={str(formData.highest_qualification)}
-                        className={selectCls}
-                      >
-                        <option value="">Select…</option>
-                        {[
-                          "Secondary School",
-                          "Diploma",
-                          "Undergraduate",
-                          "Graduate",
-                          "Postgraduate",
-                          "Other",
-                        ].map((o) => (
-                          <option key={o}>{o}</option>
-                        ))}
-                      </select>
-                    </Field>
-                    <Field label="Current Status" required>
-                      <select
-                        name="current_status"
-                        required
-                        defaultValue={str(formData.current_status)}
-                        className={selectCls}
-                      >
-                        <option value="">Select…</option>
-                        {["Student", "Employed", "Self-Employed", "Unemployed", "Other"].map((o) => (
-                          <option key={o}>{o}</option>
-                        ))}
-                      </select>
-                    </Field>
-                    <Field label="Name of Institution">
-                      <input
-                        name="institution"
-                        required
-                        defaultValue={str(formData.institution)}
-                        className={inputCls}
-                      />
-                    </Field>
-                    <Field label="Course of Study (if applicable)">
-                      <input
-                        name="course_of_study"
-                        defaultValue={str(formData.course_of_study)}
-                        className={inputCls}
-                      />
-                    </Field>
-                  </Grid>
-                </Section>
+                      <Grid>
+                        <Field label="Date of Birth">
+                          <input
+                            name="date_of_birth"
+                            type="date"
+                            defaultValue={str(formData.date_of_birth)}
+                            className={inputCls}
+                          />
+                        </Field>
+                        <Field label="Country" required>
+                          <input
+                            name="country"
+                            required
+                            defaultValue={str(formData.country) || "Nigeria"}
+                            className={inputCls}
+                          />
+                        </Field>
+                      </Grid>
 
-                <Section title="Experience & Motivation">
-                  <Grid>
-                    <Field label="Studied this field before?" required>
-                      <select
-                        name="studied_before"
-                        required
-                        defaultValue={str(formData.studied_before)}
-                        className={selectCls}
-                      >
-                        <option value="">Select…</option>
-                        <option>Yes</option>
-                        <option>No</option>
-                      </select>
-                    </Field>
-                    <Field label="Experience Level" required>
-                      <select
-                        name="experience_level"
-                        required
-                        defaultValue={str(formData.experience_level)}
-                        className={selectCls}
-                      >
-                        <option value="">Select…</option>
-                        <option>Beginner</option>
-                        <option>Intermediate</option>
-                        <option>Advanced</option>
-                      </select>
-                    </Field>
-                  </Grid>
-                  <Field label="Why are you applying for this scholarship?" required>
-                    <textarea
-                      name="why_apply"
-                      required
-                      defaultValue={str(formData.why_apply)}
-                      rows={3}
-                      className={inputCls}
-                    />
-                  </Field>
-                  <Field label="What do you hope to achieve after this program?" required>
-                    <textarea
-                      name="goals"
-                      required
-                      defaultValue={str(formData.goals)}
-                      rows={3}
-                      className={inputCls}
-                    />
-                  </Field>
-                  <Field label="Where do you see yourself in the next 2 years?" required>
-                    <textarea
-                      name="two_year_vision"
-                      required
-                      defaultValue={str(formData.two_year_vision)}
-                      rows={3}
-                      className={inputCls}
-                    />
-                  </Field>
-                </Section>
+                      <Grid>
+                        <Field label="State / Region" required>
+                          <input
+                            name="state_region"
+                            required
+                            defaultValue={str(formData.state_region)}
+                            placeholder="e.g. Lagos"
+                            className={inputCls}
+                          />
+                        </Field>
+                        <Field label="LinkedIn Profile URL">
+                          <input
+                            name="linkedin_url"
+                            type="url"
+                            defaultValue={str(formData.linkedin_url)}
+                            placeholder="https://linkedin.com/in/..."
+                            className={inputCls}
+                          />
+                        </Field>
+                      </Grid>
 
-                <Section title="Technical Readiness">
-                  <Grid>
-                    <Field label="Access to a laptop/desktop?" required>
-                      <select
-                        name="has_computer"
-                        required
-                        defaultValue={str(formData.has_computer)}
-                        className={selectCls}
-                      >
-                        <option value="">Select…</option>
-                        <option>Yes</option>
-                        <option>No</option>
-                      </select>
-                    </Field>
-                    <Field label="Reliable internet?" required>
-                      <select
-                        name="has_internet"
-                        required
-                        defaultValue={str(formData.has_internet)}
-                        className={selectCls}
-                      >
-                        <option value="">Select…</option>
-                        <option>Yes</option>
-                        <option>No</option>
-                      </select>
-                    </Field>
-                    <Field
-                      label="Willing to commit to all 12 weeks?"
-                      required
-                      className="md:col-span-2"
-                    >
-                      <select
-                        name="can_commit"
-                        required
-                        defaultValue={str(formData.can_commit)}
-                        className={selectCls}
-                      >
-                        <option value="">Select…</option>
-                        <option>Yes</option>
-                        <option>No</option>
-                      </select>
-                    </Field>
-                  </Grid>
-                </Section>
+                      <Field label="Residential Address">
+                        <input
+                          name="residential_address"
+                          defaultValue={str(formData.residential_address)}
+                          placeholder="Street, City"
+                          className={inputCls}
+                        />
+                      </Field>
+                    </Section>
 
-                <NavButtons step={step} onBack={goBack} />
-              </form>
-            )}
-
-            {step === 3 && (
-              <form onSubmit={handleSubmit} className="space-y-8">
-                <Section title="Portfolio & Social (Optional)">
-                  <Grid>
-                    <Field label="Portfolio Link">
-                      <input
-                        name="portfolio_url"
-                        type="url"
-                        defaultValue={str(formData.portfolio_url)}
-                        className={inputCls}
-                      />
-                    </Field>
-                    <Field label="GitHub (technical tracks)">
-                      <input
-                        name="github_url"
-                        type="url"
-                        defaultValue={str(formData.github_url)}
-                        className={inputCls}
-                      />
-                    </Field>
-                    <Field label="Behance / Dribbble (design)">
-                      <input
-                        name="design_profile_url"
-                        type="url"
-                        defaultValue={str(formData.design_profile_url)}
-                        className={inputCls}
-                      />
-                    </Field>
-                    <Field label="Other Relevant Links">
-                      <input
-                        name="other_links"
-                        defaultValue={str(formData.other_links)}
-                        className={inputCls}
-                      />
-                    </Field>
-                  </Grid>
-                </Section>
-
-                <Section title="Referral">
-                  <Grid>
-                    <Field label="How did you hear about us?" required>
-                      <select
-                        name="heard_from"
-                        required
-                        defaultValue={str(formData.heard_from)}
-                        className={selectCls}
-                      >
-                        <option value="">Select…</option>
-                        {[
-                          "Facebook",
-                          "Instagram",
-                          "LinkedIn",
-                          "WhatsApp",
-                          "Friend/Referral",
-                          "Website",
-                          "Other",
-                        ].map((o) => (
-                          <option key={o}>{o}</option>
-                        ))}
-                      </select>
-                    </Field>
-                    <Field label="Referral Code">
-                      <input
-                        name="referral_code"
-                        required
-                        defaultValue={str(formData.referral_code)}
-                        className={inputCls}
-                      />
-                    </Field>
-                  </Grid>
-                </Section>
-
-                <Section title="Commitment">
-                  <div className="rounded-xl border border-border bg-card/50 p-5 text-sm text-muted-foreground space-y-2">
-                    <p>By submitting this application, I understand that:</p>
-                    <ul className="list-disc pl-5 space-y-1">
-                      <li>The program runs for 12 weeks.</li>
-                      <li>Attendance and active participation are required.</li>
-                      <li>Assignments and projects must be completed on time.</li>
-                      <li>Scholarships may be withdrawn for repeated absence or misconduct.</li>
-                      <li>Information provided is accurate and truthful.</li>
-                    </ul>
-                  </div>
-                  <label className="flex items-start gap-3 text-sm cursor-pointer group">
-                    <input
-                      type="checkbox"
-                      name="agreed_to_terms"
-                      required
-                      className="mt-1 h-4 w-4 accent-primary"
-                    />
-                    <span className="transition-colors group-hover:text-foreground">
-                      I agree to the terms and conditions of the Uget Academy Tech Scholarship Cohort.
-                    </span>
-                  </label>
-                  <Grid>
-                    <Field label="Applicant Signature (full name)" required>
-                      <input
-                        name="signature"
-                        required
-                        defaultValue={str(formData.signature)}
-                        className={inputCls}
-                      />
-                    </Field>
-                    <Field label="Date">
-                      <input
-                        value={new Date().toLocaleDateString()}
-                        readOnly
-                        className={inputCls + " opacity-70"}
-                      />
-                    </Field>
-                  </Grid>
-                </Section>
-
-                {status === "error" && (
-                  <div className="rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm animate-fade-in">
-                    {message}
-                  </div>
+                    <NavButtons step={step} />
+                  </form>
                 )}
 
-                <NavButtons
-                  step={step}
-                  onBack={goBack}
-                  submitting={status === "submitting"}
-                  isFinal
-                />
-              </form>
-            )}
-          </div>
+                {step === 2 && (
+                  <form onSubmit={goNext} className="space-y-8">
+                    <Section title="3. Education & Background">
+                      <Grid>
+                        <Field label="Highest Qualification" required>
+                          <select
+                            name="highest_qualification"
+                            required
+                            defaultValue={str(formData.highest_qualification)}
+                            className={selectCls}
+                          >
+                            <option value="">Select…</option>
+                            {[
+                              "High School / SSCE",
+                              "OND / NCE",
+                              "HND / Bachelor's",
+                              "Master's Degree",
+                              "Doctorate",
+                              "Other",
+                            ].map((q) => (
+                              <option key={q}>{q}</option>
+                            ))}
+                          </select>
+                        </Field>
+                        <Field label="Institution Attended">
+                          <input
+                            name="institution"
+                            defaultValue={str(formData.institution)}
+                            placeholder="e.g. University of Lagos"
+                            className={inputCls}
+                          />
+                        </Field>
+                      </Grid>
+
+                      <Grid>
+                        <Field label="Course of Study">
+                          <input
+                            name="course_of_study"
+                            defaultValue={str(formData.course_of_study)}
+                            placeholder="e.g. Computer Science"
+                            className={inputCls}
+                          />
+                        </Field>
+                        <Field label="Current Status" required>
+                          <select
+                            name="current_status"
+                            required
+                            defaultValue={str(formData.current_status)}
+                            className={selectCls}
+                          >
+                            <option value="">Select…</option>
+                            {[
+                              "Student",
+                              "Employed",
+                              "Self-Employed / Freelancer",
+                              "Unemployed",
+                              "NYSC",
+                            ].map((s) => (
+                              <option key={s}>{s}</option>
+                            ))}
+                          </select>
+                        </Field>
+                      </Grid>
+
+                      <Grid>
+                        <Field label="Have you studied tech before?" required>
+                          <select
+                            name="studied_before"
+                            required
+                            defaultValue={str(formData.studied_before)}
+                            className={selectCls}
+                          >
+                            <option value="">Select…</option>
+                            <option>Yes</option>
+                            <option>No</option>
+                          </select>
+                        </Field>
+                        <Field label="Experience Level in this Track" required>
+                          <select
+                            name="experience_level"
+                            required
+                            defaultValue={str(formData.experience_level)}
+                            className={selectCls}
+                          >
+                            <option value="">Select…</option>
+                            <option>Complete Beginner</option>
+                            <option>Intermediate (some experience)</option>
+                            <option>Advanced</option>
+                          </select>
+                        </Field>
+                      </Grid>
+                    </Section>
+
+                    <Section title="4. Motivation & Goals">
+                      <Field label="Why should you be awarded this scholarship?" required>
+                        <textarea
+                          name="why_apply"
+                          required
+                          rows={3}
+                          defaultValue={str(formData.why_apply)}
+                          placeholder="Tell us about your drive, background, and circumstances…"
+                          className={inputCls}
+                        />
+                      </Field>
+                      <Field label="What are your goals for the 12-week program?" required>
+                        <textarea
+                          name="goals"
+                          required
+                          rows={3}
+                          defaultValue={str(formData.goals)}
+                          placeholder="What specific skills or milestones do you want to hit?"
+                          className={inputCls}
+                        />
+                      </Field>
+                      <Field label="Where do you see yourself in 2 years?" required>
+                        <textarea
+                          name="two_year_vision"
+                          required
+                          rows={3}
+                          defaultValue={str(formData.two_year_vision)}
+                          placeholder="Your career aspirations, income goals, or entrepreneurial vision…"
+                          className={inputCls}
+                        />
+                      </Field>
+                    </Section>
+
+                    <NavButtons step={step} onBack={goBack} />
+                  </form>
+                )}
+
+                {step === 3 && (
+                  <form onSubmit={handleSubmit} className="space-y-8">
+                    <Section title="5. Readiness & Tools">
+                      <Grid>
+                        <Field label="Do you have access to a computer?" required>
+                          <select
+                            name="has_computer"
+                            required
+                            defaultValue={str(formData.has_computer)}
+                            className={selectCls}
+                          >
+                            <option value="">Select…</option>
+                            <option>Yes</option>
+                            <option>No</option>
+                          </select>
+                        </Field>
+                        <Field label="Do you have reliable internet access?" required>
+                          <select
+                            name="has_internet"
+                            required
+                            defaultValue={str(formData.has_internet)}
+                            className={selectCls}
+                          >
+                            <option value="">Select…</option>
+                            <option>Yes</option>
+                            <option>No</option>
+                          </select>
+                        </Field>
+                      </Grid>
+
+                      <Field
+                        label="Can you commit 10-15 hours/week for 12 weeks?"
+                        required
+                      >
+                        <select
+                          name="can_commit"
+                          required
+                          defaultValue={str(formData.can_commit)}
+                          className={selectCls}
+                        >
+                          <option value="">Select…</option>
+                          <option>Yes</option>
+                          <option>No</option>
+                        </select>
+                      </Field>
+
+                      <Grid>
+                        <Field label="Portfolio URL (if any)">
+                          <input
+                            name="portfolio_url"
+                            type="url"
+                            defaultValue={str(formData.portfolio_url)}
+                            placeholder="https://..."
+                            className={inputCls}
+                          />
+                        </Field>
+                        <Field label="GitHub URL (developers)">
+                          <input
+                            name="github_url"
+                            type="url"
+                            defaultValue={str(formData.github_url)}
+                            placeholder="https://github.com/..."
+                            className={inputCls}
+                          />
+                        </Field>
+                      </Grid>
+
+                      <Grid>
+                        <Field label="Design Profile (Behance / Dribbble / Figma)">
+                          <input
+                            name="design_profile_url"
+                            type="url"
+                            defaultValue={str(formData.design_profile_url)}
+                            className={inputCls}
+                          />
+                        </Field>
+                        <Field label="Other Relevant Links">
+                          <input
+                            name="other_links"
+                            defaultValue={str(formData.other_links)}
+                            className={inputCls}
+                          />
+                        </Field>
+                      </Grid>
+                    </Section>
+
+                    <Section title="6. Emergency Contact & Referral">
+                      <Grid>
+                        <Field label="Emergency Contact Name">
+                          <input
+                            name="emergency_name"
+                            defaultValue={str(formData.emergency_name)}
+                            placeholder="Next of kin / guardian"
+                            className={inputCls}
+                          />
+                        </Field>
+                        <Field label="Relationship">
+                          <input
+                            name="emergency_relationship"
+                            defaultValue={str(formData.emergency_relationship)}
+                            placeholder="Parent, sibling, mentor…"
+                            className={inputCls}
+                          />
+                        </Field>
+                      </Grid>
+                      <Field label="Emergency Contact Phone">
+                        <input
+                          name="emergency_phone"
+                          type="tel"
+                          defaultValue={str(formData.emergency_phone)}
+                          placeholder="+234 ..."
+                          className={inputCls}
+                        />
+                      </Field>
+
+                      <Grid>
+                        <Field label="How did you hear about us?" required>
+                          <select
+                            name="heard_from"
+                            required
+                            defaultValue={str(formData.heard_from)}
+                            className={selectCls}
+                          >
+                            <option value="">Select…</option>
+                            {[
+                              "Facebook",
+                              "Instagram",
+                              "LinkedIn",
+                              "WhatsApp",
+                              "Friend/Referral",
+                              "Website",
+                              "Other",
+                            ].map((o) => (
+                              <option key={o}>{o}</option>
+                            ))}
+                          </select>
+                        </Field>
+                        <Field label="Referral Code">
+                          <input
+                            name="referral_code"
+                            defaultValue={str(formData.referral_code)}
+                            placeholder="Optional referrer code"
+                            className={inputCls}
+                          />
+                        </Field>
+                      </Grid>
+                    </Section>
+
+                    {/* Cohort 2 Tuition & Paystack Section */}
+                    <Section
+                      title="7. Cohort 2 Scholarship Tuition & Payment"
+                      subtitle="Under Cohort 2 policy, applications are stored only upon verified payment of ₦3,000 via Paystack."
+                    >
+                      {selectedTrack ? (
+                        <div className="space-y-4">
+                          {/* Price Container */}
+                          <div className="rounded-xl border border-border/80 bg-card/40 p-5 space-y-2.5">
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                                {selectedTrack} · 12-Week Bootcamp
+                              </span>
+                              <span className="rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-bold text-emerald-400 border border-emerald-500/20">
+                                90% Scholarship Applied
+                              </span>
+                            </div>
+
+                            <div className="flex items-baseline justify-between text-xs text-muted-foreground">
+                              <span>Full Program Tuition (100%):</span>
+                              <span className="line-through">₦30,000.00</span>
+                            </div>
+
+                            <div className="flex items-baseline justify-between text-xs text-emerald-400 border-b border-border/40 pb-2">
+                              <span>Scholarship Grant (90% off):</span>
+                              <span>-₦27,000.00</span>
+                            </div>
+
+                            <div className="flex items-baseline justify-between pt-1">
+                              <div>
+                                <div className="text-xs font-bold text-foreground">Total Enrollment Fee:</div>
+                                <div className="text-[10px] text-muted-foreground">Flat fee for all tracks · No part-payment</div>
+                              </div>
+                              <span className="text-2xl font-extrabold text-primary">
+                                {fmt(UNIFORM_FEE)}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Paystack Mode Switcher Banner */}
+                          <div className="flex items-center justify-between rounded-xl border border-border/60 bg-card/50 p-3.5">
+                            <div className="flex items-center gap-2.5">
+                              <span className={`inline-block h-2.5 w-2.5 rounded-full ${paystackMode === "live" ? "bg-emerald-500 animate-pulse" : "bg-amber-400"}`} />
+                              <div>
+                                <div className="text-xs font-semibold text-foreground">
+                                  Paystack Gateway: <span className="uppercase text-primary font-bold">{paystackMode} Mode</span>
+                                </div>
+                                <div className="text-[10px] text-muted-foreground">
+                                  {paystackMode === "live" ? "Real card/bank transactions will be debited." : "Test mode enabled — no real money charged."}
+                                </div>
+                              </div>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={handleModeToggle}
+                              className="rounded-lg border border-border/80 bg-background/80 px-2.5 py-1 text-xs font-medium text-foreground hover:bg-background transition-colors"
+                            >
+                              Switch to {paystackMode === "live" ? "Test Mode" : "Live Mode"}
+                            </button>
+                          </div>
+
+                          {/* Mandatory Paystack & Storage Notice */}
+                          <div className="rounded-xl border border-primary/30 bg-primary/5 p-4 text-xs leading-relaxed text-muted-foreground space-y-1.5">
+                            <div className="flex items-center gap-2 text-foreground font-semibold">
+                              <span>🔒 Secure Paystack Integration & Cohort 2 Enrollment Policy</span>
+                            </div>
+                            <p>
+                              By clicking <strong>Pay & Complete Registration</strong>, Paystack's secure checkout
+                              will open to process your <strong>₦3,000</strong> enrollment fee via Card, Bank Transfer, or USSD.
+                            </p>
+                            <p className="text-primary font-medium">
+                              ⚠️ Your data will only be stored in our database upon successful payment. Unpaid or
+                              incomplete registrations are discarded and will not hold a seat.
+                            </p>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="rounded-lg border border-yellow-500/30 bg-yellow-500/10 p-4 text-xs text-yellow-300">
+                          ⚠️ Please return to Step 1 to select your course track before proceeding.
+                        </div>
+                      )}
+                    </Section>
+
+                    <Section title="8. Commitment & Terms">
+                      <div className="rounded-xl border border-border bg-card/50 p-5 text-sm text-muted-foreground space-y-2">
+                        <p>By submitting this application, I understand and agree that:</p>
+                        <ul className="list-disc pl-5 space-y-1">
+                          <li>The program runs for 12 weeks online.</li>
+                          <li>Attendance and active participation are required.</li>
+                          <li>Assignments and projects must be completed on schedule.</li>
+                          <li>Scholarships may be withdrawn for misconduct or non-participation.</li>
+                          <li>All information provided is authentic and accurate.</li>
+                        </ul>
+                      </div>
+                      <label className="flex items-start gap-3 text-sm cursor-pointer group">
+                        <input
+                          type="checkbox"
+                          name="agreed_to_terms"
+                          required
+                          className="mt-1 h-4 w-4 accent-primary"
+                        />
+                        <span className="transition-colors group-hover:text-foreground">
+                          I agree to the terms and conditions of the Uget Academy Cohort 2 Tech Scholarship.
+                        </span>
+                      </label>
+                      <Grid>
+                        <Field label="Applicant Signature (full name)" required>
+                          <input
+                            name="signature"
+                            required
+                            defaultValue={str(formData.signature)}
+                            placeholder="Type your full legal name"
+                            className={inputCls}
+                          />
+                        </Field>
+                        <Field label="Date">
+                          <input
+                            value={new Date().toLocaleDateString()}
+                            readOnly
+                            className={inputCls + " opacity-70"}
+                          />
+                        </Field>
+                      </Grid>
+                    </Section>
+
+                    {status === "error" && (
+                      <div className="rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm animate-fade-in">
+                        {message}
+                      </div>
+                    )}
+
+                    <NavButtons
+                      step={step}
+                      onBack={goBack}
+                      submitting={status === "submitting"}
+                      isFinal
+                      submitLabel={
+                        selectedTrack
+                          ? `Pay ${fmt(payableAmount)} with Paystack & Enroll`
+                          : "Submit Application"
+                      }
+                    />
+                  </form>
+                )}
+              </div>
+            </>
+          )}
         </main>
       ) : (
         <main id="apply" className="mx-auto max-w-2xl px-6 py-16 text-center scroll-mt-8 animate-fade-in">
@@ -715,35 +996,29 @@ function RegistrationPage() {
                 stroke="currentColor"
                 strokeWidth="2"
               >
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
               </svg>
             </div>
             <div>
-              <h2 className="text-2xl font-bold tracking-tight text-foreground">Registration is Closed</h2>
-              <p className="mt-3 text-sm text-muted-foreground">
-                Registration for the current Uget Academy Tech Scholarship cohort is now closed. We are no longer accepting new applications at this time.
+              <h2 className="text-2xl font-bold tracking-tight">Applications Temporarily Closed</h2>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Registration for the current Uget Academy Tech Scholarship cohort is now closed. We are
+                no longer accepting new applications at this time.
               </p>
             </div>
-
-            <div className="border-t border-border/40 my-6 pt-6 text-left space-y-4">
-              <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider">Already Registered?</h3>
+            <div className="border-t border-border/40 pt-4">
               <p className="text-xs text-muted-foreground">
-                If you have already submitted your application, your record is active. You can proceed to complete your course commitment fee payment to secure your slot.
+                Already registered? You can still complete your commitment fee payment.
               </p>
-              <div className="pt-4 text-center">
-                <a
-                  href="/payment"
-                  className="inline-flex items-center justify-center rounded-full px-8 py-3.5 text-sm font-semibold text-primary-foreground shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-[var(--shadow-glow)]"
-                  style={{
-                    background: "var(--gradient-brand)",
-                    boxShadow: "var(--shadow-glow)",
-                  }}
-                >
-                  Proceed to Payment
-                  <span className="ml-2 transition-transform group-hover:translate-x-1">→</span>
-                </a>
-              </div>
+              <a
+                href="/payment"
+                className="mt-3 inline-flex items-center justify-center rounded-full px-6 py-2.5 text-xs font-semibold text-primary-foreground shadow transition-all hover:scale-105"
+                style={{ background: "var(--gradient-brand)", boxShadow: "var(--shadow-glow)" }}
+              >
+                Go to Payment Portal →
+              </a>
             </div>
           </div>
         </main>
@@ -840,11 +1115,13 @@ function NavButtons({
   onBack,
   submitting,
   isFinal,
+  submitLabel,
 }: {
   step: number;
   onBack?: () => void;
   submitting?: boolean;
   isFinal?: boolean;
+  submitLabel?: string;
 }) {
   return (
     <div className="flex flex-col-reverse sm:flex-row items-center justify-between gap-3 pt-2">
@@ -865,7 +1142,7 @@ function NavButtons({
         className="w-full sm:w-auto rounded-full px-8 py-3.5 text-sm font-semibold text-primary-foreground shadow-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-[var(--shadow-glow)] disabled:opacity-60 disabled:hover:scale-100"
         style={{ background: "var(--gradient-brand)", boxShadow: "var(--shadow-glow)" }}
       >
-        {submitting ? "Submitting…" : isFinal ? "Submit Application" : "Continue →"}
+        {submitting ? "Processing…" : isFinal ? (submitLabel || "Submit Application") : "Continue →"}
       </button>
     </div>
   );
@@ -895,13 +1172,13 @@ function Footer() {
       href: "https://www.linkedin.com/in/uget-technologies-562b46416?utm_source=share_via&utm_content=profile&utm_medium=member_ios",
       icon: (
         <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4">
-          <path d="M4.98 3.5C4.98 4.88 3.87 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM.22 8h4.56v14H.22V8zm7.5 0h4.37v1.92h.06c.61-1.15 2.1-2.36 4.32-2.36 4.62 0 5.47 3.04 5.47 7v7.44h-4.56v-6.6c0-1.57-.03-3.6-2.2-3.6-2.2 0-2.54 1.72-2.54 3.49V22H7.72V8z" />
+          <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
         </svg>
       ),
     },
     {
       name: "Facebook",
-      href: "https://www.facebook.com/share/1L1nmxPii2/?mibextid=wwXIfr",
+      href: "https://www.facebook.com/share/1BndqE18h3/?mibextid=wwXIfr",
       icon: (
         <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4">
           <path d="M22 12.07C22 6.51 17.52 2 12 2S2 6.51 2 12.07c0 5.02 3.66 9.18 8.44 9.93v-7.03H7.9v-2.9h2.54V9.84c0-2.52 1.5-3.92 3.78-3.92 1.1 0 2.24.2 2.24.2v2.48h-1.26c-1.24 0-1.63.78-1.63 1.57v1.88h2.77l-.44 2.9h-2.33V22c4.78-.75 8.43-4.91 8.43-9.93z" />
@@ -943,6 +1220,14 @@ function Footer() {
           </div>
 
           <div>
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-foreground/80">Cohort Tracks</h4>
+            <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
+              {TRACKS.slice(0, 6).map((t) => (
+                <li key={t}>
+                  <a href="#apply" className="transition-colors hover:text-primary">{t}</a>
+                </li>
+              ))}
+            </ul>
           </div>
 
           <div>
@@ -974,11 +1259,15 @@ function Footer() {
                 </a>
               ))}
             </div>
+            <p className="mt-4 text-xs text-muted-foreground">
+              Questions? <a href="mailto:academy@uget-enrollment.online" className="text-primary hover:underline">academy@uget-enrollment.online</a>
+            </p>
           </div>
         </div>
 
         <div className="mt-12 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-border/60 pt-6 text-xs text-muted-foreground">
           <p>© {new Date().getFullYear()} Uget Technologies. All rights reserved.</p>
+          <p>Innovative Solutions for a Connected World.</p>
         </div>
       </div>
     </footer>

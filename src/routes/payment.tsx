@@ -2,6 +2,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect, type FormEvent } from "react";
 import logo from "@/assets/uget-logo.png";
 import { supabase } from "@/lib/supabase";
+import { StudentBioExtractor } from "@/components/StudentBioExtractor";
+import type { StudentBioRecord } from "@/lib/bio-export";
+import { payWithPaystack, getPaystackMode, setPaystackMode } from "@/lib/paystack";
 
 export const Route = createFileRoute("/payment")({
   head: () => ({
@@ -17,29 +20,37 @@ export const Route = createFileRoute("/payment")({
   component: PaymentPage,
 });
 
-// ─── Fee schedule (admin-only reference — NOT rendered to students) ──────────
+export const UNIFORM_COURSE_FEE = 3000;
+
 export const COURSE_FEES: Record<string, number> = {
-  // Canonical database track names
-  "Full-Stack Development": 30000,
-  "Cybersecurity": 20000,
-  "Virtual Assistance": 10000,
-  "AI Automation & Data Annotation": 15000,
-  "Frontend Development": 15000,
-  "Backend Development": 15000,
-  "UI/UX Design": 15000,
-  "Graphic Design": 10000,
-  "Data Analysis": 10000,
-  "Content & Technical Writing": 10000,
-  "Professional Video Editing": 10000,
-  "Printing Technology": 10000,
+  // New courses
+  "Customer Representative": 3000,
+  "User-Generated Content (UGC)": 3000,
+  "User Generated Content": 3000,
+  "Project Management": 3000,
+  "AI Automation": 3000,
+
+  // Existing tracks
+  "Full-Stack Development": 3000,
+  "Cybersecurity": 3000,
+  "Virtual Assistance": 3000,
+  "AI Automation & Data Annotation": 3000,
+  "Frontend Development": 3000,
+  "Backend Development": 3000,
+  "UI/UX Design": 3000,
+  "Graphic Design": 3000,
+  "Data Analysis": 3000,
+  "Content & Technical Writing": 3000,
+  "Professional Video Editing": 3000,
+  "Printing Technology": 3000,
 
   // Table aliases / spelling variations
-  "Full Stack Development": 30000,
-  "Virtual Assistant": 10000,
-  "AI Automation/Annotation": 15000,
-  "Graphics Design": 10000,
-  "Content/Technical Writing": 10000,
-  "Graphics Printing": 10000,
+  "Full Stack Development": 3000,
+  "Virtual Assistant": 3000,
+  "AI Automation/Annotation": 3000,
+  "Graphics Design": 3000,
+  "Content/Technical Writing": 3000,
+  "Graphics Printing": 3000,
 };
 
 export function fmt(n: number) {
@@ -50,44 +61,29 @@ export function fmtUsd(n: number) {
   return `$${n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
-export function getFeeDetails(track: string) {
-  const baseNgn = COURSE_FEES[track] ?? 10000;
-  
-  // Calculate USD equivalent base fee (10% fee)
-  let baseUsd = 10;
-  if (baseNgn === 15000) baseUsd = 15;
-  else if (baseNgn === 20000) baseUsd = 20;
-  else if (baseNgn === 30000) baseUsd = 30;
-
+export function getFeeDetails(track?: string) {
   return {
     ngn: {
-      base: baseNgn,
-      full: baseNgn * 10,
-      scholarship: baseNgn * 9,
-      tax: baseNgn * 0.05,
-      total: baseNgn * 1.05,
+      base: 30000,
+      full: 30000,
+      scholarship: 27000,
+      tax: 0,
+      total: 3000, // Uniform ₦3,000 for all courses
     },
     usd: {
-      base: baseUsd,
-      full: baseUsd * 10,
-      scholarship: baseUsd * 9,
-      tax: baseUsd * 0.05,
-      total: baseUsd * 1.05,
-    }
+      base: 30,
+      full: 30,
+      scholarship: 27,
+      tax: 0,
+      total: 3,
+    },
   };
 }
-
 
 type LookupStatus = "idle" | "loading" | "found" | "not_found";
 type SubmitStatus = "idle" | "submitting" | "success" | "error";
 
-interface Applicant {
-  id: string;
-  full_name: string;
-  email: string;
-  track: string;
-  country?: string;
-  phone?: string;
+interface Applicant extends StudentBioRecord {
   payment_status: string | null;
 }
 
@@ -104,7 +100,8 @@ function PaymentPage() {
   const [currency, setCurrency] = useState<"NGN" | "OTHER_AFRICA" | "USD">("NGN");
   const [receiptBase64, setReceiptBase64] = useState("");
   const [fileError, setFileError] = useState("");
-  const [paymentType, setPaymentType] = useState<"full" | "part">("full");
+  const [paystackLoading, setPaystackLoading] = useState(false);
+  const [paystackMode, setPaystackState] = useState<"test" | "live">(getPaystackMode);
 
   useEffect(() => {
     if (applicant) {
@@ -151,7 +148,6 @@ function PaymentPage() {
     setLookupStatus("loading");
     setApplicant(null);
 
-    // 1. Check sessionStorage for pending registration matching this email first
     if (typeof window !== "undefined") {
       const pendingStr = sessionStorage.getItem("pending_registration");
       if (pendingStr) {
@@ -183,20 +179,16 @@ function PaymentPage() {
 
     const { data } = await supabase
       .from("scholarship_applications")
-      .select("id, full_name, email, track, country, phone, payments(payment_status)")
+      .select("*")
       .ilike("email", emailVal.trim())
       .maybeSingle();
 
     if (data) {
-      const p = Array.isArray(data.payments) ? data.payments[0] : (data.payments as any);
       setApplicant({
-        id: data.id,
-        full_name: data.full_name,
-        email: data.email,
-        track: data.track,
+        ...data,
         country: data.country || "Nigeria",
         phone: data.phone || "",
-        payment_status: p?.payment_status || "Unpaid",
+        payment_status: data.payment_status || "Unpaid",
       });
       setLookupStatus("found");
     } else {
@@ -209,7 +201,6 @@ function PaymentPage() {
     setLookupStatus("loading");
     setApplicant(null);
 
-    // 1. Check sessionStorage for pending registration matching this temp ID first
     if (idVal.startsWith("temp_") && typeof window !== "undefined") {
       const pendingStr = sessionStorage.getItem("pending_registration");
       if (pendingStr) {
@@ -217,10 +208,7 @@ function PaymentPage() {
           const pending = JSON.parse(pendingStr);
           if (pending.id === idVal) {
             setApplicant({
-              id: pending.id,
-              full_name: pending.full_name,
-              email: pending.email,
-              track: pending.track,
+              ...pending,
               country: pending.country || "Nigeria",
               phone: pending.phone || "",
               payment_status: "Unpaid",
@@ -242,20 +230,16 @@ function PaymentPage() {
 
     const { data } = await supabase
       .from("scholarship_applications")
-      .select("id, full_name, email, track, country, phone, payments(payment_status)")
+      .select("*")
       .eq("id", idVal.trim())
       .maybeSingle();
 
     if (data) {
-      const p = Array.isArray(data.payments) ? data.payments[0] : (data.payments as any);
       setApplicant({
-        id: data.id,
-        full_name: data.full_name,
-        email: data.email,
-        track: data.track,
+        ...data,
         country: data.country || "Nigeria",
         phone: data.phone || "",
-        payment_status: p?.payment_status || "Unpaid",
+        payment_status: data.payment_status || "Unpaid",
       });
       setEmail(data.email);
       setLookupStatus("found");
@@ -306,7 +290,6 @@ function PaymentPage() {
 
     let applicationId = applicant.id;
 
-    // Check if it's a temporary ID, meaning we need to save the registration first
     if (applicationId.startsWith("temp_")) {
       const pendingStr = sessionStorage.getItem("pending_registration");
       if (!pendingStr) {
@@ -316,12 +299,14 @@ function PaymentPage() {
       }
       try {
         const pendingPayload = JSON.parse(pendingStr);
-        // Remove the temporary id field so Supabase auto-generates a real UUID
         delete pendingPayload.id;
 
         const { data: inserted, error: insertError } = await supabase
           .from("scholarship_applications")
-          .insert(pendingPayload)
+          .insert({
+            ...pendingPayload,
+            cohort: "Cohort 2",
+          })
           .select("id")
           .single();
 
@@ -346,32 +331,154 @@ function PaymentPage() {
     }
 
     const fd = new FormData(e.currentTarget);
-    const refText = fd.get("transaction_ref") as string || "";
-    // Prefix with [PART-PAYMENT] in payment_ref so admin can identify part-payers
-    const partPaymentPrefix = paymentType === "part" ? "[PART-PAYMENT] " : "";
+    const refText = (fd.get("transaction_ref") as string) || "";
     const payload = {
       application_id: applicationId,
       payment_status: "Pending Verification",
-      payment_sender: fd.get("sender_name") as string,
-      payment_amount: Number(fd.get("amount_paid")),
-      payment_date: fd.get("payment_date") as string,
+      payment_sender: (fd.get("sender_name") as string) || applicant.full_name,
+      payment_amount: 3000,
+      payment_date: (fd.get("payment_date") as string) || new Date().toISOString().split("T")[0],
       payment_ref: receiptBase64 
-        ? (refText ? `${partPaymentPrefix}${refText} | ${receiptBase64}` : `${partPaymentPrefix}${receiptBase64}`)
-        : `${partPaymentPrefix}${refText}`,
+        ? (refText ? `${refText} | ${receiptBase64}` : receiptBase64)
+        : refText,
     };
 
     const { error: paymentError } = await supabase
-      .from("payments")
-      .upsert(payload, { onConflict: "application_id" });
+      .from("scholarship_applications")
+      .update({
+        payment_status: "Pending Verification",
+        payment_sender: payload.payment_sender,
+        payment_amount: payload.payment_amount,
+        payment_date: payload.payment_date,
+        payment_ref: payload.payment_ref,
+      })
+      .eq("id", applicationId);
 
     if (paymentError) {
       setSubmitStatus("error");
       setSubmitError(paymentError.message);
-    } else {
-      // Clear pending registration on success
-      sessionStorage.removeItem("pending_registration");
-      setSubmitStatus("success");
-      setApplicant((a) => a && { ...a, id: applicationId, payment_status: "Pending Verification" });
+      return;
+    }
+
+    try {
+      await supabase
+        .from("payments")
+        .upsert(payload, { onConflict: "application_id" });
+    } catch (_) {}
+
+    sessionStorage.removeItem("pending_registration");
+    setSubmitStatus("success");
+    setApplicant((a) => a && { ...a, id: applicationId, ...payload });
+  }
+
+  async function handlePaystackPayment() {
+    if (!applicant || !supabase || !feeDetails) return;
+    setPaystackLoading(true);
+    setSubmitError("");
+
+    const payableAmount = 3000;
+    let applicationId = applicant.id;
+
+    try {
+      await payWithPaystack({
+        email: applicant.email,
+        amount: payableAmount,
+        currency: "NGN",
+        metadata: {
+          custom_fields: [
+            { display_name: "Full Name", variable_name: "full_name", value: applicant.full_name },
+            { display_name: "Track", variable_name: "track", value: applicant.track },
+            { display_name: "Cohort", variable_name: "cohort", value: "Cohort 2" },
+            { display_name: "Application ID", variable_name: "application_id", value: applicationId },
+          ],
+        },
+        onSuccess: async (response) => {
+          const paymentRef = response.reference;
+          const today = new Date().toISOString().split("T")[0];
+
+          if (!supabase) {
+            setSubmitStatus("error");
+            setSubmitError("Database connection is not configured.");
+            return;
+          }
+
+          if (applicationId.startsWith("temp_")) {
+            const pendingStr = sessionStorage.getItem("pending_registration");
+            if (pendingStr) {
+              try {
+                const pending = JSON.parse(pendingStr);
+                delete pending.id;
+                const { data: inserted } = await supabase
+                  .from("scholarship_applications")
+                  .insert([
+                    {
+                      ...pending,
+                      cohort: "Cohort 2",
+                      payment_status: "Paid",
+                      payment_sender: applicant.full_name,
+                      payment_amount: payableAmount,
+                      payment_date: today,
+                      payment_ref: paymentRef,
+                    },
+                  ])
+                  .select()
+                  .single();
+                if (inserted && inserted.id) {
+                  applicationId = inserted.id;
+                }
+              } catch (_) {}
+            }
+          } else {
+            await supabase
+              .from("scholarship_applications")
+              .update({
+                payment_status: "Paid",
+                payment_sender: applicant.full_name,
+                payment_amount: payableAmount,
+                payment_date: today,
+                payment_ref: paymentRef,
+              })
+              .eq("id", applicationId);
+          }
+
+          try {
+            await supabase.from("payments").upsert(
+              {
+                application_id: applicationId,
+                payment_status: "Paid",
+                payment_sender: applicant.full_name,
+                payment_amount: payableAmount,
+                payment_date: today,
+                payment_ref: paymentRef,
+              },
+              { onConflict: "application_id" },
+            );
+          } catch (_) {}
+
+          sessionStorage.removeItem("pending_registration");
+          setApplicant((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  id: applicationId,
+                  payment_status: "Paid",
+                  payment_amount: payableAmount,
+                  payment_ref: paymentRef,
+                  payment_date: today,
+                }
+              : null,
+          );
+          setSubmitStatus("success");
+          setPaystackLoading(false);
+        },
+        onClose: () => {
+          setPaystackLoading(false);
+        },
+      });
+    } catch (err: any) {
+      console.error("Paystack error:", err);
+      setSubmitError(err.message || "Could not launch Paystack checkout.");
+      setPaystackLoading(false);
     }
   }
 
@@ -381,12 +488,6 @@ function PaymentPage() {
       setTimeout(() => setCopied(false), 2000);
     });
   }
-
-  const whatsappText = applicant && feeDetails
-    ? encodeURIComponent(
-        `Hello Uget Academy,\n\nI have made the course commitment fee payment for my enrollment.\n\nName: ${applicant.full_name}\nEmail: ${applicant.email}\nCourse: ${applicant.track}\nAmount: ${fmt(feeDetails.ngn.total)} (Tax Inclusive)\n\nPlease confirm my payment. Thank you.`,
-      )
-    : "";
 
   const selectCls =
     "w-full rounded-lg border border-border bg-input px-3.5 py-2.5 text-sm text-foreground outline-none transition-all duration-200 focus:border-ring focus:ring-2 focus:ring-ring/30 focus:bg-input/80 hover:border-border/80 appearance-none cursor-pointer";
@@ -428,7 +529,7 @@ function PaymentPage() {
         {/* Title */}
         <div className="mb-10 text-center animate-fade-in">
           <p className="text-xs font-semibold uppercase tracking-[0.35em] text-primary mb-3">
-            Secure Your Spot
+            Secure Your Spot · Cohort 2
           </p>
           <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">
             Complete Your{" "}
@@ -440,11 +541,8 @@ function PaymentPage() {
             </span>
           </h1>
           <p className="mt-3 text-sm text-muted-foreground max-w-sm mx-auto">
-            Find your enrollment record, select your currency, and validate your scholarship.
+            Flat ₦3,000 commitment fee for all tracks. Automated Paystack verification.
           </p>
-          <div className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-yellow-500/10 px-3.5 py-1 text-[11px] font-medium text-yellow-400 border border-yellow-500/20">
-            ⏳ Please complete your payment before the cohort deadline to secure your slot.
-          </div>
         </div>
 
         {/* Step 1 — Email Lookup */}
@@ -492,10 +590,9 @@ function PaymentPage() {
           </div>
         )}
 
-        {/* Redesigned Premium Form for Found Student */}
+        {/* Found Student Form */}
         {lookupStatus === "found" && applicant && submitStatus !== "success" && (
           <div className="space-y-6">
-            {/* Step 2 — Enrollment Form in Image 4 Style */}
             <div
               className="rounded-2xl border border-border/60 p-6 sm:p-8 animate-fade-in shadow-xl"
               style={{ background: "oklch(0.21 0.06 280 / 0.7)", backdropFilter: "blur(12px)" }}
@@ -525,8 +622,11 @@ function PaymentPage() {
                   <div className="rounded-lg border border-primary/30 bg-primary/10 px-4 py-3 text-sm text-primary font-semibold text-center">
                     {applicant.payment_status === "Paid"
                       ? "✅ Your payment has been verified. You are successfully enrolled!"
-                      : "⏳ Payment details received — our admissions team is verifying your transfer."}
+                      : "⏳ Payment details received — our admissions team is verifying your payment."}
                   </div>
+
+                  <StudentBioExtractor student={applicant} className="mt-4" />
+
                   <div className="text-center pt-2">
                     <button 
                       onClick={() => {
@@ -594,150 +694,108 @@ function PaymentPage() {
                     />
                   </div>
 
-                  {/* Currency Selector */}
-                  <div className="space-y-1.5 relative">
-                    <label className="block text-xs font-semibold uppercase tracking-wider text-foreground/80">
-                      Currency <span className="text-red-400">*</span>
-                    </label>
-                    <div className="relative">
-                      <select
-                        className={selectCls}
-                        value={currency}
-                        onChange={(e) => setCurrency(e.target.value as any)}
-                      >
-                        <option value="NGN">Nigerian Naira (NGN - ₦)</option>
-                        <option value="OTHER_AFRICA">Other African Countries (Mobile Money)</option>
-                        <option value="USD">International (USD - $)</option>
-                      </select>
-                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-muted-foreground">
-                        <svg className="fill-current h-4 w-4" viewBox="0 0 20 20">
-                          <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-                        </svg>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Price Container (Image 4 design) */}
+                  {/* Price Container */}
                   {feeDetails && (
                     <div className="rounded-xl border border-border bg-card/30 p-5 mt-6 space-y-2">
-                      <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                        Scholarship Pricing Breakdown (12-Week Bootcamp)
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                          Cohort 2 Tuition (General ₦3,000 for All Tracks)
+                        </span>
+                        <span className="rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-[10px] font-bold text-emerald-400 border border-emerald-500/20">
+                          90% Scholarship Applied
+                        </span>
                       </div>
                       
-                      <div className="flex items-baseline justify-between">
-                        <span className="text-xs text-muted-foreground">Full Tuition (100%):</span>
-                        <span className="text-xs font-semibold text-muted-foreground line-through">
-                          {currency === "USD" ? fmtUsd(feeDetails.usd.full) : fmt(feeDetails.ngn.full)}
-                        </span>
+                      <div className="flex items-baseline justify-between text-xs text-muted-foreground">
+                        <span>Original Tuition (100%):</span>
+                        <span className="line-through">{fmt(30000)}</span>
                       </div>
 
-                      <div className="flex items-baseline justify-between border-b border-border/30 pb-2">
-                        <span className="text-xs text-muted-foreground">Scholarship (90% off):</span>
-                        <span className="text-xs font-semibold text-green-400">
-                          -{currency === "USD" ? fmtUsd(feeDetails.usd.scholarship) : fmt(feeDetails.ngn.scholarship)}
-                        </span>
+                      <div className="flex items-baseline justify-between text-xs text-emerald-400 border-b border-border/30 pb-2">
+                        <span>Scholarship (90% off):</span>
+                        <span>-{fmt(27000)}</span>
                       </div>
 
                       <div className="flex items-baseline justify-between pt-1">
                         <div>
-                          <div className="text-xs font-medium text-foreground">Commitment Fee (10%):</div>
-                          <div className="text-[10px] text-muted-foreground">5% Tax/VAT Inclusive</div>
+                          <div className="text-xs font-bold text-foreground">Flat Commitment Fee:</div>
+                          <div className="text-[10px] text-muted-foreground">General for all candidates</div>
                         </div>
-                        <div className="flex items-baseline gap-2">
-                          <span className="text-2xl font-extrabold text-foreground tracking-tight">
-                            {currency === "USD" ? fmtUsd(feeDetails.usd.total) : fmt(feeDetails.ngn.total)}
-                          </span>
-                          <span className="text-xs text-muted-foreground line-through">
-                            {currency === "USD" ? fmtUsd(feeDetails.usd.full) : fmt(feeDetails.ngn.full)}
-                          </span>
+                        <div className="text-2xl font-extrabold text-primary tracking-tight">
+                          {fmt(3000)}
                         </div>
                       </div>
                     </div>
                   )}
 
-                  {/* ── Payment Type Selector ── */}
+                  {/* Payment Methods */}
                   {feeDetails && (
-                    <div className="mt-6 space-y-3">
-                      <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                        🎉 Payment Option — Due to High Demand
-                      </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        {/* Full Payment Card */}
-                        <button
-                          type="button"
-                          onClick={() => setPaymentType("full")}
-                          className={`rounded-xl border p-4 text-left transition-all duration-200 ${
-                            paymentType === "full"
-                              ? "border-primary bg-primary/10 shadow-[0_0_0_2px_hsl(var(--primary)/0.3)]"
-                              : "border-border bg-card/30 hover:border-border/80"
-                          }`}
-                        >
-                          <div className="flex items-center gap-2 mb-2">
-                            <div className={`h-4 w-4 rounded-full border-2 flex items-center justify-center ${
-                              paymentType === "full" ? "border-primary bg-primary" : "border-border"
-                            }`}>
-                              {paymentType === "full" && <div className="h-1.5 w-1.5 rounded-full bg-primary-foreground" />}
-                            </div>
-                            <span className="text-xs font-bold uppercase tracking-wider text-foreground">Full Payment</span>
-                          </div>
-                          <div className="text-xl font-extrabold text-foreground">
-                            {currency === "USD" ? fmtUsd(feeDetails.usd.total) : fmt(feeDetails.ngn.total)}
-                          </div>
-                          <div className="text-[10px] text-muted-foreground mt-1">Pay full amount now · Enroll immediately</div>
-                        </button>
-
-                        {/* Part-Payment Card */}
-                        <button
-                          type="button"
-                          onClick={() => setPaymentType("part")}
-                          className={`rounded-xl border p-4 text-left transition-all duration-200 relative ${
-                            paymentType === "part"
-                              ? "border-orange-500 bg-orange-500/10 shadow-[0_0_0_2px_rgba(249,115,22,0.3)]"
-                              : "border-border bg-card/30 hover:border-orange-500/40"
-                          }`}
-                        >
-                          <div className="absolute -top-2.5 right-3 rounded-full bg-orange-500 px-2 py-0.5 text-[9px] font-bold text-white uppercase tracking-wider">
-                            High Demand Offer
-                          </div>
-                          <div className="flex items-center gap-2 mb-2">
-                            <div className={`h-4 w-4 rounded-full border-2 flex items-center justify-center ${
-                              paymentType === "part" ? "border-orange-500 bg-orange-500" : "border-border"
-                            }`}>
-                              {paymentType === "part" && <div className="h-1.5 w-1.5 rounded-full bg-white" />}
-                            </div>
-                            <span className="text-xs font-bold uppercase tracking-wider text-foreground">50% Part-Payment</span>
-                          </div>
-                          <div className="text-xl font-extrabold text-orange-400">
-                            {currency === "USD"
-                              ? fmtUsd(Math.round(feeDetails.usd.total * 0.5 * 100) / 100)
-                              : fmt(Math.round(feeDetails.ngn.total * 0.5))}
-                            <span className="text-xs font-normal text-muted-foreground ml-1">now</span>
-                          </div>
-                          <div className="text-[10px] text-muted-foreground mt-1">
-                            Balance ({currency === "USD"
-                              ? fmtUsd(Math.round(feeDetails.usd.total * 0.5 * 100) / 100)
-                              : fmt(Math.round(feeDetails.ngn.total * 0.5))}) due at end of cohort
-                          </div>
-                        </button>
-                      </div>
-
-                      {/* Part-payment notice */}
-                      {paymentType === "part" && (
-                        <div className="rounded-xl border border-orange-500/30 bg-orange-500/5 px-4 py-3 text-xs leading-relaxed animate-fade-in">
-                          <p className="font-semibold text-orange-300 mb-1">⚡ Part-Payment Terms</p>
-                          <p className="text-muted-foreground">
-                            You are paying <strong className="text-orange-400">{currency === "USD" ? fmtUsd(Math.round(feeDetails.usd.total * 0.5 * 100) / 100) : fmt(Math.round(feeDetails.ngn.total * 0.5))}</strong> now to secure your spot. The remaining <strong className="text-orange-400">{currency === "USD" ? fmtUsd(Math.round(feeDetails.usd.total * 0.5 * 100) / 100) : fmt(Math.round(feeDetails.ngn.total * 0.5))}</strong> is due at the <strong className="text-foreground">end of the cohort</strong> before your certificate is issued.
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* ────────────────── Payment Methods based on currency selection ────────────────── */}
-
-                  {/* Option A: NGN Naira (Manual Bank Transfer form) */}
-                  {currency === "NGN" && feeDetails && (
                     <div className="pt-4 border-t border-border/40 space-y-6">
+                      {/* Paystack Instant Checkout */}
+                      <div
+                        className="rounded-2xl border-2 border-primary/50 p-6 space-y-3 shadow-lg"
+                        style={{
+                          background:
+                            "linear-gradient(135deg, oklch(0.74 0.16 285 / 0.12) 0%, oklch(0.62 0.22 295 / 0.05) 100%)",
+                        }}
+                      >
+                        <div className="flex items-center justify-between flex-wrap gap-2">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xl">💳</span>
+                            <h3 className="text-sm font-bold text-foreground">
+                              Pay Online with Paystack
+                            </h3>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const next = paystackMode === "live" ? "test" : "live";
+                                setPaystackState(next);
+                                setPaystackMode(next);
+                              }}
+                              className={`text-[10px] font-bold px-2 py-0.5 rounded-full border transition-all ${
+                                paystackMode === "live"
+                                  ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30"
+                                  : "bg-amber-500/20 text-amber-300 border-amber-500/30"
+                              }`}
+                              title="Click to toggle between Test and Live Paystack environment"
+                            >
+                              Mode: {paystackMode.toUpperCase()}
+                            </button>
+                            <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-400 border border-emerald-500/30">
+                              Instant Activation
+                            </span>
+                          </div>
+                        </div>
+                        <p className="text-xs text-muted-foreground leading-relaxed">
+                          Pay securely with Debit Card, Bank Transfer, USSD, or Apple Pay. Your enrollment is
+                          instantly confirmed upon completion.
+                        </p>
+
+                        <button
+                          type="button"
+                          disabled={paystackLoading}
+                          onClick={handlePaystackPayment}
+                          className="w-full rounded-full py-3 px-6 text-sm font-bold text-primary-foreground transition-all duration-200 hover:scale-[1.01] hover:shadow-[var(--shadow-glow)] disabled:opacity-60 flex items-center justify-center gap-2"
+                          style={{ background: "var(--gradient-brand)", boxShadow: "var(--shadow-glow)" }}
+                        >
+                          <span>
+                            {paystackLoading ? "Opening Paystack Checkout…" : `Pay ₦3,000 via Paystack`}
+                          </span>
+                          <span>→</span>
+                        </button>
+                      </div>
+
+                      {/* Divider */}
+                      <div className="relative flex py-1 items-center">
+                        <div className="flex-grow border-t border-border/50"></div>
+                        <span className="flex-shrink mx-4 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                          OR PAY VIA MANUAL BANK TRANSFER
+                        </span>
+                        <div className="flex-grow border-t border-border/50"></div>
+                      </div>
+
                       <div
                         className="rounded-xl border border-primary/30 p-5 space-y-3"
                         style={{ background: "oklch(0.74 0.16 285 / 0.05)" }}
@@ -796,21 +854,14 @@ function PaymentPage() {
                             <div>
                               <label className="block text-xs font-medium text-foreground mb-1">
                                 Amount Paid (₦) <span className="text-accent">*</span>
-                                {paymentType === "part" && (
-                                  <span className="ml-1 text-orange-400 font-semibold text-[10px]">(50% Part-Payment)</span>
-                                )}
                               </label>
                               <input
                                 name="amount_paid"
                                 type="number"
                                 required
-                                key={`amount-${paymentType}-${currency}`}
-                                defaultValue={
-                                  paymentType === "part"
-                                    ? Math.round(feeDetails.ngn.total * 0.5)
-                                    : feeDetails.ngn.total
-                                }
-                                className={inputCls}
+                                defaultValue={3000}
+                                readOnly
+                                className={inputCls + " opacity-80 cursor-not-allowed font-semibold"}
                               />
                             </div>
                             <div>
@@ -853,201 +904,59 @@ function PaymentPage() {
                               className="w-full text-xs text-muted-foreground file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer"
                             />
                             {fileError && <p className="text-red-400 text-xs mt-1">{fileError}</p>}
-                            {receiptBase64 && (
-                              <div className="mt-3 rounded-lg overflow-hidden border border-border/50 max-h-45 bg-card/40 flex items-center justify-center p-2 relative group">
-                                {receiptBase64.startsWith("data:application/pdf") ? (
-                                  <div className="flex flex-col items-center gap-2 text-primary p-4 select-none">
-                                    <span className="text-3xl">📄</span>
-                                    <span className="text-xs font-semibold">PDF Receipt Selected</span>
-                                  </div>
-                                ) : (
-                                  <img src={receiptBase64} alt="Receipt Preview" className="max-h-40 object-contain rounded" />
-                                )}
-                                <button
-                                  type="button"
-                                  onClick={() => setReceiptBase64("")}
-                                  className="absolute top-2 right-2 p-1 rounded-full bg-red-500/80 hover:bg-red-500 text-white text-xs transition-colors"
-                                  title="Remove file"
-                                >
-                                  ✕
-                                </button>
-                              </div>
-                            )}
                           </div>
 
-                          {submitStatus === "error" && (
-                            <div className="rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-2.5 text-xs text-destructive">
+                          {submitError && (
+                            <div className="rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
                               {submitError}
                             </div>
                           )}
 
-                          <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                            <button
-                              type="submit"
-                              disabled={submitStatus === "submitting"}
-                              className="flex-1 rounded-full py-3 text-sm font-semibold text-primary-foreground transition-all hover:scale-[1.01]"
-                              style={{ background: "var(--gradient-brand)", boxShadow: "var(--shadow-glow)" }}
-                            >
-                              {submitStatus === "submitting" ? "Submitting…" : "Confirm Payment Details"}
-                            </button>
-                            <a
-                              href={`https://wa.me/2348106175131?text=${whatsappText}`}
-                              target="_blank"
-                              rel="noreferrer noopener"
-                              className="flex-1 flex items-center justify-center gap-2 rounded-full border border-border bg-card/60 py-3 text-sm font-semibold hover:bg-card transition-all"
-                            >
-                              <svg className="h-4 w-4 text-green-400" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-                              </svg>
-                              Confirm via WhatsApp
-                            </a>
-                          </div>
+                          <button
+                            type="submit"
+                            disabled={submitStatus === "submitting"}
+                            className="w-full rounded-full py-3 text-sm font-semibold text-primary-foreground shadow-lg transition-all hover:scale-[1.01] hover:shadow-[var(--shadow-glow)] disabled:opacity-60"
+                            style={{ background: "var(--gradient-brand)", boxShadow: "var(--shadow-glow)" }}
+                          >
+                            {submitStatus === "submitting" ? "Submitting Proof…" : "Confirm ₦3,000 Transfer"}
+                          </button>
                         </form>
                       </div>
                     </div>
                   )}
-
-                  {/* Option B: Other African Countries */}
-                  {currency === "OTHER_AFRICA" && (
-                    <div className="pt-4 border-t border-border/40 space-y-4">
-                      <div className="rounded-xl border border-yellow-500/30 bg-yellow-500/5 p-5 space-y-3">
-                        <div className="flex items-center gap-2 text-yellow-400">
-                          <span className="text-xl">🌍</span>
-                          <h3 className="font-semibold text-sm">Other African Countries Payment Options</h3>
-                        </div>
-                        <p className="text-xs text-muted-foreground leading-relaxed">
-                          For selected applicants in other African countries (such as Ghana, Kenya, South Africa, Rwanda, Uganda, Cameroon, Liberia, etc.), we support local Mobile Money (MoMo) and bank transfers.
-                        </p>
-                        <p className="text-xs text-yellow-400/90 font-medium">
-                          Please contact our admissions coordinator on WhatsApp to receive the payment details and guidelines for your country.
-                        </p>
-                      </div>
-
-                      <a
-                        href={`https://wa.me/2348106175131?text=${encodeURIComponent(
-                          `Hello, I am ${applicant.full_name} and I have been selected for the Tech4Africans Cohort 8 Scholarship (${applicant.track}). I am registering from an African country and would like to receive details to make my commitment fee payment in my local currency/MoMo. My email is ${applicant.email}`
-                        )}`}
-                        target="_blank"
-                        rel="noreferrer noopener"
-                        className="w-full flex items-center justify-center gap-2 rounded-full border border-border bg-card/60 py-3.5 text-sm font-semibold hover:border-primary/50 transition-all text-foreground"
-                      >
-                        <svg className="h-4 w-4 text-green-400" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-                        </svg>
-                        👉 Message Admissions Coordinator on WhatsApp
-                      </a>
-                    </div>
-                  )}
-
-                  {/* Option C: International USD */}
-                  {currency === "USD" && feeDetails && (
-                    <div className="pt-4 border-t border-border/40 space-y-4">
-                      <div className="rounded-xl border border-primary/30 bg-primary/5 p-5 space-y-3">
-                        <div className="flex items-center gap-2 text-primary">
-                          <span className="text-xl">🌐</span>
-                          <h3 className="font-semibold text-sm">International USD Payment</h3>
-                        </div>
-                        <p className="text-xs text-muted-foreground leading-relaxed">
-                          For international candidates, we offer secure card checkout, bank transfer, and PayPal payment options to pay the commitment fee of <strong>{fmtUsd(feeDetails.usd.total)}</strong>.
-                        </p>
-                        <p className="text-xs text-primary font-medium">
-                          Please contact our international support desk on WhatsApp or email us at support@uget.co to get your payment link.
-                        </p>
-                      </div>
-
-                      <div className="flex flex-col sm:flex-row gap-3">
-                        <a
-                          href={`https://wa.me/2348106175131?text=${encodeURIComponent(
-                            `Hello support, I am an international candidate (${applicant.full_name}) selected for the Tech4Africans Cohort 8 Scholarship (${applicant.track}). I would like to receive the USD card payment checkout link. My email is ${applicant.email}`
-                          )}`}
-                          target="_blank"
-                          rel="noreferrer noopener"
-                          className="flex-1 flex items-center justify-center gap-2 rounded-full border border-border bg-card/60 py-3 text-sm font-semibold hover:border-primary/50 transition-all text-foreground"
-                        >
-                          <svg className="h-4 w-4 text-green-400" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-                          </svg>
-                          Contact via WhatsApp
-                        </a>
-                        <a
-                          href={`mailto:support@uget.co?subject=${encodeURIComponent("International USD Scholarship Payment Inquiry")}&body=${encodeURIComponent(
-                            `Hello, I am ${applicant.full_name} and I have been selected for the Tech4Africans Cohort 8 Scholarship (${applicant.track}). I am an international candidate and would like to receive international payment link options. My email is ${applicant.email}`
-                          )}`}
-                          className="flex-1 flex items-center justify-center gap-2 rounded-full border border-border bg-card/60 py-3 text-sm font-semibold hover:border-primary/50 transition-all text-foreground"
-                        >
-                          ✉️ Contact via Email
-                        </a>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Reset/Change Email search link */}
-                  <div className="text-center pt-4">
-                    <button 
-                      onClick={() => {
-                        setApplicant(null);
-                        setLookupStatus("idle");
-                        setEmail("");
-                      }}
-                      className="text-xs text-muted-foreground hover:text-foreground underline transition-colors"
-                    >
-                      Not your record? Search again
-                    </button>
-                  </div>
                 </div>
               )}
             </div>
           </div>
         )}
 
-        {/* Success State */}
-        {submitStatus === "success" && (
+        {/* Success state */}
+        {submitStatus === "success" && applicant && (
           <div
-            className="rounded-2xl border border-primary/40 p-8 text-center animate-scale-in"
-            style={{ background: "oklch(0.74 0.16 285 / 0.1)", backdropFilter: "blur(12px)" }}
+            className="rounded-2xl border border-border/60 p-6 sm:p-8 text-center animate-fade-in shadow-xl"
+            style={{ background: "oklch(0.21 0.06 280 / 0.7)", backdropFilter: "blur(12px)" }}
           >
-            <div
-              className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full"
-              style={{ background: "var(--gradient-brand)", boxShadow: "var(--shadow-glow)" }}
-            >
-              <svg
-                className="h-8 w-8 text-primary-foreground"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="3"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-              </svg>
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-2xl">
+              ✓
             </div>
-            <h2 className="text-xl font-bold mb-2">Payment Details Received!</h2>
-            <p className="text-muted-foreground text-sm max-w-xs mx-auto">
-              Thank you, <strong className="text-foreground">{applicant?.full_name}</strong>. Our admissions team will verify your payment details within <strong className="text-foreground">24–48 hours</strong> and you will receive your official enrollment confirmation email.
+            <h2 className="text-xl sm:text-2xl font-bold mb-2">Enrollment Verified!</h2>
+            <p className="text-sm text-muted-foreground max-w-md mx-auto mb-6">
+              Thank you, <strong className="text-foreground">{applicant.full_name}</strong>! Your ₦3,000 payment for <strong className="text-foreground">{applicant.track}</strong> has been received.
             </p>
-            {whatsappText && (
-              <a
-                href={`https://wa.me/2348106175131?text=${whatsappText}`}
-                target="_blank"
-                rel="noreferrer noopener"
-                className="mt-6 inline-flex items-center gap-2 rounded-full border border-border bg-card/60 px-5 py-2.5 text-sm font-medium transition-all hover:border-primary/50"
-              >
-                <svg className="h-4 w-4 text-green-400" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-                </svg>
-                Notify Us via WhatsApp
-              </a>
-            )}
+
+            <a
+              href="https://chat.whatsapp.com/HRy8MCg1l42EMH6hvOtzOf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 rounded-full px-8 py-3 text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-500 shadow-lg hover:scale-105 transition-all mb-6"
+            >
+              <span>💬 Join Cohort 2 WhatsApp Group</span>
+            </a>
+
+            <StudentBioExtractor student={applicant} />
           </div>
         )}
       </main>
-
-      {/* Footer */}
-      <footer className="border-t border-border/40 mt-10">
-        <div className="mx-auto max-w-4xl px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-muted-foreground">
-          <p>© {new Date().getFullYear()} Tech4Africans / Uget Technologies. All rights reserved.</p>
-          <p>Having trouble? Contact us on WhatsApp.</p>
-        </div>
-      </footer>
     </div>
   );
 }

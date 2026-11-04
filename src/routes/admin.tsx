@@ -22,355 +22,124 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { Settings, ChevronDown, ChevronUp, Mail, MessageSquare, Send, Copy, Check, ExternalLink, Search, X, ArrowUpDown } from "lucide-react";
+import logo from "@/assets/uget-logo.png";
+import {
+  formatBioForAcademy,
+  downloadJsonFile,
+  downloadCsvFile,
+  type StudentBioRecord,
+} from "@/lib/bio-export";
+import { StudentBioExtractor } from "@/components/StudentBioExtractor";
+import {
+  getPaystackMode,
+  setPaystackMode,
+  getActivePaystackPublicKey,
+} from "@/lib/paystack";
+import {
+  Settings,
+  ChevronDown,
+  ChevronUp,
+  Mail,
+  MessageSquare,
+  Send,
+  Copy,
+  Check,
+  ExternalLink,
+  Search,
+  X,
+  ArrowUpDown,
+  Lock,
+  Eye,
+  EyeOff,
+  ShieldCheck,
+  Sparkles,
+  FileJson,
+  FileSpreadsheet,
+  Download,
+  GraduationCap,
+  ArrowRight,
+  UserCheck,
+} from "lucide-react";
 
 export const Route = createFileRoute("/admin")({
   component: AdminWrapper,
 });
 
-// ─── Email template ──────────────────────────────────────────────────────────
-function buildEmailHtml(name: string, track: string, fee: number, paymentUrl: string) {
-  const feeDetails = getFeeDetails(track);
+// ─── Cohort 2 Welcoming Email (Paid & Enrolled Learners) ──────────────────────
+const COHORT_2_WA_LINK = "https://chat.whatsapp.com/HRy8MCg1l42EMH6hvOtzOf";
+
+export function buildWelcomeCohort2EmailHtml(name: string | null, track?: string | null) {
+  const displayName = name ?? "Cohort 2 Learner";
+  const displayTrack = track ? `for <strong style="color:#06b6d4;">${track}</strong>` : "";
   return `
 <!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Welcome to Uget Academy</title>
+  <title>Welcome to Uget Academy Cohort 2 🎉</title>
 </head>
 <body style="margin:0;padding:0;background:#0d0a1a;font-family:'Inter',Arial,sans-serif;color:#f0eeff;">
   <table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:40px auto;background:#130f26;border-radius:24px;overflow:hidden;border:1px solid rgba(124,58,237,0.3);box-shadow:0 20px 40px rgba(0,0,0,0.5);">
     <!-- Header Logo -->
     <tr>
-      <td style="padding:48px 36px 32px;background:linear-gradient(135deg,rgba(124,58,237,0.15) 0%,rgba(6,182,212,0.05) 100%);border-bottom:1px solid rgba(124,58,237,0.2);text-align:center;">
-        <img src="https://uget-enroll.vercel.app/uget-logo.png" alt="Uget Technologies Logo" style="width:160px;max-width:100%;height:auto;display:inline-block;margin-bottom:12px;" />
-        <p style="margin:0;font-size:11px;font-weight:800;letter-spacing:0.35em;text-transform:uppercase;color:#06b6d4;">Academy</p>
+      <td style="padding:48px 36px 32px;background:linear-gradient(135deg,rgba(124,58,237,0.18) 0%,rgba(6,182,212,0.08) 100%);border-bottom:1px solid rgba(124,58,237,0.25);text-align:center;">
+        <img src="https://uget-enrollment.online/uget-logo.png" alt="Uget Technologies Logo" style="width:160px;max-width:100%;height:auto;display:inline-block;margin-bottom:12px;" />
+        <p style="margin:0;font-size:11px;font-weight:800;letter-spacing:0.35em;text-transform:uppercase;color:#06b6d4;">Academy · Cohort 2</p>
       </td>
     </tr>
     <!-- Content Body -->
     <tr>
       <td style="padding:40px 36px 32px;">
-        <h2 style="margin:0 0 20px;font-size:22px;font-weight:800;color:#ffffff;letter-spacing:-0.02em;">Welcome to Uget Academy</h2>
+        <h2 style="margin:0 0 20px;font-size:22px;font-weight:800;color:#ffffff;letter-spacing:-0.02em;">Welcome to Uget Academy Cohort 2 🎉</h2>
         
         <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-          Hello <strong style="color:#ffffff;">${name}</strong>,
-        </p>
-        <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-          Congratulations! You've secured a spot in Uget Academy's Cohort 1 for <strong style="color:#ffffff;">${track}</strong>.
-        </p>
-        <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-          <strong style="color:#ffffff;">Program Fee:</strong> ${fmt(feeDetails.ngn.total)} (approximately ${fmtUsd(feeDetails.usd.total)})
-        </p>
-        <p style="margin:0 0 12px;font-size:15px;line-height:1.7;color:#facc15;font-weight:600;">
-          ⚠️ <strong style="color:#ffffff;">Payment Window:</strong> Open now from Thursday, July 9th until it closes on <strong>Wednesday, July 15th</strong>. Please complete your payment before the 15th to secure your spot and give us time to process all registrations ahead of the start date.
-        </p>
-        <p style="margin:0 0 20px;font-size:15px;line-height:1.7;color:#06b6d4;font-weight:600;">
-          📅 <strong style="color:#ffffff;">Commencement Date:</strong> Cohort 1 classes officially commence on <strong>Monday, July 20th</strong>.
+          Hello <strong style="color:#ffffff;">${displayName}</strong>,
         </p>
 
-        <!-- Payment Details Card -->
-        <table width="100%" cellpadding="0" cellspacing="0" style="margin:28px 0;border-radius:16px;overflow:hidden;border:1px solid rgba(124,58,237,0.3);background:rgba(124,58,237,0.05);font-size:14px;color:#d0c8f0;">
+        <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
+          Congratulations! Your registration and enrollment payment of <strong style="color:#ffffff;">₦3,000</strong> ${displayTrack} have been verified and confirmed.
+        </p>
+
+        <p style="margin:0 0 20px;font-size:15px;line-height:1.7;color:#d0c8f0;">
+          Your seat in <strong style="color:#ffffff;">Cohort 2</strong> is officially secured. We are excited to support you on your 12-week learning journey to master practical, industry-demanded tech skills.
+        </p>
+
+        <!-- Community WhatsApp CTA Box -->
+        <table width="100%" cellpadding="0" cellspacing="0" style="margin:24px 0;border-radius:16px;overflow:hidden;border:1px solid rgba(37,211,102,0.35);background:rgba(37,211,102,0.06);">
           <tr>
-            <td style="padding:18px 24px;background:rgba(124,58,237,0.12);border-bottom:1px solid rgba(124,58,237,0.25);">
-              <strong style="color:#ffffff;font-size:15px;">Payment Details (Nigeria)</strong>
-            </td>
-          </tr>
-          <tr>
-            <td style="padding:20px 24px;line-height:1.6;">
-              <span style="color:#8b83b0;">Bank:</span> <strong style="color:#ffffff;">Moniepoint</strong><br/>
-              <span style="color:#8b83b0;">Account Number:</span> <strong style="color:#06b6d4;font-size:18px;font-family:monospace;letter-spacing:0.05em;">6743620799</strong><br/>
-              <span style="color:#8b83b0;">Account Name:</span> <strong style="color:#ffffff;">Uget Technologies</strong>
-            </td>
-          </tr>
-          <tr style="background:rgba(124,58,237,0.08);border-top:1px solid rgba(124,58,237,0.2);">
-            <td style="padding:20px 24px;line-height:1.6;border-top:1px solid rgba(124,58,237,0.2);">
-              <strong style="color:#ffffff;font-size:14px;">Payment Details (International Students)</strong><br/>
-              <p style="margin:6px 0 0;font-size:13px;color:#d0c8f0;line-height:1.6;">
-                Please contact us at <a href="mailto:ugettechnologies@gmail.com" style="color:#06b6d4;text-decoration:underline;">ugettechnologies@gmail.com</a> or via WhatsApp at <a href="https://wa.me/2348106175131" style="color:#06b6d4;text-decoration:none;font-weight:600;">+234 810 617 5131</a> and we'll guide you through the best payment option for your country.
+            <td style="padding:22px 24px;text-align:center;">
+              <p style="margin:0 0 8px;font-size:16px;font-weight:800;color:#25d366;">💬 Join Official Cohort 2 WhatsApp Group</p>
+              <p style="margin:0 0 18px;font-size:14px;line-height:1.6;color:#d0c8f0;">
+                All class schedules, live sessions, project links, and mentor announcements will be shared inside the WhatsApp group. Join now to get ready for orientation!
               </p>
+              <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="margin:0 auto;">
+                <tr>
+                  <td align="center">
+                    <a href="${COHORT_2_WA_LINK}" target="_blank" style="display:inline-block;background:linear-gradient(135deg,#25d366 0%,#128c7e 100%);padding:14px 36px;font-family:Arial,sans-serif;font-size:14px;font-weight:800;color:#ffffff;text-decoration:none;letter-spacing:0.06em;text-transform:uppercase;border-radius:9999px;box-shadow:0 8px 24px rgba(37,211,102,0.35);">
+                      👉 Join WhatsApp Community
+                    </a>
+                  </td>
+                </tr>
+              </table>
+              <p style="margin:12px 0 0;font-size:12px;color:#8b80a8;">Or direct link: <a href="${COHORT_2_WA_LINK}" style="color:#06b6d4;">${COHORT_2_WA_LINK}</a></p>
             </td>
           </tr>
         </table>
 
-        <!-- CTA button -->
-        <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="margin: 32px auto; width: 100%; text-align: center;">
-          <tr>
-            <td align="center">
-              <a href="${paymentUrl}"
-                 target="_blank"
-                 style="display: inline-block; background: linear-gradient(135deg, #06b6d4 0%, #7c3aed 100%); padding: 16px 40px; font-family: Arial, sans-serif; font-size: 14px; font-weight: 800; color: #ffffff; text-decoration: none; letter-spacing: 0.08em; text-transform: uppercase; border-radius: 9999px; box-shadow: 0 8px 24px rgba(124,58,237,0.35);">
-                PROCEED TO PAYMENT & VALIDATE
-              </a>
-            </td>
-          </tr>
-        </table>
-
-        <p style="margin:16px 0;font-size:15px;line-height:1.7;color:#d0c8f0;">
-          Once payment is confirmed, you'll receive your onboarding details, including access to the learning dashboard and your cohort schedule.
-        </p>
-
-        <p style="margin:16px 0 32px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-          If you have any questions before enrolling, feel free to reach out — we're happy to help.
-        </p>
-
-        <!-- Sign-off -->
-        <table width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid rgba(124,58,237,0.2);padding-top:24px;">
-          <tr>
-            <td>
-              <p style="margin:0;font-size:15px;line-height:1.7;color:#d0c8f0;">
-                Warm regards,<br/>
-                <strong style="color:#ffffff;">Chiemena Erasmous</strong><br/>
-                <span style="color:#8b83b0;font-size:13px;">Uget Technologies Team</span>
-              </p>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-    <!-- Footer -->
-    <tr>
-      <td style="padding:24px 36px;background:#090714;border-top:1px solid rgba(124,58,237,0.15);text-align:center;">
-        <p style="margin:0;font-size:12px;color:#635d7a;">© ${new Date().getFullYear()} Uget Academy / Uget Technologies. All rights reserved.</p>
-      </td>
-    </tr>
-  </table>
-</body>
-</html>
-  `.trim();
-}
-
-function buildEmailText(name: string, track: string, fee: number, paymentUrl: string) {
-  const feeDetails = getFeeDetails(track);
-  return `Hello ${name},
-
-Congratulations! You've secured a spot in Uget Academy's Cohort 1 for ${track}.
-
-Program Fee: ${fmt(feeDetails.ngn.total)} (approximately ${fmtUsd(feeDetails.usd.total)})
-Payment Window: Open now from Thursday, July 9th until it closes on Wednesday, July 15th. Please complete your payment before the 15th to secure your spot and allow us time to process all registrations ahead of the start date.
-Commencement Date: Cohort 1 classes officially commence on Monday, July 20th.
-
-Payment Details (Nigeria):
-Bank: Moniepoint
-Account Number: 6743620799
-Account Name: Uget Technologies
-
-Payment Details (International Students):
-Please contact us at ugettechnologies@gmail.com or via WhatsApp at +234 810 617 5131 and we'll guide you through the best payment option for your country.
-
-Confirm payment & validate scholarship here:
-${paymentUrl}
-
-Once payment is confirmed, you'll receive your onboarding details, including access to the learning dashboard and your cohort schedule.
-
-If you have any questions before enrolling, feel free to reach out — we're happy to help.
-
-Warm regards,
-Chiemena Erasmous
-Uget Technologies`.trim();
-}
-
-function getWhatsAppMessage(app: any, paymentUrl?: string) {
-  return `Hello ${app.full_name},\n\nThis is from Uget Academy Cohort 1. Kindly check your email for an update on the admission form. If you do not see it in your inbox, please check your spam folder.`;
-}
-
-function buildDeadlineEmailHtml(name: string, track: string, paymentUrl: string) {
-  return `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Payment Reminder — Secure Your Spot by July 19th</title>
-</head>
-<body style="margin:0;padding:0;background:#0d0a1a;font-family:'Inter',Arial,sans-serif;color:#f0eeff;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:40px auto;background:#130f26;border-radius:24px;overflow:hidden;border:1px solid rgba(239,68,68,0.3);box-shadow:0 20px 40px rgba(0,0,0,0.5);">
-    <!-- Header Logo -->
-    <tr>
-      <td style="padding:48px 36px 32px;background:linear-gradient(135deg,rgba(239,68,68,0.15) 0%,rgba(6,182,212,0.05) 100%);border-bottom:1px solid rgba(239,68,68,0.2);text-align:center;">
-        <img src="https://uget-enroll.vercel.app/uget-logo.png" alt="Uget Technologies Logo" style="width:160px;max-width:100%;height:auto;display:inline-block;margin-bottom:12px;" />
-        <p style="margin:0;font-size:11px;font-weight:800;letter-spacing:0.35em;text-transform:uppercase;color:#f87171;">Academy</p>
-      </td>
-    </tr>
-    <!-- Content Body -->
-    <tr>
-      <td style="padding:40px 36px 32px;">
-        <h2 style="margin:0 0 20px;font-size:22px;font-weight:800;color:#ffffff;letter-spacing:-0.02em;">Important Update: Cohort Starts July 20th &amp; Part-Payment Window Open</h2>
-        
-        <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-          Hello <strong style="color:#ffffff;">${name}</strong>,
-        </p>
-        <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-          How are you doing? We hope this message finds you well!
-        </p>
-        <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-          This is a gentle reminder regarding your admission offer to Uget Academy's Cohort 1 for <strong style="color:#ffffff;">${track}</strong>. We want to inform you that our classes will officially commence on <strong style="color:#ffffff;">Monday, July 20th, 2026</strong>.
-        </p>
-        <p style="margin:0 0 24px;font-size:15px;line-height:1.7;color:#facc15;font-weight:600;background:rgba(250,204,21,0.08);padding:14px 20px;border-radius:12px;border:1px solid rgba(250,204,21,0.25);">
-          📢 <strong style="color:#ffffff;">Extended Window:</strong> Due to extremely high demand for the part-payment option, we have opened a <strong style="color:#ffffff;">two-week payment window starting now</strong> (during the cohort).
-        </p>
-
-        <!-- Part-Payment Offer Card -->
-        <table width="100%" cellpadding="0" cellspacing="0" style="margin:20px 0;border-radius:16px;overflow:hidden;border:1px solid rgba(124,58,237,0.4);background:rgba(124,58,237,0.08);font-size:14px;color:#d0c8f0;">
-          <tr>
-            <td style="padding:16px 24px;background:rgba(124,58,237,0.18);border-bottom:1px solid rgba(124,58,237,0.3);">
-              <strong style="color:#ffffff;font-size:15px;">🎉 Part-Payment Terms — Pay Half During Cohort!</strong>
-            </td>
-          </tr>
-          <tr>
-            <td style="padding:18px 24px;line-height:1.7;">
-              <p style="margin:0 0 10px;">You can pay the 50% part-payment during the cohort:</p>
-              <ul style="margin:0;padding-left:20px;line-height:1.9;">
-                <li>Make a deposit of <strong style="color:#06b6d4;">50% during the cohort</strong> within the 2-week window.</li>
-                <li>Spread and pay the <strong style="color:#ffffff;">remaining 50% balance later before the cohort ends</strong> to receive your certificate.</li>
-              </ul>
-              <p style="margin:10px 0 0;font-size:13px;color:#8b83b0;">Choose Full Payment or Part-Payment on your enrollment portal below.</p>
-            </td>
-          </tr>
-        </table>
-
-        <!-- Portal Details Card -->
-        <table width="100%" cellpadding="0" cellspacing="0" style="margin:28px 0;border-radius:16px;overflow:hidden;border:1px solid rgba(239,68,68,0.2);background:rgba(239,68,68,0.02);font-size:14px;color:#d0c8f0;">
-          <tr>
-            <td style="padding:18px 24px;background:rgba(239,68,68,0.08);border-bottom:1px solid rgba(239,68,68,0.15);">
-              <strong style="color:#ffffff;font-size:15px;">Payment Verification Portal</strong>
-            </td>
-          </tr>
-          <tr>
-            <td style="padding:20px 24px;line-height:1.6;">
-              Visit your personalized portal to choose your payment type (Full or Part-Payment), make the transfer, and upload your receipt for immediate verification.
-            </td>
-          </tr>
-        </table>
-
-        <!-- CTA button -->
-        <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="margin: 32px auto; width: 100%; text-align: center;">
-          <tr>
-            <td align="center">
-              <a href="${paymentUrl}"
-                 target="_blank"
-                 style="display: inline-block; background: linear-gradient(135deg, #ef4444 0%, #7c3aed 100%); padding: 16px 40px; font-family: Arial, sans-serif; font-size: 14px; font-weight: 800; color: #ffffff; text-decoration: none; letter-spacing: 0.08em; text-transform: uppercase; border-radius: 9999px; box-shadow: 0 8px 24px rgba(239,68,68,0.35);">
-                GO TO PORTAL &amp; COMPLETE PAYMENT
-              </a>
-            </td>
-          </tr>
-        </table>
-
-        <p style="margin:16px 0 32px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-          If you are an international student requiring localized payment options, or have any other questions, please contact our coordinator via WhatsApp at <a href="https://wa.me/2348106175131" style="color:#06b6d4;text-decoration:none;font-weight:600;">+234 810 617 5131</a>.
-        </p>
-
-        <!-- Sign-off -->
-        <table width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid rgba(124,58,237,0.2);padding-top:24px;">
-          <tr>
-            <td>
-              <p style="margin:0;font-size:15px;line-height:1.7;color:#d0c8f0;">
-                Warm regards,<br/>
-                <strong style="color:#ffffff;">Chiemena Erasmous</strong><br/>
-                <span style="color:#8b83b0;font-size:13px;">Uget Technologies Team</span>
-              </p>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-    <!-- Footer -->
-    <tr>
-      <td style="padding:24px 36px;background:#090714;border-top:1px solid rgba(124,58,237,0.15);text-align:center;">
-        <p style="margin:0;font-size:12px;color:#635d7a;">© ${new Date().getFullYear()} Uget Academy / Uget Technologies. All rights reserved.</p>
-      </td>
-    </tr>
-  </table>
-</body>
-</html>
-  `.trim();
-}
-
-function buildDeadlineEmailText(name: string, track: string, paymentUrl: string) {
-  return `Hello ${name},
-
-How are you doing? We hope this message finds you well!
-
-This is a gentle reminder regarding your admission offer to Uget Academy's Cohort 1 for ${track}. Official classes will commence on Monday, July 20th, 2026.
-
-Important Update: Due to extremely high demand for the part-payment option, we have opened a two-week payment window starting now (during the cohort).
-
---- 50% PART-PAYMENT OPTION AVAILABLE ---
-You can pay the 50% part-payment during the cohort:
-- Make a deposit of 50% during the cohort (within the 2-week window).
-- Spread and pay the remaining 50% balance later before the cohort ends to receive your certificate.
-You can choose Full Payment or Part-Payment on your enrollment portal.
------------------------------------------
-
-Go to your portal to choose your payment option and submit details:
-${paymentUrl}
-
-If you are an international student requiring localized payment options, or have any other questions, please contact our coordinator via WhatsApp at +234 810 617 5131.
-
-Warm regards,
-Chiemena Erasmous
-Uget Technologies`.trim();
-}
-
-function buildClassStartsEmailHtml(name: string, track: string) {
-  return `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Class Commencement Alert — Uget Academy</title>
-</head>
-<body style="margin:0;padding:0;background:#0d0a1a;font-family:'Inter',Arial,sans-serif;color:#f0eeff;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:40px auto;background:#130f26;border-radius:24px;overflow:hidden;border:1px solid rgba(6,182,212,0.3);box-shadow:0 20px 40px rgba(0,0,0,0.5);">
-    <!-- Header Logo -->
-    <tr>
-      <td style="padding:48px 36px 32px;background:linear-gradient(135deg,rgba(6,182,212,0.15) 0%,rgba(124,58,237,0.05) 100%);border-bottom:1px solid rgba(6,182,212,0.2);text-align:center;">
-        <img src="https://uget-enroll.vercel.app/uget-logo.png" alt="Uget Technologies Logo" style="width:160px;max-width:100%;height:auto;display:inline-block;margin-bottom:12px;" />
-        <p style="margin:0;font-size:11px;font-weight:800;letter-spacing:0.35em;text-transform:uppercase;color:#06b6d4;">Academy</p>
-      </td>
-    </tr>
-    <!-- Content Body -->
-    <tr>
-      <td style="padding:40px 36px 32px;">
-        <h2 style="margin:0 0 20px;font-size:22px;font-weight:800;color:#ffffff;letter-spacing:-0.02em;">Classes Start July 20th</h2>
-        
-        <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-          Hello <strong style="color:#ffffff;">${name}</strong>,
-        </p>
-        <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-          Congratulations once again on securing your spot in Uget Academy's Cohort 1 for <strong style="color:#ffffff;">${track}</strong>!
-        </p>
-        <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-          We are pleased to inform you that your payment has been verified, and your enrollment is officially complete.
-        </p>
-        <p style="margin:0 0 24px;font-size:15px;line-height:1.7;color:#06b6d4;font-weight:600;background:rgba(6,182,212,0.1);padding:14px 20px;border-radius:12px;border:1px solid rgba(6,182,212,0.25);">
-          🚀 <strong style="color:#ffffff;">Start Date:</strong> Official classes will commence on <strong style="color:#ffffff;text-decoration:underline;">Monday, July 20th, 2026</strong>.
-        </p>
-        <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-          In the coming days, you will receive an onboarding email containing your learning dashboard access credentials, Discord workspace invitation, and the schedule details for our first session.
-        </p>
-        <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-          Please ensure you check your email regularly so you do not miss these setup instructions. If you have any immediate questions, feel free to reply directly to this email or chat with us on WhatsApp.
-        </p>
-
-        <!-- Support Card -->
+        <!-- Support Box -->
         <table width="100%" cellpadding="0" cellspacing="0" style="margin:24px 0;border-radius:16px;overflow:hidden;border:1px solid rgba(124,58,237,0.3);background:rgba(124,58,237,0.05);font-size:14px;color:#d0c8f0;">
           <tr>
-            <td style="padding:18px 24px;background:rgba(124,58,237,0.12);border-bottom:1px solid rgba(124,58,237,0.25);">
-              <strong style="color:#ffffff;font-size:15px;">Need Help?</strong>
-            </td>
-          </tr>
-          <tr>
-            <td style="padding:20px 24px;line-height:1.6;">
-              WhatsApp Support: <strong style="color:#ffffff;">+234 810 617 5131</strong><br/>
+            <td style="padding:18px 24px;line-height:1.6;">
+              <strong style="color:#ffffff;">Need Assistance?</strong><br/>
+              WhatsApp Support: <a href="https://wa.me/2348106175131" style="color:#06b6d4;font-weight:600;text-decoration:none;">+234 810 617 5131</a><br/>
               Email: <a href="mailto:ugettechnologies@gmail.com" style="color:#06b6d4;text-decoration:underline;">ugettechnologies@gmail.com</a>
             </td>
           </tr>
         </table>
 
-        <p style="margin:16px 0 32px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-          We are thrilled to welcome you to this cohort and look forward to an amazing learning journey together.
+        <p style="margin:20px 0 32px;font-size:15px;line-height:1.7;color:#d0c8f0;">
+          We look forward to meeting you at orientation and seeing what you build!
         </p>
 
         <!-- Sign-off -->
@@ -379,8 +148,8 @@ function buildClassStartsEmailHtml(name: string, track: string) {
             <td>
               <p style="margin:0;font-size:15px;line-height:1.7;color:#d0c8f0;">
                 Warm regards,<br/>
-                <strong style="color:#ffffff;">Chiemena Erasmous</strong><br/>
-                <span style="color:#8b83b0;font-size:13px;">Uget Technologies Team</span>
+                <strong style="color:#ffffff;">The Uget Academy Team</strong><br/>
+                <span style="color:#8b83b0;font-size:13px;">Uget Technologies</span>
               </p>
             </td>
           </tr>
@@ -399,267 +168,406 @@ function buildClassStartsEmailHtml(name: string, track: string) {
   `.trim();
 }
 
-function buildClassStartsEmailText(name: string, track: string) {
-  return `Hello ${name},
+export function buildWelcomeCohort2EmailText(name: string | null, track?: string | null) {
+  const displayName = name ?? "Cohort 2 Learner";
+  const trackLine = track ? ` for ${track}` : "";
+  return `Subject: Welcome to Uget Academy Cohort 2 🎉 — Enrollment Confirmed
 
-Congratulations once again on securing your spot in Uget Academy's Cohort 1 for ${track}!
+Hello ${displayName},
 
-We are pleased to inform you that your payment has been verified, and your enrollment is officially complete.
+Congratulations! Your registration and enrollment payment of ₦3,000${trackLine} have been verified and confirmed.
 
-Start Date: Official classes will commence on Monday, July 20th, 2026.
+Your seat in Cohort 2 is officially secured. We are excited to support you on your 12-week learning journey!
 
-In the coming days, you will receive an onboarding email containing your learning dashboard access credentials, Discord workspace invitation, and the schedule details for our first session.
+All class schedules, live sessions, project links, and mentor announcements will be shared inside our official WhatsApp community. Join now using the link below:
 
-Please ensure you check your email regularly so you do not miss these setup instructions. If you have any immediate questions, feel free to reply to this email or chat with us on WhatsApp at +234 810 617 5131.
+👉 ${COHORT_2_WA_LINK}
+
+Once you join, our coordinators will direct you into your specialized learning channel.
+
+Need Assistance?
+WhatsApp Support: +234 810 617 5131
+Email: ugettechnologies@gmail.com
 
 Warm regards,
-Chiemena Erasmous
+The Uget Academy Team
 Uget Technologies`.trim();
 }
 
-// ─── Welcome Cohort 01 (new simple welcome + WhatsApp link) ──────────────────
-const COHORT_WA_LINK = "https://chat.whatsapp.com/HRy8MCg1l42EMH6hvOtzOf";
+export function getWelcomeCohort2WhatsAppMessage(app: any) {
+  return `Hello ${app.full_name},\n\n🎉 Congratulations and welcome to Uget Academy Cohort 2!\n\nYour registration and ₦3,000 enrollment fee for ${app.track} has been verified and confirmed.\n\nPlease join our official Cohort 2 WhatsApp community group using the link below. All class schedules, learning resources, and orientation details are shared there:\n\n👉 ${COHORT_2_WA_LINK}\n\nOnce you join, you will be directed into your track. See you inside!\n\nWarm regards,\nThe Uget Academy Team`;
+}
 
+// Aliases for compatibility
 function buildWelcomeCohortEmailHtml(name: string | null) {
-  const displayName = name ?? "Cohort 01 Learner";
-  return `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Welcome to Uget Academy — Cohort 01 🎉</title>
-</head>
-<body style="margin:0;padding:0;background:#0d0a1a;font-family:'Inter',Arial,sans-serif;color:#f0eeff;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:40px auto;background:#130f26;border-radius:24px;overflow:hidden;border:1px solid rgba(124,58,237,0.3);box-shadow:0 20px 40px rgba(0,0,0,0.5);">
-    <tr>
-      <td style="padding:48px 36px 32px;background:linear-gradient(135deg,rgba(124,58,237,0.15) 0%,rgba(6,182,212,0.05) 100%);border-bottom:1px solid rgba(124,58,237,0.2);text-align:center;">
-        <img src="https://uget-enroll.vercel.app/uget-logo.png" alt="Uget Technologies Logo" style="width:160px;max-width:100%;height:auto;display:inline-block;margin-bottom:12px;" />
-        <p style="margin:0;font-size:11px;font-weight:800;letter-spacing:0.35em;text-transform:uppercase;color:#06b6d4;">Academy</p>
-      </td>
-    </tr>
-    <tr>
-      <td style="padding:40px 36px 32px;">
-        <h2 style="margin:0 0 20px;font-size:22px;font-weight:800;color:#ffffff;letter-spacing:-0.02em;">Dear ${displayName},</h2>
-        <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">Congratulations, and welcome to UGET Academy!</p>
-        <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-          We're thrilled to have you on board as part of our very first cohort, officially kicking off tomorrow, Monday, 20th. This is the beginning of an exciting learning journey, and we're glad you've decided to take it with us.
-        </p>
-        <p style="margin:0 0 8px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-          To get started, please join our community WhatsApp group using the link below. All further details — schedules, resources, and updates — will be shared there:
-        </p>
-        <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;margin:16px 0;">
-          <tr>
-            <td align="center">
-              <a href="${COHORT_WA_LINK}" target="_blank" style="display:inline-block;background:linear-gradient(135deg,#25d366 0%,#128c7e 100%);padding:14px 36px;font-family:Arial,sans-serif;font-size:14px;font-weight:800;color:#ffffff;text-decoration:none;letter-spacing:0.06em;text-transform:uppercase;border-radius:9999px;box-shadow:0 8px 24px rgba(37,211,102,0.3);">👉 Join WhatsApp Group</a>
-            </td>
-          </tr>
-        </table>
-        <p style="margin:4px 0 20px;font-size:12px;text-align:center;color:#8b80a8;">Or copy: ${COHORT_WA_LINK}</p>
-        <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">Once you join, you will be directed to your respective area of learning.</p>
-        <p style="margin:0 0 32px;font-size:15px;line-height:1.7;color:#d0c8f0;">We're excited to work with you and can't wait to see what you'll achieve. See you tomorrow!</p>
-        <table width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid rgba(124,58,237,0.2);padding-top:24px;">
-          <tr><td>
-            <p style="margin:0;font-size:15px;line-height:1.7;color:#d0c8f0;">Warm regards,<br/><strong style="color:#ffffff;">The UGET Academy Team</strong></p>
-          </td></tr>
-        </table>
-      </td>
-    </tr>
-    <tr>
-      <td style="padding:24px 36px;background:#090714;border-top:1px solid rgba(124,58,237,0.15);text-align:center;">
-        <p style="margin:0;font-size:12px;color:#635d7a;">© ${new Date().getFullYear()} Uget Academy / Uget Technologies. All rights reserved.</p>
-      </td>
-    </tr>
-  </table>
-</body>
-</html>
-  `.trim();
+  return buildWelcomeCohort2EmailHtml(name);
 }
-
 function buildWelcomeCohortEmailText(name: string | null) {
-  const displayName = name ?? "Cohort 01 Learner";
-  return `Subject: Welcome to UGET Academy — Cohort 01 🎉
-
-Dear ${displayName},
-
-Congratulations, and welcome to UGET Academy!
-
-We're thrilled to have you on board as part of our very first cohort, officially kicking off tomorrow, Monday, 20th. This is the beginning of an exciting learning journey, and we're glad you've decided to take it with us.
-
-To get started, please join our community WhatsApp group using the link below. All further details — schedules, resources, and updates — will be shared there:
-
-👉 ${COHORT_WA_LINK}
-
-Once you join, you will be directed to your respective area of learning.
-
-We're excited to work with you and can't wait to see what you'll achieve. See you tomorrow!
-
-Warm regards,
-The UGET Academy Team`.trim();
+  return buildWelcomeCohort2EmailText(name);
 }
-
 function getWelcomeCohortWhatsAppMessage(app: any) {
-  return `Hello ${app.full_name},\n\nCongratulations, and welcome to UGET Academy!\n\nWe're thrilled to have you on board as part of our very first cohort, officially kicking off tomorrow, Monday, 20th.\n\nTo get started, please join our community WhatsApp group below. All further details — schedules, resources, and updates — will be shared there:\n\n👉 ${COHORT_WA_LINK}\n\nOnce you join, you will be directed to your respective area of learning. See you tomorrow!\n\nWarm regards,\nThe UGET Academy Team`;
+  return getWelcomeCohort2WhatsAppMessage(app);
 }
-
-function getDeadlineWhatsAppMessage(app: any, paymentUrl: string) {
-  return `Hello ${app.full_name},\n\nHow are you doing? We hope you are doing well!\n\nThis is a gentle reminder regarding your Uget Academy Cohort 1 offer for ${app.track}.\n\nClasses officially start on Monday, July 20th.\n\n🎉 NEW — Cohort Part-Payment: Due to high demand, a two-week window starting now is open (during the cohort). You can make a deposit of 50% during the cohort and spread the remaining 50% later before the cohort ends.\n\nVisit your enrollment portal to choose Full or Part-Payment and submit your confirmation:\n${paymentUrl}\n\nIf you have any questions, let us know. We look forward to welcoming you!\n\nWarm regards,\nChiemena Erasmous\nUget Technologies`;
+function buildEmailHtml(name: string, track: string, _fee: number, _paymentUrl: string) {
+  return buildWelcomeCohort2EmailHtml(name, track);
 }
-
+function buildEmailText(name: string, track: string, _fee: number, _paymentUrl: string) {
+  return buildWelcomeCohort2EmailText(name, track);
+}
+function getWhatsAppMessage(app: any, _paymentUrl?: string) {
+  return getWelcomeCohort2WhatsAppMessage(app);
+}
+function buildDeadlineEmailHtml(name: string, track: string, _paymentUrl: string) {
+  return buildWelcomeCohort2EmailHtml(name, track);
+}
+function buildDeadlineEmailText(name: string, track: string, _paymentUrl: string) {
+  return buildWelcomeCohort2EmailText(name, track);
+}
+function getDeadlineWhatsAppMessage(app: any, _paymentUrl?: string) {
+  return getWelcomeCohort2WhatsAppMessage(app);
+}
+function buildClassStartsEmailHtml(name: string, track: string) {
+  return buildWelcomeCohort2EmailHtml(name, track);
+}
+function buildClassStartsEmailText(name: string, track: string) {
+  return buildWelcomeCohort2EmailText(name, track);
+}
 function getClassStartsWhatsAppMessage(app: any) {
-  return `Hello ${app.full_name},\n\nCongratulations! Your payment has been verified, and your spot in Uget Academy Cohort 1 for ${app.track} is secured.\n\nStart Date: Official classes will commence on Monday, July 20th, 2026.\n\nKeep an eye on your email for dashboard access details and our Discord invitation. We look forward to starting this journey with you!\n\nWarm regards,\nChiemena Erasmous\nUget Technologies`;
+  return getWelcomeCohort2WhatsAppMessage(app);
 }
-
-
-const WEBINAR_WA_LINK = "https://chat.whatsapp.com/HM8hzDeMHTYCZA8qY12Eek";
-
 function buildWebinarEmailHtml(name: string) {
-  return `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>You're Invited: UGET Academy Webinar — July 22nd 🎙️</title>
-</head>
-<body style="margin:0;padding:0;background:#0d0a1a;font-family:'Inter',Arial,sans-serif;color:#f0eeff;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:40px auto;background:#130f26;border-radius:24px;overflow:hidden;border:1px solid rgba(124,58,237,0.3);box-shadow:0 20px 40px rgba(0,0,0,0.5);">
-    <tr>
-      <td style="padding:48px 36px 32px;background:linear-gradient(135deg,rgba(124,58,237,0.15) 0%,rgba(6,182,212,0.05) 100%);border-bottom:1px solid rgba(124,58,237,0.2);text-align:center;">
-        <img src="https://uget-enroll.vercel.app/uget-logo.png" alt="Uget Technologies Logo" style="width:160px;max-width:100%;height:auto;display:inline-block;margin-bottom:12px;" />
-        <p style="margin:0;font-size:11px;font-weight:800;letter-spacing:0.35em;text-transform:uppercase;color:#06b6d4;">Academy</p>
-      </td>
-    </tr>
-    <tr>
-      <td style="padding:40px 36px 32px;">
-        <div style="background:linear-gradient(135deg,rgba(124,58,237,0.2) 0%,rgba(6,182,212,0.1) 100%);border:1px solid rgba(124,58,237,0.4);border-radius:16px;padding:24px;margin-bottom:28px;text-align:center;">
-          <p style="margin:0;font-size:32px;">🎙️</p>
-          <p style="margin:8px 0 4px;font-size:18px;font-weight:800;color:#ffffff;">A Special Webinar Just for You!</p>
-          <p style="margin:0;font-size:13px;color:#a78bfa;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;">Cohort 01 — Wednesday, July 22nd · 8:00 PM</p>
-        </div>
-        <h2 style="margin:0 0 20px;font-size:22px;font-weight:800;color:#ffffff;letter-spacing:-0.02em;">Dear ${name},</h2>
-        <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-          As a valued member of <strong style="color:#ffffff;">UGET Academy Cohort 01</strong>, we're excited to invite you to a special webinar happening this <strong style="color:#ffffff;">Wednesday, 22nd of July, by 8:00 PM sharp</strong> — no African time, we're starting on the dot! ⏰
-        </p>
-        <table width="100%" cellpadding="0" cellspacing="0" style="margin:24px 0;border-radius:16px;overflow:hidden;border:1px solid rgba(124,58,237,0.3);background:rgba(124,58,237,0.05);">
-          <tr><td style="padding:18px 24px;background:rgba(124,58,237,0.12);border-bottom:1px solid rgba(124,58,237,0.25);"><strong style="color:#ffffff;font-size:15px;">✨ Here's what to expect:</strong></td></tr>
-          <tr><td style="padding:20px 24px;">
-            <p style="margin:0 0 10px;font-size:14px;line-height:1.6;color:#d0c8f0;">👥 <strong style="color:#ffffff;">Meet our instructors</strong> — get to know the experts who'll be guiding your learning journey</p>
-            <p style="margin:0 0 10px;font-size:14px;line-height:1.6;color:#d0c8f0;">🌍 <strong style="color:#ffffff;">Real impact stories</strong> — hear how tech is shaping and transforming society today</p>
-            <p style="margin:0 0 10px;font-size:14px;line-height:1.6;color:#d0c8f0;">🎓 <strong style="color:#ffffff;">A deeper look at UGET Academy</strong> — how the program works and how it'll benefit you</p>
-            <p style="margin:0;font-size:14px;line-height:1.6;color:#d0c8f0;">🤖 <strong style="color:#ffffff;">Future-proofing yourself</strong> — in this era, getting a job isn't as easy as it used to be. The ability to build and reinvent yourself is key to adapting in this age of AI, which is reshaping everything</p>
-          </td></tr>
-        </table>
-        <p style="margin:16px 0 24px;font-size:15px;line-height:1.7;color:#d0c8f0;">This promises to be an exciting and inspiring session, so <strong style="color:#ffffff;">don't miss it!</strong></p>
-        <table width="100%" cellpadding="0" cellspacing="0" style="margin:24px 0;border-radius:16px;overflow:hidden;border:1px solid rgba(37,211,102,0.35);background:rgba(37,211,102,0.05);">
-          <tr><td style="padding:20px 24px;">
-            <p style="margin:0 0 8px;font-size:15px;font-weight:800;color:#25d366;">💬 Join Our Webinar Community Group</p>
-            <p style="margin:0 0 16px;font-size:14px;line-height:1.7;color:#d0c8f0;">Join our webinar community group below for all details and the live session link:</p>
-            <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;"><tr><td align="center">
-              <a href="${WEBINAR_WA_LINK}" target="_blank" style="display:inline-block;background:linear-gradient(135deg,#25d366 0%,#128c7e 100%);padding:14px 36px;font-family:Arial,sans-serif;font-size:14px;font-weight:800;color:#ffffff;text-decoration:none;letter-spacing:0.06em;text-transform:uppercase;border-radius:9999px;box-shadow:0 8px 24px rgba(37,211,102,0.3);">👉 Join Webinar Group</a>
-            </td></tr></table>
-          </td></tr>
-        </table>
-        <p style="margin:16px 0 32px;font-size:15px;line-height:1.7;color:#d0c8f0;">See you there — on time! 😉</p>
-        <table width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid rgba(124,58,237,0.2);margin-top:4px;padding-top:24px;">
-          <tr><td><p style="margin:0;font-size:15px;line-height:1.7;color:#d0c8f0;">Warm regards,<br/><strong style="color:#ffffff;">The UGET Academy Team</strong></p></td></tr>
-        </table>
-      </td>
-    </tr>
-    <tr>
-      <td style="padding:24px 36px;background:#090714;border-top:1px solid rgba(124,58,237,0.15);text-align:center;">
-        <p style="margin:0;font-size:12px;color:#635d7a;">© ${new Date().getFullYear()} Uget Academy / Uget Technologies. All rights reserved.</p>
-      </td>
-    </tr>
-  </table>
-</body>
-</html>
-  `.trim();
+  return buildWelcomeCohort2EmailHtml(name);
 }
-
 function buildWebinarEmailText(name: string) {
-  return `Dear ${name},
-
-As a valued member of UGET Academy Cohort 01, we're excited to invite you to a special webinar happening this Wednesday, 22nd of July, by 8:00 PM sharp — no African time, we're starting on the dot! ⏰
-
-Here's what to expect:
-
-👥 Meet our instructors — get to know the experts who'll be guiding your learning journey
-🌍 Real impact stories — hear how tech is shaping and transforming society today
-🎓 A deeper look at UGET Academy — how the program works and how it'll benefit you
-🤖 Future-proofing yourself — in this era, getting a job isn't as easy as it used to be. The ability to build and reinvent yourself is key to adapting in this age of AI, which is reshaping everything
-
-This promises to be an exciting and inspiring session, so don't miss it!
-
-Join our webinar community group for all details and the live session link:
-👉 ${WEBINAR_WA_LINK}
-
-See you there — on time! 😉
-
-Warm regards,
-The UGET Academy Team`.trim();
+  return buildWelcomeCohort2EmailText(name);
 }
-
 function getWebinarWhatsAppMessage(app: any) {
-  return `Hello ${app.full_name},\n\nAs a valued member of UGET Academy Cohort 01, we're excited to invite you to a special webinar this Wednesday, 22nd of July, by 8:00 PM sharp — no African time, we're starting on the dot! ⏰\n\nHere's what to expect:\n👥 Meet our instructors\n🌍 Real impact stories from tech\n🎓 A deeper look at UGET Academy\n🤖 Future-proofing yourself in the age of AI\n\nJoin our webinar community group for all details and the live session link:\n👉 ${WEBINAR_WA_LINK}\n\nSee you there — on time! 😉\n\nWarm regards,\nThe UGET Academy Team`;
+  return getWelcomeCohort2WhatsAppMessage(app);
 }
 
-// ─── Auth wrapper ─────────────────────────────────────────────────────────────
+// ─── Redesigned Admin & Admissions Auth Portal ────────────────────────────────
 function AdminWrapper() {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    return sessionStorage.getItem("adminAuth") === "true";
+    return (
+      typeof window !== "undefined" &&
+      (sessionStorage.getItem("adminAuth") === "true" ||
+        localStorage.getItem("adminAuth") === "true")
+    );
   });
+  const [loginTab, setLoginTab] = useState<"admin" | "student">("admin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
   const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Student portal lookup state
+  const [studentQuery, setStudentQuery] = useState("");
+  const [studentError, setStudentError] = useState("");
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (email === "uget@admin" && password === "admin@10717") {
-      setIsAuthenticated(true);
-      sessionStorage.setItem("adminAuth", "true");
-      setError("");
+    setIsSubmitting(true);
+    setError("");
+
+    setTimeout(() => {
+      const trimmedEmail = email.trim().toLowerCase();
+      const trimmedPass = password.trim();
+
+      if (
+        (trimmedEmail === "uget@admin" || trimmedEmail === "admin@ugetacademy.com") &&
+        (trimmedPass === "admin@10717" || trimmedPass === "uget2026")
+      ) {
+        setIsAuthenticated(true);
+        sessionStorage.setItem("adminAuth", "true");
+        if (rememberMe) {
+          localStorage.setItem("adminAuth", "true");
+        }
+        setError("");
+      } else {
+        setError("Invalid email or password. Please verify your admin credentials.");
+      }
+      setIsSubmitting(false);
+    }, 300);
+  };
+
+  const handleStudentLookup = (e: React.FormEvent) => {
+    e.preventDefault();
+    const query = studentQuery.trim();
+    if (!query) {
+      setStudentError("Please enter your email address or application ID.");
+      return;
+    }
+    // Redirect straight to payment & bio extraction page
+    if (query.includes("@")) {
+      window.location.href = `/payment?email=${encodeURIComponent(query)}`;
     } else {
-      setError("Invalid email or password");
+      window.location.href = `/payment?id=${encodeURIComponent(query)}`;
     }
   };
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background/50">
-        <div className="w-full max-w-md p-8 space-y-6 bg-card border rounded-xl shadow-lg">
-          <div className="text-center space-y-2">
-            <h1 className="text-2xl font-bold tracking-tight">Admin Login</h1>
-            <p className="text-sm text-muted-foreground">
-              Enter your credentials to access the dashboard
+      <div
+        className="relative min-h-screen flex items-center justify-center p-4 sm:p-6 overflow-hidden"
+        style={{ background: "var(--gradient-hero)" }}
+      >
+        {/* Ambient Glowing Orbs */}
+        <div
+          className="pointer-events-none fixed -top-32 -left-32 h-96 w-96 rounded-full opacity-30 blur-3xl animate-float-slow"
+          style={{ background: "var(--gradient-brand)" }}
+        />
+        <div
+          className="pointer-events-none fixed -bottom-40 -right-20 h-[28rem] w-[28rem] rounded-full opacity-25 blur-3xl animate-float-slower"
+          style={{ background: "radial-gradient(circle, oklch(0.62 0.22 295), transparent 70%)" }}
+        />
+        <div
+          className="pointer-events-none fixed inset-0 opacity-[0.03]"
+          style={{
+            backgroundImage:
+              "linear-gradient(oklch(1 0 0) 1px, transparent 1px), linear-gradient(90deg, oklch(1 0 0) 1px, transparent 1px)",
+            backgroundSize: "44px 44px",
+          }}
+        />
+
+        {/* Login Container */}
+        <div className="relative w-full max-w-md z-10 animate-fade-in">
+          {/* Logo & Brand Header */}
+          <div className="text-center mb-6 space-y-2">
+            <div className="inline-flex p-2.5 rounded-2xl bg-card/60 border border-border/80 shadow-xl backdrop-blur-md mb-2">
+              <img src={logo} alt="Uget Technologies" className="h-12 w-12 rounded-xl object-contain" />
+            </div>
+            <div className="flex items-center justify-center gap-2">
+              <span className="text-xs font-bold uppercase tracking-[0.25em] text-primary">
+                UGET ACADEMY
+              </span>
+              <span className="text-[10px] rounded-full bg-primary/15 border border-primary/30 px-2 py-0.5 text-primary font-mono">
+                v2.0
+              </span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
+              Admissions Portal
+            </h1>
+            <p className="text-xs text-muted-foreground max-w-xs mx-auto">
+              Secure administrative access & student enrollment management
             </p>
           </div>
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="text"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
+
+          {/* Glassmorphic Auth Card */}
+          <div
+            className="rounded-2xl border border-border/80 p-6 sm:p-8 shadow-2xl space-y-6"
+            style={{
+              background: "oklch(0.20 0.06 280 / 0.8)",
+              backdropFilter: "blur(16px)",
+            }}
+          >
+            {/* Tab Switcher: Admin Login vs Student Status */}
+            <div className="flex rounded-xl bg-background/60 p-1 border border-border/60">
+              <button
+                type="button"
+                onClick={() => {
+                  setLoginTab("admin");
+                  setError("");
+                }}
+                className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg transition-all ${
+                  loginTab === "admin"
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <ShieldCheck className="h-3.5 w-3.5" />
+                <span>Admin Login</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setLoginTab("student");
+                  setError("");
+                }}
+                className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg transition-all ${
+                  loginTab === "student"
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <GraduationCap className="h-3.5 w-3.5" />
+                <span>Student Portal</span>
+              </button>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
-            {error && <p className="text-sm font-medium text-destructive">{error}</p>}
-            <Button type="submit" className="w-full">
-              Sign In
-            </Button>
-          </form>
+
+            {/* Admin Form */}
+            {loginTab === "admin" ? (
+              <form onSubmit={handleLogin} className="space-y-4">
+                {error && (
+                  <div className="rounded-xl border border-destructive/50 bg-destructive/15 p-3 text-xs text-destructive font-medium flex items-start gap-2 animate-shake">
+                    <span className="shrink-0 text-base">⚠️</span>
+                    <span>{error}</span>
+                  </div>
+                )}
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="admin-email" className="text-xs font-semibold text-foreground/90">
+                    Admin Username or Email
+                  </Label>
+                  <div className="relative">
+                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-muted-foreground">
+                      <Mail className="h-4 w-4" />
+                    </div>
+                    <Input
+                      id="admin-email"
+                      type="text"
+                      placeholder="uget@admin"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      autoComplete="username"
+                      className="pl-10 h-11 bg-input/80 border-border/80 focus:border-ring text-sm rounded-xl"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="admin-pass" className="text-xs font-semibold text-foreground/90">
+                      Password
+                    </Label>
+                    <span className="text-[11px] text-muted-foreground">Admissions Staff Only</span>
+                  </div>
+                  <div className="relative">
+                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-muted-foreground">
+                      <Lock className="h-4 w-4" />
+                    </div>
+                    <Input
+                      id="admin-pass"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="••••••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      autoComplete="current-password"
+                      className="pl-10 pr-10 h-11 bg-input/80 border-border/80 focus:border-ring text-sm rounded-xl"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((prev) => !prev)}
+                      className="absolute inset-y-0 right-0 flex items-center pr-3.5 text-muted-foreground hover:text-foreground transition-colors"
+                      tabIndex={-1}
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between text-xs pt-1">
+                  <label className="flex items-center gap-2 text-muted-foreground cursor-pointer hover:text-foreground">
+                    <input
+                      type="checkbox"
+                      checked={rememberMe}
+                      onChange={(e) => setRememberMe(e.target.checked)}
+                      className="rounded border-border text-primary focus:ring-primary h-3.5 w-3.5 bg-input"
+                    />
+                    <span>Keep me signed in</span>
+                  </label>
+                  <span className="text-[11px] text-muted-foreground font-mono">auth@uget</span>
+                </div>
+
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full h-11 rounded-xl text-sm font-bold text-primary-foreground shadow-lg transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-70 mt-2"
+                  style={{
+                    background: "var(--gradient-brand)",
+                    boxShadow: "var(--shadow-glow)",
+                  }}
+                >
+                  {isSubmitting ? (
+                    <span className="flex items-center gap-2">
+                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
+                      Authenticating…
+                    </span>
+                  ) : (
+                    <span className="flex items-center justify-center gap-2">
+                      <ShieldCheck className="h-4 w-4" />
+                      Sign In to Dashboard
+                    </span>
+                  )}
+                </Button>
+
+                <div className="pt-2 text-center">
+                  <p className="text-[11px] text-muted-foreground">
+                    Default credentials: <code className="text-primary font-mono font-semibold">uget@admin</code> /{" "}
+                    <code className="text-primary font-mono font-semibold">admin@10717</code>
+                  </p>
+                </div>
+              </form>
+            ) : (
+              /* Student Status & Bio Extraction Portal */
+              <form onSubmit={handleStudentLookup} className="space-y-4">
+                <div className="text-xs text-muted-foreground leading-relaxed">
+                  Enter your registered email address or Application ID to check your payment status, confirm verification, and export your student bio data.
+                </div>
+
+                {studentError && (
+                  <div className="rounded-xl border border-destructive/50 bg-destructive/15 p-3 text-xs text-destructive font-medium flex items-start gap-2">
+                    <span>⚠️</span>
+                    <span>{studentError}</span>
+                  </div>
+                )}
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="student-query" className="text-xs font-semibold text-foreground/90">
+                    Email Address or Application ID
+                  </Label>
+                  <div className="relative">
+                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-muted-foreground">
+                      <GraduationCap className="h-4 w-4" />
+                    </div>
+                    <Input
+                      id="student-query"
+                      type="text"
+                      placeholder="student@example.com or UUID"
+                      value={studentQuery}
+                      onChange={(e) => {
+                        setStudentQuery(e.target.value);
+                        setStudentError("");
+                      }}
+                      required
+                      className="pl-10 h-11 bg-input/80 border-border/80 focus:border-ring text-sm rounded-xl"
+                    />
+                  </div>
+                </div>
+
+                <Button
+                  type="submit"
+                  className="w-full h-11 rounded-xl text-sm font-bold text-primary-foreground shadow-lg transition-all hover:scale-[1.01] active:scale-[0.99] mt-2"
+                  style={{
+                    background: "var(--gradient-brand)",
+                    boxShadow: "var(--shadow-glow)",
+                  }}
+                >
+                  <span className="flex items-center justify-center gap-2">
+                    <UserCheck className="h-4 w-4" />
+                    Find My Application & Extract Bio
+                    <ArrowRight className="h-4 w-4" />
+                  </span>
+                </Button>
+              </form>
+            )}
+          </div>
+
+          {/* Return to Registration */}
+          <div className="mt-6 text-center space-y-2">
+            <a
+              href="/"
+              className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <span>← Return to Scholarship Application Form</span>
+            </a>
+            <p className="text-[11px] text-muted-foreground">
+              © {new Date().getFullYear()} Uget Academy · All rights reserved.
+            </p>
+          </div>
         </div>
       </div>
     );
@@ -695,46 +603,17 @@ function NotifyModal({
   paymentUrl: string;
   onNotified: () => void;
 }) {
-  const [templateType, setTemplateType] = useState<"offer" | "deadline" | "class_starts" | "webinar" | "welcome_cohort">(() => {
-    return app.payment_status === "Paid" ? "welcome_cohort" : "deadline";
-  });
+  const [templateType, setTemplateType] = useState<"welcome_cohort2">("welcome_cohort2");
 
-  const fee = COURSE_FEES[app.track] ?? 0;
+  const fee = COURSE_FEES[app.track] ?? 3000;
   const personalizedPaymentUrl = paymentUrl.includes("?")
     ? `${paymentUrl}&id=${app.id}`
     : `${paymentUrl}?id=${app.id}`;
 
-  let subject = `Welcome to Uget Academy — ${app.track} Cohort 1`;
-  let html = "";
-  let text = "";
-  let waTextRaw = "";
-
-  if (templateType === "welcome_cohort") {
-    subject = `Welcome to UGET Academy — Cohort 01 🎉`;
-    html = buildWelcomeCohortEmailHtml(app.full_name);
-    text = buildWelcomeCohortEmailText(app.full_name);
-    waTextRaw = getWelcomeCohortWhatsAppMessage(app);
-  } else if (templateType === "class_starts") {
-    subject = `Welcome to UGET Academy — Cohort 01 🎉`;
-    html = buildClassStartsEmailHtml(app.full_name, app.track);
-    text = buildClassStartsEmailText(app.full_name, app.track);
-    waTextRaw = getClassStartsWhatsAppMessage(app);
-  } else if (templateType === "deadline") {
-    subject = `Action Required: Secure Your Spot at Uget Academy`;
-    html = buildDeadlineEmailHtml(app.full_name, app.track, personalizedPaymentUrl);
-    text = buildDeadlineEmailText(app.full_name, app.track, personalizedPaymentUrl);
-    waTextRaw = getDeadlineWhatsAppMessage(app, personalizedPaymentUrl);
-  } else if (templateType === "webinar") {
-    subject = `A Special Webinar Just for You — Cohort 01! 🎙️`;
-    html = buildWebinarEmailHtml(app.full_name);
-    text = buildWebinarEmailText(app.full_name);
-    waTextRaw = getWebinarWhatsAppMessage(app);
-  } else {
-    subject = `Welcome to Uget Academy — ${app.track} Cohort 1`;
-    html = buildEmailHtml(app.full_name, app.track, fee, personalizedPaymentUrl);
-    text = buildEmailText(app.full_name, app.track, fee, personalizedPaymentUrl);
-    waTextRaw = getWhatsAppMessage(app, personalizedPaymentUrl);
-  }
+  const subject = `Welcome to Uget Academy Cohort 2 🎉 — Enrollment Confirmed`;
+  const html = buildWelcomeCohort2EmailHtml(app.full_name, app.track);
+  const text = buildWelcomeCohort2EmailText(app.full_name, app.track);
+  const waTextRaw = getWelcomeCohort2WhatsAppMessage(app);
 
   const [sending, setSending] = useState(false);
   const [sendResult, setSendResult] = useState<"idle" | "ok" | "err">("idle");
@@ -821,16 +700,12 @@ function NotifyModal({
             onChange={(e) => setTemplateType(e.target.value as any)}
             className="w-full h-10 bg-background border border-border rounded-lg px-3 py-1 text-sm font-medium focus:outline-none focus:ring-1 focus:ring-primary text-foreground transition-colors cursor-pointer hover:bg-background/80"
           >
-            <option value="welcome_cohort">✅ Welcome to UGET Academy — Cohort 01 (Paid Students)</option>
-            <option value="webinar">🎙️ Webinar Invite — July 22nd</option>
-            <option value="offer">Welcome Offer (Original)</option>
-            <option value="deadline">Payment Reminder — July 19th (Part-Payment Offer)</option>
-            <option value="class_starts">Class Start Notification (old)</option>
+            <option value="welcome_cohort2">🎉 Welcome to Cohort 2 (Paid & Enrolled — WhatsApp Community Link)</option>
           </select>
         </div>
 
         {/* Preview */}
-        <div className="rounded-xl border border-border/60 bg-card/40 p-4 space-y-1 text-sm">
+        <div className="rounded-xl border border-border/60 bg-card/40 p-4 space-y-1.5 text-sm">
           <p className="text-muted-foreground text-xs uppercase tracking-wider mb-2">
             Email Preview
           </p>
@@ -841,26 +716,16 @@ function NotifyModal({
             <span className="text-muted-foreground">To:</span> {app.email}
           </p>
           <p>
-            <span className="text-muted-foreground">Course:</span> {app.track}
+            <span className="text-muted-foreground">Course Track:</span> {app.track}
           </p>
-          {templateType === "offer" && (
-            <p>
-              <span className="text-muted-foreground">Fee:</span>{" "}
-              <strong className="text-primary">{fee > 0 ? fmt(fee) : "—"}</strong>
-            </p>
-          )}
-          {templateType !== "class_starts" && templateType !== "webinar" && (
-            <p>
-              <span className="text-muted-foreground">Link:</span>{" "}
-              <span className="text-primary/80">{personalizedPaymentUrl}</span>
-            </p>
-          )}
-          {templateType === "webinar" && (
-            <p>
-              <span className="text-muted-foreground">WhatsApp Group:</span>{" "}
-              <span className="text-green-400/80 text-xs break-all">{WEBINAR_WA_LINK}</span>
-            </p>
-          )}
+          <p>
+            <span className="text-muted-foreground">Enrolled Status:</span>{" "}
+            <strong className="text-emerald-400">Verified Paid (₦3,000)</strong>
+          </p>
+          <p>
+            <span className="text-muted-foreground">WhatsApp Group:</span>{" "}
+            <span className="text-primary font-mono text-xs break-all">{COHORT_2_WA_LINK}</span>
+          </p>
         </div>
 
         {/* Send result */}
@@ -961,20 +826,13 @@ function BulkEmailModal({
   const paid = applications.filter(
     (a) => a.payment_status === "Paid",
   );
-  const [target, setTarget] = useState<"all" | "unpaid" | "paid">("unpaid");
+  const [target, setTarget] = useState<"all" | "unpaid" | "paid">("paid");
   const targets = target === "all" ? applications : target === "paid" ? paid : unpaid;
 
-  const [templateType, setTemplateType] = useState<"offer" | "deadline" | "class_starts" | "webinar" | "welcome_cohort">("deadline");
+  const [templateType, setTemplateType] = useState<"welcome_cohort2">("welcome_cohort2");
 
   const handleTargetChange = (newTarget: "all" | "unpaid" | "paid") => {
     setTarget(newTarget);
-    if (newTarget === "paid") {
-      setTemplateType("class_starts");
-    } else if (newTarget === "unpaid") {
-      setTemplateType("deadline");
-    } else {
-      setTemplateType("offer");
-    }
   };
 
   const [progress, setProgress] = useState<Record<string, "idle" | "ok" | "err">>({});
@@ -1000,35 +858,10 @@ function BulkEmailModal({
     const notifiedIds: string[] = [];
 
     for (const app of activeTargets) {
-      const fee = COURSE_FEES[app.track] ?? 0;
-      const personalizedPaymentUrl = paymentUrl.includes("?")
-        ? `${paymentUrl}&id=${app.id}`
-        : `${paymentUrl}?id=${app.id}`;
       try {
-        let subject = "";
-        let html = "";
-        let text = "";
-        if (templateType === "welcome_cohort") {
-          subject = `Welcome to UGET Academy — Cohort 01 🎉`;
-          html = buildWelcomeCohortEmailHtml(app.full_name);
-          text = buildWelcomeCohortEmailText(app.full_name);
-        } else if (templateType === "webinar") {
-          subject = `A Special Webinar Just for You — Cohort 01! 🎙️`;
-          html = buildWebinarEmailHtml(app.full_name);
-          text = buildWebinarEmailText(app.full_name);
-        } else if (templateType === "class_starts") {
-          subject = `Congratulations! Class Commences July 13th — Uget Academy`;
-          html = buildClassStartsEmailHtml(app.full_name, app.track);
-          text = buildClassStartsEmailText(app.full_name, app.track);
-        } else if (templateType === "deadline") {
-          subject = `Action Required: Secure Your Spot at Uget Academy`;
-          html = buildDeadlineEmailHtml(app.full_name, app.track, personalizedPaymentUrl);
-          text = buildDeadlineEmailText(app.full_name, app.track, personalizedPaymentUrl);
-        } else {
-          subject = `Welcome to Uget Academy — ${app.track} Cohort 1`;
-          html = buildEmailHtml(app.full_name, app.track, fee, personalizedPaymentUrl);
-          text = buildEmailText(app.full_name, app.track, fee, personalizedPaymentUrl);
-        }
+        const subject = `Welcome to Uget Academy Cohort 2 🎉 — Enrollment Confirmed`;
+        const html = buildWelcomeCohort2EmailHtml(app.full_name, app.track);
+        const text = buildWelcomeCohort2EmailText(app.full_name, app.track);
 
         const result = await sendEmailFn({
           data: {
@@ -1075,19 +908,7 @@ function BulkEmailModal({
   };
 
   const getWhatsAppMsg = (app: any) => {
-    const personalizedPaymentUrl = paymentUrl.includes("?")
-      ? `${paymentUrl}&id=${app.id}`
-      : `${paymentUrl}?id=${app.id}`;
-    if (templateType === "welcome_cohort") {
-      return getWelcomeCohortWhatsAppMessage(app);
-    } else if (templateType === "webinar") {
-      return getWebinarWhatsAppMessage(app);
-    } else if (templateType === "class_starts") {
-      return getClassStartsWhatsAppMessage(app);
-    } else if (templateType === "deadline") {
-      return getDeadlineWhatsAppMessage(app, personalizedPaymentUrl);
-    }
-    return getWhatsAppMessage(app, personalizedPaymentUrl);
+    return getWelcomeCohort2WhatsAppMessage(app);
   };
 
   const handleCopyMsg = (app: any) => {
@@ -1128,24 +949,8 @@ function BulkEmailModal({
     ? `${paymentUrl}&id=${previewApp.id || ""}`
     : `${paymentUrl}?id=${previewApp.id || ""}`;
 
-  let previewSubject = "";
-  let previewText = "";
-  if (templateType === "welcome_cohort") {
-    previewSubject = `Welcome to UGET Academy — Cohort 01 🎉`;
-    previewText = buildWelcomeCohortEmailText(previewApp.full_name);
-  } else if (templateType === "class_starts") {
-    previewSubject = `Welcome to UGET Academy — Cohort 01 🎉`;
-    previewText = buildClassStartsEmailText(previewApp.full_name, previewApp.track);
-  } else if (templateType === "deadline") {
-    previewSubject = `Action Required: Secure Your Spot at Uget Academy`;
-    previewText = buildDeadlineEmailText(previewApp.full_name, previewApp.track, previewPaymentUrl);
-  } else if (templateType === "webinar") {
-    previewSubject = `A Special Webinar Just for You — Cohort 01! 🎙️`;
-    previewText = buildWebinarEmailText(previewApp.full_name);
-  } else {
-    previewSubject = `Welcome to Uget Academy — ${previewApp.track} Cohort 1`;
-    previewText = buildEmailText(previewApp.full_name, previewApp.track, previewFee, previewPaymentUrl);
-  }
+  const previewSubject = `Welcome to Uget Academy Cohort 2 🎉 — Enrollment Confirmed`;
+  const previewText = buildWelcomeCohort2EmailText(previewApp.full_name, previewApp.track);
 
   return (
     <div
@@ -1235,11 +1040,7 @@ function BulkEmailModal({
               onChange={(e) => setTemplateType(e.target.value as any)}
               className="w-full h-10 bg-background border border-border rounded-xl px-3 py-1 text-sm font-medium focus:outline-none focus:ring-1 focus:ring-primary text-foreground transition-colors cursor-pointer hover:bg-background/80"
             >
-              <option value="welcome_cohort">✅ Welcome to UGET Academy — Cohort 01 (Paid Students)</option>
-              <option value="webinar">🎙️ Webinar Invite — July 22nd</option>
-              <option value="offer">Welcome Offer (Original)</option>
-              <option value="deadline">Payment Reminder — July 19th (Part-Payment Offer)</option>
-              <option value="class_starts">Class Start Notification (old)</option>
+              <option value="welcome_cohort2">🎉 Welcome to Cohort 2 (Paid & Enrolled — WhatsApp Community Link)</option>
             </select>
           </div>
         )}
@@ -1382,30 +1183,8 @@ function BulkEmailModal({
 
                 <div className="max-h-60 overflow-y-auto border border-border bg-card/30 rounded-xl divide-y divide-border/40">
                   {targets.map((app) => {
-                    const fee = COURSE_FEES[app.track] ?? 0;
-                    const personalizedPaymentUrl = paymentUrl.includes("?")
-                      ? `${paymentUrl}&id=${app.id}`
-                      : `${paymentUrl}?id=${app.id}`;
-                    
-                    let subject = "";
-                    let text = "";
-                    if (templateType === "welcome_cohort") {
-                      subject = `Welcome to UGET Academy — Cohort 01 🎉`;
-                      text = buildWelcomeCohortEmailText(app.full_name);
-                    } else if (templateType === "webinar") {
-                      subject = `A Special Webinar Just for You — Cohort 01! 🎙️`;
-                      text = buildWebinarEmailText(app.full_name);
-                    } else if (templateType === "class_starts") {
-                      subject = `Welcome to UGET Academy — Cohort 01 🎉`;
-                      text = buildClassStartsEmailText(app.full_name, app.track);
-                    } else if (templateType === "deadline") {
-                      subject = `Action Required: Secure Your Spot at Uget Academy`;
-                      text = buildDeadlineEmailText(app.full_name, app.track, personalizedPaymentUrl);
-                    } else {
-                      subject = `Welcome to Uget Academy — ${app.track} Cohort 1`;
-                      text = buildEmailText(app.full_name, app.track, fee, personalizedPaymentUrl);
-                    }
-                    
+                    const subject = `Welcome to Uget Academy Cohort 2 🎉 — Enrollment Confirmed`;
+                    const text = buildWelcomeCohort2EmailText(app.full_name, app.track);
                     const mailto = `mailto:${app.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(text)}`;
                     return (
                       <div key={app.id} className="flex items-center justify-between p-3 text-xs">
@@ -1584,6 +1363,7 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
   const [refName, setRefName] = useState("");
   const [refCode, setRefCode] = useState("");
   const [notifyApp, setNotifyApp] = useState<any | null>(null);
+  const [selectedBioApp, setSelectedBioApp] = useState<any | null>(null);
   const [showBulk, setShowBulk] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
@@ -1783,12 +1563,12 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
           stored.includes("uget-blog-seven.vercel.app") ||
           stored.includes("enroll.vercel.app")
         ) {
-          localStorage.setItem("uget_payment_url", "https://uget-enroll.vercel.app/payment");
-          return "https://uget-enroll.vercel.app/payment";
+          localStorage.setItem("uget_payment_url", "https://www.uget-enrollment.online/payment");
+          return "https://www.uget-enrollment.online/payment";
         }
         return stored;
       }
-      return "https://uget-enroll.vercel.app/payment";
+      return "https://www.uget-enrollment.online/payment";
     }
   );
 
@@ -1922,7 +1702,7 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
       const [appsRes, refsRes] = await Promise.all([
         supabase
           .from("scholarship_applications")
-          .select("*, payments(payment_status, payment_sender, payment_amount, payment_date, payment_ref)")
+          .select("*")
           .order("created_at", { ascending: false }),
         supabase
           .from("referral_codes")
@@ -1934,11 +1714,11 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
           const p = Array.isArray(app.payments) ? app.payments[0] : app.payments;
           return {
             ...app,
-            payment_status: p?.payment_status || "Unpaid",
-            payment_sender: p?.payment_sender || null,
-            payment_amount: p?.payment_amount || null,
-            payment_date: p?.payment_date || null,
-            payment_ref: p?.payment_ref || null,
+            payment_status: app.payment_status || p?.payment_status || "Unpaid",
+            payment_sender: app.payment_sender || p?.payment_sender || null,
+            payment_amount: app.payment_amount ?? p?.payment_amount ?? null,
+            payment_date: app.payment_date || p?.payment_date || null,
+            payment_ref: app.payment_ref || p?.payment_ref || null,
           };
         });
         setApplications(mapped);
@@ -1973,6 +1753,53 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  // Export functions specifically formatted for importing into the Uget Academy platform
+  const exportAcademyBioJson = (onlyPaid = true) => {
+    const list = onlyPaid
+      ? applications.filter(
+          (a) => a.payment_status === "Paid" || a.payment_status === "Pending Verification",
+        )
+      : applications;
+
+    if (!list.length) {
+      alert(onlyPaid ? "No paid/verified candidates found to export." : "No applications found.");
+      return;
+    }
+
+    const payload = {
+      source_platform: "Uget Academy Admissions Portal",
+      export_version: "2.0",
+      cohort: "Cohort 1",
+      exported_at: new Date().toISOString(),
+      export_filter: onlyPaid ? "verified_and_pending_paid" : "all_candidates",
+      total_students: list.length,
+      students: list.map(formatBioForAcademy),
+    };
+
+    downloadJsonFile(
+      payload,
+      `uget_academy_${onlyPaid ? "paid_students" : "all_candidates"}_bio_${new Date().toISOString().split("T")[0]}.json`,
+    );
+  };
+
+  const exportAcademyBioCsv = (onlyPaid = true) => {
+    const list = onlyPaid
+      ? applications.filter(
+          (a) => a.payment_status === "Paid" || a.payment_status === "Pending Verification",
+        )
+      : applications;
+
+    if (!list.length) {
+      alert(onlyPaid ? "No paid/verified candidates found to export." : "No applications found.");
+      return;
+    }
+
+    downloadCsvFile(
+      list,
+      `uget_academy_${onlyPaid ? "paid_students" : "all_candidates"}_bio_${new Date().toISOString().split("T")[0]}.csv`,
+    );
   };
 
   const generateReferral = async (e: React.FormEvent) => {
@@ -2011,11 +1838,12 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
 
   const deleteApplication = async (id: string) => {
     if (!supabase) return;
-    if (!confirm("Are you sure you want to delete this applicant and all their associated payment records?")) return;
+    if (!confirm("Are you sure you want to delete this applicant and all their associated records?")) return;
 
-    // First delete from payments due to foreign key constraints
-    await supabase.from("payments").delete().eq("application_id", id);
-    // Then delete from scholarship_applications
+    try {
+      await supabase.from("payments").delete().eq("application_id", id);
+    } catch (_) {}
+
     const { error } = await supabase.from("scholarship_applications").delete().eq("id", id);
     if (!error) {
       setApplications((prev) => prev.filter((a) => a.id !== id));
@@ -2024,16 +1852,58 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
     }
   };
 
+  const purgeUnpaidApplications = async () => {
+    if (!supabase) return;
+    const unpaidList = applications.filter((a) => !a.payment_status || a.payment_status !== "Paid");
+    if (unpaidList.length === 0) {
+      alert("No unpaid applications found. All students in the database have paid!");
+      return;
+    }
+    const confirmed = confirm(
+      `⚠️ WARNING: You are about to permanently delete all ${unpaidList.length} unpaid applicants from the database.\n\nOnly students who paid in Cohort 1 (or paid in Cohort 2) will remain.\n\nAre you sure you want to proceed?`
+    );
+    if (!confirmed) return;
+
+    try {
+      const ids = unpaidList.map((a) => a.id);
+      const { error } = await supabase
+        .from("scholarship_applications")
+        .delete()
+        .in("id", ids);
+
+      if (error) {
+        alert("Error purging unpaid applications: " + error.message);
+      } else {
+        setApplications((prev) => prev.filter((a) => a.payment_status === "Paid"));
+        alert(`✅ Successfully purged ${unpaidList.length} unpaid applications. Only paid students remain.`);
+      }
+    } catch (err: any) {
+      alert("Failed to delete unpaid records: " + (err.message || err));
+    }
+  };
+
   async function updatePaymentStatus(id: string, status: string) {
     if (!supabase) return;
+    // Update scholarship_applications directly (matches new database table schema)
     const { error } = await supabase
-      .from("payments")
-      .upsert({ application_id: id, payment_status: status }, { onConflict: "application_id" });
+      .from("scholarship_applications")
+      .update({ payment_status: status })
+      .eq("id", id);
+
     if (!error) {
       setApplications((prev) =>
         prev.map((a) => (a.id === id ? { ...a, payment_status: status } : a)),
       );
+    } else {
+      alert("Error updating payment status: " + error.message);
     }
+
+    // Also attempt updating legacy payments table if it exists
+    try {
+      await supabase
+        .from("payments")
+        .upsert({ application_id: id, payment_status: status }, { onConflict: "application_id" });
+    } catch (_) {}
   }
 
   const paid = applications.filter((a) => a.payment_status === "Paid");
@@ -2088,6 +1958,22 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
           onNotifiedBatch={markBatchNotified}
           notifiedApps={notifiedApps}
         />
+      )}
+
+      {selectedBioApp && (
+        <Sheet open={Boolean(selectedBioApp)} onOpenChange={(open) => !open && setSelectedBioApp(null)}>
+          <SheetContent className="w-full sm:max-w-xl bg-card border-border overflow-y-auto p-6">
+            <SheetHeader className="mb-4">
+              <SheetTitle className="text-xl font-bold flex items-center gap-2">
+                <GraduationCap className="h-5 w-5 text-primary" /> Student Bio Details
+              </SheetTitle>
+              <SheetDescription className="text-xs text-muted-foreground">
+                Detailed profile extracted from admissions database for Uget Academy
+              </SheetDescription>
+            </SheetHeader>
+            <StudentBioExtractor student={selectedBioApp} title="Candidate Bio Profile" />
+          </SheetContent>
+        </Sheet>
       )}
 
       <Sheet open={showSettings} onOpenChange={setShowSettings}>
@@ -2186,7 +2072,7 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
                 name="payment_url"
                 type="url"
                 defaultValue={paymentUrl}
-                placeholder="https://uget-enroll.vercel.app/payment"
+                placeholder="https://www.uget-enrollment.online/payment"
               />
               <p className="text-[10px] text-muted-foreground">
                 This is the payment confirmation link embedded in email alerts.
@@ -2239,6 +2125,23 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
           <h1 className="text-2xl sm:text-3xl font-bold">Uget Academy — Admin</h1>
           <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
             <Button
+              onClick={() => exportAcademyBioJson(true)}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white flex-1 sm:flex-none flex items-center gap-1.5 shadow-sm"
+              title="Export verified & paid student bio records for Uget Academy"
+            >
+              <FileJson className="h-4 w-4" />
+              <span>Export for Academy (JSON)</span>
+            </Button>
+            <Button
+              onClick={() => exportAcademyBioCsv(true)}
+              variant="outline"
+              className="border-emerald-500/50 text-emerald-400 hover:bg-emerald-500/10 flex-1 sm:flex-none flex items-center gap-1.5"
+              title="Export student bio records in CSV format"
+            >
+              <FileSpreadsheet className="h-4 w-4" />
+              <span>Export Bio (CSV)</span>
+            </Button>
+            <Button
               onClick={() => setShowBulk(true)}
               className="bg-primary text-primary-foreground flex-1 sm:flex-none"
             >
@@ -2249,7 +2152,7 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
               variant="outline"
               className="flex-1 sm:flex-none"
             >
-              Export CSV
+              Raw CSV
             </Button>
             <Button
               onClick={() => setShowSettings(true)}
@@ -2338,9 +2241,6 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
             <TabsTrigger value="payments" className="text-xs sm:text-sm flex-1 min-w-[120px]">
               Payments ({paid.length + pending.length}/{applications.length})
             </TabsTrigger>
-            <TabsTrigger value="part-payment" className="text-orange-400 data-[state=active]:text-orange-300 text-xs sm:text-sm flex-1 min-w-[120px]">
-              ⚡ Part-Pay ({applications.filter(a => a.payment_ref && a.payment_ref.includes('[PART-PAYMENT]')).length})
-            </TabsTrigger>
             <TabsTrigger value="applications" className="text-xs sm:text-sm flex-1 min-w-[120px]">
               All ({applications.length})
             </TabsTrigger>
@@ -2362,6 +2262,28 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
                 </div>
               ))}
             </div>
+
+            {/* Cohort 2 Purge Unpaid Banner */}
+            {unpaid.length > 0 && (
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-destructive/40 bg-destructive/10 p-4 animate-fade-in">
+                <div>
+                  <h4 className="text-sm font-bold text-destructive flex items-center gap-2">
+                    <span>🗑️</span> Purge Unpaid Applications for Cohort 2
+                  </h4>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Clean database before Cohort 2 starts: delete all {unpaid.length} unpaid applicants so only students who paid in Cohort 1 remain.
+                  </p>
+                </div>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={purgeUnpaidApplications}
+                  className="shrink-0 font-bold shadow-md hover:scale-[1.02] transition-transform"
+                >
+                  Purge {unpaid.length} Unpaid Applicants
+                </Button>
+              </div>
+            )}
 
             {/* Paid / Pending & Unpaid lists */}
             {[
@@ -2491,6 +2413,15 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
                                       Mark Unpaid
                                     </Button>
                                   )}
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="text-xs border-primary/40 text-primary hover:bg-primary/10"
+                                    title="Extract and view complete student bio for Uget Academy"
+                                    onClick={() => setSelectedBioApp(app)}
+                                  >
+                                    🎓 Bio
+                                  </Button>
                                   <Button
                                     size="sm"
                                     variant="outline"
@@ -2630,6 +2561,15 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
                           </TableCell>
                           <TableCell onClick={(e) => e.stopPropagation()}>
                             <div className="flex gap-1.5 items-center flex-wrap">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="text-xs border-primary/40 text-primary hover:bg-primary/10 whitespace-nowrap"
+                                title="Extract and view complete student bio for Uget Academy"
+                                onClick={() => setSelectedBioApp(app)}
+                              >
+                                🎓 Bio
+                              </Button>
                               <Button
                                 size="sm"
                                 variant="outline"
@@ -2847,128 +2787,6 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
                 </Table>
               </div>
             </div>
-          </TabsContent>
-
-          {/* ── PART-PAYMENT TAB ─────────────────────────────────────────────── */}
-          <TabsContent value="part-payment" className="space-y-6">
-            {/* Summary cards */}
-            {(() => {
-              const partPayers = applications.filter(
-                (a) => a.payment_ref && a.payment_ref.includes("[PART-PAYMENT]")
-              );
-              const partPending = partPayers.filter((a) => a.payment_status === "Pending Verification");
-              const partPaid = partPayers.filter((a) => a.payment_status === "Paid");
-              return (
-                <>
-                  <div className="rounded-xl border border-orange-500/30 bg-orange-500/5 p-4 flex items-start gap-3">
-                    <span className="text-2xl">⚡</span>
-                    <div>
-                      <h3 className="text-sm font-bold text-orange-300">Part-Payment Applicants</h3>
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        These applicants have paid 50% of their course fee. The remaining 50% is due at the end of the cohort before they receive their certificate.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="grid gap-4 sm:grid-cols-3">
-                    {[
-                      { label: "Total Part-Payers", count: partPayers.length, color: "text-orange-400", bg: "bg-orange-500/10 border-orange-500/30" },
-                      { label: "Verified Part-Paid", count: partPaid.length, color: "text-primary", bg: "bg-primary/10 border-primary/30" },
-                      { label: "Pending Verification", count: partPending.length, color: "text-yellow-400", bg: "bg-yellow-500/10 border-yellow-500/30" },
-                    ].map((s) => (
-                      <div key={s.label} className={`rounded-xl border p-4 ${s.bg}`}>
-                        <div className={`text-2xl font-bold ${s.color}`}>{s.count}</div>
-                        <div className="text-xs text-muted-foreground mt-1">{s.label}</div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="border rounded-lg overflow-x-auto shadow-sm">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Name</TableHead>
-                          <TableHead>Email</TableHead>
-                          <TableHead>Track</TableHead>
-                          <TableHead>Full Fee</TableHead>
-                          <TableHead>Paid (50%)</TableHead>
-                          <TableHead>Balance Due</TableHead>
-                          <TableHead>Date</TableHead>
-                          <TableHead>Status</TableHead>
-                          <TableHead>Actions</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {partPayers.length === 0 ? (
-                          <TableRow>
-                            <TableCell colSpan={9} className="text-center py-8 text-muted-foreground text-sm">
-                              No part-payment applicants found yet.
-                            </TableCell>
-                          </TableRow>
-                        ) : (
-                          partPayers.map((app, i) => {
-                            const fullFee = COURSE_FEES[app.track] ?? 0;
-                            const feeDetails = getFeeDetails(app.track);
-                            const partAmount = app.payment_amount ?? Math.round(feeDetails.ngn.total * 0.5);
-                            const balance = feeDetails.ngn.total - partAmount;
-                            return (
-                              <TableRow key={i}>
-                                <TableCell className="font-medium whitespace-nowrap">{app.full_name}</TableCell>
-                                <TableCell className="whitespace-nowrap text-xs">{app.email}</TableCell>
-                                <TableCell className="whitespace-nowrap text-xs">{app.track}</TableCell>
-                                <TableCell className="whitespace-nowrap text-xs text-muted-foreground">{fullFee > 0 ? fmt(feeDetails.ngn.total) : "—"}</TableCell>
-                                <TableCell className="whitespace-nowrap font-semibold text-orange-400">{partAmount > 0 ? fmt(partAmount) : "—"}</TableCell>
-                                <TableCell className="whitespace-nowrap font-semibold text-destructive">{balance > 0 ? fmt(balance) : "—"}</TableCell>
-                                <TableCell className="whitespace-nowrap text-xs text-muted-foreground">
-                                  {app.payment_date ? new Date(app.payment_date).toLocaleDateString() : "—"}
-                                </TableCell>
-                                <TableCell>
-                                  <span className="inline-flex items-center rounded-full bg-orange-500/15 px-2 py-0.5 text-xs font-semibold text-orange-400 border border-orange-500/20">
-                                    ⚡ Part-Paid
-                                  </span>
-                                  <div className="mt-1">
-                                    <PaymentBadge status={app.payment_status} />
-                                  </div>
-                                </TableCell>
-                                <TableCell onClick={(e) => e.stopPropagation()}>
-                                  <div className="flex gap-1.5 items-center flex-wrap">
-                                    <Button
-                                      size="sm"
-                                      variant="outline"
-                                      className="text-xs whitespace-nowrap"
-                                      onClick={() => setNotifyApp(app)}
-                                    >
-                                      Notify
-                                    </Button>
-                                    <select
-                                      value={app.payment_status}
-                                      onChange={(e) => updatePaymentStatus(app.id, e.target.value)}
-                                      className="text-xs bg-background border border-border rounded px-1.5 py-1 text-foreground focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
-                                    >
-                                      <option value="Unpaid">Unpaid</option>
-                                      <option value="Pending Verification">Pending</option>
-                                      <option value="Paid">Paid ✓</option>
-                                    </select>
-                                    <Button
-                                      size="sm"
-                                      variant="destructive"
-                                      className="text-xs font-semibold bg-red-600/90 hover:bg-red-700 text-white"
-                                      onClick={() => deleteApplication(app.id)}
-                                    >
-                                      Delete
-                                    </Button>
-                                  </div>
-                                </TableCell>
-                              </TableRow>
-                            );
-                          })
-                        )}
-                      </TableBody>
-                    </Table>
-                  </div>
-                </>
-              );
-            })()}
           </TabsContent>
 
         </Tabs>
