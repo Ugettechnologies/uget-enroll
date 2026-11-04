@@ -1373,6 +1373,7 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
 
   const [notifiedFilter, setNotifiedFilter] = useState<"all" | "yes" | "no">("all");
+  const [selectedCohort, setSelectedCohort] = useState<"all" | "Cohort 1" | "Cohort 2">("all");
   const [notifiedApps, setNotifiedApps] = useState<Record<string, boolean>>(() => {
     try {
       const stored = localStorage.getItem("uget_notified_apps");
@@ -1469,6 +1470,14 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
       result = result.filter((app) => {
         const isNotified = Boolean(notifiedApps[app.id]);
         return notifiedFilter === "yes" ? isNotified : !isNotified;
+      });
+    }
+
+    // 1.8. Cohort Filter
+    if (selectedCohort !== "all") {
+      result = result.filter((app) => {
+        const c = app.cohort || "Cohort 1";
+        return c === selectedCohort;
       });
     }
 
@@ -1714,6 +1723,7 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
           const p = Array.isArray(app.payments) ? app.payments[0] : app.payments;
           return {
             ...app,
+            cohort: app.cohort || "Cohort 1",
             payment_status: app.payment_status || p?.payment_status || "Unpaid",
             payment_sender: app.payment_sender || p?.payment_sender || null,
             payment_amount: app.payment_amount ?? p?.payment_amount ?? null,
@@ -1912,6 +1922,19 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
     (a) => !a.payment_status || a.payment_status === "Unpaid",
   );
 
+  const cohort1Apps = applications.filter((a) => !a.cohort || a.cohort === "Cohort 1");
+  const cohort2Apps = applications.filter((a) => a.cohort === "Cohort 2");
+
+  const cohort1Paid = cohort1Apps.filter((a) => a.payment_status === "Paid");
+  const cohort1Pending = cohort1Apps.filter((a) => a.payment_status === "Pending Verification");
+  const cohort1Unpaid = cohort1Apps.filter((a) => !a.payment_status || a.payment_status === "Unpaid");
+
+  const cohort2Paid = cohort2Apps.filter((a) => a.payment_status === "Paid");
+  const cohort2TotalRevenue = cohort2Paid.reduce(
+    (sum, a) => sum + (Number(a.payment_amount) || 3000),
+    0,
+  );
+
   function PaymentBadge({ status }: { status: string | null }) {
     if (status === "Paid")
       return (
@@ -1931,6 +1954,270 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
       </span>
     );
   }
+
+
+  const renderApplicationsTable = (appsList: any[]) => {
+    return (
+      <div className="overflow-x-auto whitespace-nowrap">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    {renderSortableHeader("created_at", "Date")}
+                    {renderSortableHeader("track", "Track")}
+                    {renderSortableHeader("full_name", "Full Name")}
+                    {renderSortableHeader("email", "Email")}
+                    {renderSortableHeader("phone", "Phone")}
+                    {renderSortableHeader("gender", "Gender")}
+                    {renderSortableHeader("date_of_birth", "DOB")}
+                    {renderSortableHeader("state_region", "State/Region")}
+                    {renderSortableHeader("country", "Country")}
+                    {renderSortableHeader("highest_qualification", "Highest Qual.")}
+                    {renderSortableHeader("institution", "Institution")}
+                    {renderSortableHeader("course_of_study", "Course of Study")}
+                    {renderSortableHeader("current_status", "Current Status")}
+                    {renderSortableHeader("studied_before", "Studied Before")}
+                    {renderSortableHeader("experience_level", "Exp. Level")}
+                    {renderSortableHeader("has_computer", "Has Computer")}
+                    {renderSortableHeader("has_internet", "Has Internet")}
+                    {renderSortableHeader("can_commit", "Can Commit")}
+                    {renderSortableHeader("heard_from", "Heard From")}
+                    {renderSortableHeader("referral_code", "Referral Code")}
+                    {renderSortableHeader("signature", "Signature")}
+                    {renderSortableHeader("agreed_to_terms", "Agreed to Terms")}
+                    {renderSortableHeader("notified", "Notified")}
+                    {renderSortableHeader("payment_status", "Payment Status")}
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {loading ? (
+                    <TableRow>
+                      <TableCell colSpan={24} className="text-center py-4">
+                        Loading...
+                      </TableCell>
+                    </TableRow>
+                  ) : appsList.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={24} className="text-center py-4">
+                        No applications found.
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    appsList.map((app, i) => (
+                      <Fragment key={app.id || i}>
+                        <TableRow
+                          onClick={() => toggleRow(app.id)}
+                          className="cursor-pointer hover:bg-muted/40 transition-colors"
+                        >
+                          <TableCell>
+                            {new Date(app.created_at).toLocaleDateString()}
+                          </TableCell>
+                          <TableCell>{app.track}</TableCell>
+                          <TableCell className="font-medium flex items-center gap-1">
+                            {expandedRows[app.id] ? (
+                              <ChevronUp className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                            ) : (
+                              <ChevronDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                            )}
+                            {app.full_name}
+                          </TableCell>
+                          <TableCell>{app.email}</TableCell>
+                          <TableCell>{app.phone}</TableCell>
+                          <TableCell>{app.gender}</TableCell>
+                          <TableCell>{app.date_of_birth || "—"}</TableCell>
+                          <TableCell>{app.state_region}</TableCell>
+                          <TableCell>{app.country}</TableCell>
+                          <TableCell>{app.highest_qualification}</TableCell>
+                          <TableCell>{app.institution || "—"}</TableCell>
+                          <TableCell>{app.course_of_study || "—"}</TableCell>
+                          <TableCell>{app.current_status}</TableCell>
+                          <TableCell>{app.studied_before ? "Yes" : "No"}</TableCell>
+                          <TableCell>{app.experience_level}</TableCell>
+                          <TableCell>{app.has_computer ? "Yes" : "No"}</TableCell>
+                          <TableCell>{app.has_internet ? "Yes" : "No"}</TableCell>
+                          <TableCell>{app.can_commit ? "Yes" : "No"}</TableCell>
+                          <TableCell>{app.heard_from}</TableCell>
+                          <TableCell>{app.referral_code || "—"}</TableCell>
+                          <TableCell>{app.signature}</TableCell>
+                          <TableCell>{app.agreed_to_terms ? "Yes" : "No"}</TableCell>
+                          <TableCell onClick={(e) => e.stopPropagation()}>
+                            <button
+                              onClick={() => toggleNotified(app.id)}
+                              className="focus:outline-none select-none text-left"
+                              title="Click to toggle notification status"
+                            >
+                              {notifiedApps[app.id] ? (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-green-500/15 text-green-400 border border-green-500/20">
+                                  ✅ Notified
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-zinc-500/10 text-muted-foreground border border-zinc-500/15">
+                                  ⏳ Not Sent
+                                </span>
+                              )}
+                            </button>
+                          </TableCell>
+                          <TableCell>
+                            <PaymentBadge status={app.payment_status} />
+                          </TableCell>
+                          <TableCell onClick={(e) => e.stopPropagation()}>
+                            <div className="flex gap-1.5 items-center flex-wrap">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="text-xs border-primary/40 text-primary hover:bg-primary/10 whitespace-nowrap"
+                                title="Extract and view complete student bio for Uget Academy"
+                                onClick={() => setSelectedBioApp(app)}
+                              >
+                                🎓 Bio
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="text-xs whitespace-nowrap"
+                                onClick={() => setNotifyApp(app)}
+                              >
+                                Notify
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => toggleRow(app.id)}
+                                className="text-xs text-muted-foreground p-1 h-8 w-8"
+                              >
+                                {expandedRows[app.id] ? (
+                                  <ChevronUp className="h-4 w-4" />
+                                ) : (
+                                  <ChevronDown className="h-4 w-4" />
+                                )}
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                className="text-xs font-semibold bg-red-600/90 hover:bg-red-700 text-white"
+                                onClick={() => deleteApplication(app.id)}
+                              >
+                                Delete
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+
+                        {expandedRows[app.id] && (
+                          <TableRow className="bg-muted/10 border-b border-border/80" onClick={(e) => e.stopPropagation()}>
+                            <TableCell colSpan={24} className="p-4">
+                              <div className="max-w-3xl rounded-xl border border-border bg-card/65 p-4 space-y-4 shadow-inner">
+                                <h4 className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+                                  Payment Verification Details
+                                </h4>
+                                <div className="grid gap-4 sm:grid-cols-4">
+                                  <div>
+                                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-0.5">Sender Name</div>
+                                    <div className="text-sm font-semibold">{app.payment_sender ?? "—"}</div>
+                                  </div>
+                                  <div>
+                                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-0.5">Reference / Receipt</div>
+                                    {(() => {
+                                      if (!app.payment_ref) return <div className="text-sm font-semibold">—</div>;
+                                      const hasReceipt = app.payment_ref.includes("data:");
+                                      const parts = app.payment_ref.split(" | ");
+                                      const refText = parts.length > 1 ? parts[0] : (hasReceipt ? "" : app.payment_ref);
+                                      const receiptData = hasReceipt ? (parts.length > 1 ? parts[1] : app.payment_ref) : null;
+                                      const isPdf = hasReceipt && receiptData && receiptData.startsWith("data:application/pdf");
+                                      return (
+                                        <div className="space-y-2">
+                                          {refText && <div className="text-sm font-semibold font-mono text-primary/95">{refText}</div>}
+                                          {receiptData && (
+                                            <div className="mt-1">
+                                              <a
+                                                href={receiptData}
+                                                target="_blank"
+                                                rel="noreferrer noopener"
+                                                className="inline-flex items-center gap-1 text-primary hover:underline text-xs font-semibold"
+                                              >
+                                                {isPdf ? "👁️ View PDF Receipt" : "👁️ View Full Receipt"}
+                                              </a>
+                                              <div className="mt-1.5 rounded-lg overflow-hidden border border-border/40 max-w-[200px] bg-card/50 p-1 flex items-center justify-center">
+                                                {isPdf ? (
+                                                  <div className="p-4 flex flex-col items-center gap-1.5 text-muted-foreground select-none">
+                                                    <span className="text-2xl">📄</span>
+                                                    <span className="text-[10px] font-medium">PDF Document</span>
+                                                  </div>
+                                                ) : (
+                                                  <img
+                                                    src={receiptData}
+                                                    alt="Receipt Proof"
+                                                    className="max-h-36 object-contain rounded"
+                                                  />
+                                                )}
+                                              </div>
+                                            </div>
+                                          )}
+                                        </div>
+                                      );
+                                    })()}
+                                  </div>
+                                  <div>
+                                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-0.5">Date Paid</div>
+                                    <div className="text-sm font-semibold">{app.payment_date ?? "—"}</div>
+                                  </div>
+                                  <div>
+                                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-0.5">Amount Paid</div>
+                                    <div className="text-sm font-bold text-primary">
+                                      {app.payment_amount ? fmt(app.payment_amount) : "—"}
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <div className="flex gap-2 pt-2">
+                                  {app.payment_status !== "Paid" && (
+                                    <Button
+                                      size="sm"
+                                      className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-xs px-4"
+                                      onClick={() => updatePaymentStatus(app.id, "Paid")}
+                                    >
+                                      ✓ Mark as Paid
+                                    </Button>
+                                  )}
+                                  {app.payment_status !== "Unpaid" && app.payment_status !== null && (
+                                    <Button
+                                      size="sm"
+                                      variant="destructive"
+                                      className="font-semibold text-xs px-4"
+                                      onClick={() => updatePaymentStatus(app.id, "Unpaid")}
+                                    >
+                                      ✕ Mark as Unpaid
+                                    </Button>
+                                  )}
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="text-xs px-4"
+                                    onClick={() => setNotifyApp(app)}
+                                  >
+                                    Notify Student
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="destructive"
+                                    className="text-xs font-semibold px-4 bg-red-600/90 hover:bg-red-700 text-white"
+                                    onClick={() => deleteApplication(app.id)}
+                                  >
+                                    Delete
+                                  </Button>
+                                </div>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      </Fragment>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+    );
+  };
 
   return (
     <>
@@ -2204,6 +2491,17 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
 
             <div className="flex flex-wrap items-center gap-2">
               <select
+                id="filter-cohort"
+                value={selectedCohort}
+                onChange={(e) => setSelectedCohort(e.target.value as any)}
+                className="h-9 bg-background/50 border border-primary/40 text-primary font-bold rounded-lg px-2.5 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer hover:bg-background/80"
+              >
+                <option value="all">🎓 All Cohorts ({applications.length})</option>
+                <option value="Cohort 1">📂 Cohort 1 ({cohort1Apps.length})</option>
+                <option value="Cohort 2">⚡ Cohort 2 ({cohort2Apps.length})</option>
+              </select>
+
+              <select
                 id="filter-notified"
                 value={notifiedFilter}
                 onChange={(e) => setNotifiedFilter(e.target.value as "all" | "yes" | "no")}
@@ -2236,16 +2534,170 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
           </div>
         </div>
 
-        <Tabs defaultValue="payments" className="w-full">
+        <Tabs defaultValue="cohort1" className="w-full">
           <TabsList className="mb-4 flex flex-wrap h-auto gap-1 w-full">
-            <TabsTrigger value="payments" className="text-xs sm:text-sm flex-1 min-w-[120px]">
-              Payments ({paid.length + pending.length}/{applications.length})
+            <TabsTrigger value="cohort1" className="text-xs sm:text-sm flex-1 min-w-[125px] font-bold">
+              📂 Cohort 1 ({cohort1Apps.length})
             </TabsTrigger>
-            <TabsTrigger value="applications" className="text-xs sm:text-sm flex-1 min-w-[120px]">
-              All ({applications.length})
+            <TabsTrigger value="cohort2" className="text-xs sm:text-sm flex-1 min-w-[125px] font-bold">
+              ⚡ Cohort 2 ({cohort2Apps.length})
             </TabsTrigger>
-            <TabsTrigger value="referrers" className="text-xs sm:text-sm flex-1 min-w-[90px]">Referrers ({referrals.length})</TabsTrigger>
+            <TabsTrigger value="payments" className="text-xs sm:text-sm flex-1 min-w-[110px]">
+              💳 Payments ({paid.length + pending.length}/{applications.length})
+            </TabsTrigger>
+            <TabsTrigger value="applications" className="text-xs sm:text-sm flex-1 min-w-[110px]">
+              👥 All Records ({applications.length})
+            </TabsTrigger>
+            <TabsTrigger value="referrers" className="text-xs sm:text-sm flex-1 min-w-[90px]">
+              🔗 Referrers ({referrals.length})
+            </TabsTrigger>
           </TabsList>
+
+          {/* ── COHORT 1 TAB (ARCHIVE & 180 STUDENTS) ────────────────────── */}
+          <TabsContent value="cohort1" className="space-y-6">
+            <div className="rounded-2xl border border-primary/30 bg-primary/5 p-4 sm:p-5 shadow-sm space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-primary/20 pb-4">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg font-bold text-foreground">Cohort 1 Students & Archive</span>
+                    <span className="rounded-full bg-primary/20 text-primary border border-primary/40 px-2.5 py-0.5 text-xs font-bold">
+                      {cohort1Apps.length} Applicants
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Previous scholarship cohort database. All 180 original applicants are preserved here.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Button
+                    onClick={() => {
+                      setSelectedCohort("Cohort 1");
+                      exportAcademyBioCsv(false);
+                    }}
+                    size="sm"
+                    variant="outline"
+                    className="border-emerald-500/50 text-emerald-400 hover:bg-emerald-500/10 text-xs"
+                  >
+                    <FileSpreadsheet className="h-3.5 w-3.5 mr-1" /> Export Cohort 1 Bio
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setSelectedCohort("Cohort 1");
+                      downloadCSV();
+                    }}
+                    size="sm"
+                    variant="outline"
+                    className="text-xs"
+                  >
+                    Raw Cohort 1 CSV
+                  </Button>
+                </div>
+              </div>
+
+              {/* Cohort 1 Stat Cards */}
+              <div className="grid gap-3 sm:grid-cols-3">
+                <div className="rounded-xl border border-primary/30 bg-primary/10 p-3.5">
+                  <div className="text-xl font-extrabold text-primary">{cohort1Paid.length}</div>
+                  <div className="text-xs text-muted-foreground mt-0.5 font-medium">Paid Students</div>
+                </div>
+                <div className="rounded-xl border border-yellow-500/30 bg-yellow-500/10 p-3.5">
+                  <div className="text-xl font-extrabold text-yellow-400">{cohort1Pending.length}</div>
+                  <div className="text-xs text-muted-foreground mt-0.5 font-medium">Pending Verification</div>
+                </div>
+                <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-3.5">
+                  <div className="text-xl font-extrabold text-destructive">{cohort1Unpaid.length}</div>
+                  <div className="text-xs text-muted-foreground mt-0.5 font-medium">Unpaid Applicants</div>
+                </div>
+              </div>
+
+              {/* Purge Cohort 1 Unpaid Button */}
+              {cohort1Unpaid.length > 0 && (
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-destructive/40 bg-destructive/10 p-3.5">
+                  <div>
+                    <h5 className="text-xs font-bold text-destructive flex items-center gap-1.5">
+                      <span>🗑️</span> Purge Unpaid Cohort 1 Students
+                    </h5>
+                    <p className="text-[11px] text-muted-foreground mt-0.5">
+                      Delete all {cohort1Unpaid.length} unpaid applicants from Cohort 1 so only verified paid students remain.
+                    </p>
+                  </div>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={purgeUnpaidApplications}
+                    className="shrink-0 font-bold text-xs shadow-sm hover:scale-[1.02] transition-transform"
+                  >
+                    Purge {cohort1Unpaid.length} Unpaid
+                  </Button>
+                </div>
+              )}
+            </div>
+
+            {renderApplicationsTable(filteredAndSortedApplications.filter((a) => !a.cohort || a.cohort === "Cohort 1"))}
+          </TabsContent>
+
+          {/* ── COHORT 2 TAB (ACTIVE ADMISSIONS) ─────────────────────────── */}
+          <TabsContent value="cohort2" className="space-y-6">
+            <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-4 sm:p-5 shadow-sm space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-emerald-500/20 pb-4">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg font-bold text-foreground">Cohort 2 Enrollments (Active)</span>
+                    <span className="rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 px-2.5 py-0.5 text-xs font-bold">
+                      Starting This Month
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    New scholarship students. Requires upfront ₦3,000 Paystack payment. Unpaid submissions are blocked.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Button
+                    onClick={() => {
+                      setSelectedCohort("Cohort 2");
+                      exportAcademyBioCsv(true);
+                    }}
+                    size="sm"
+                    variant="outline"
+                    className="border-emerald-500/50 text-emerald-400 hover:bg-emerald-500/10 text-xs"
+                  >
+                    <FileSpreadsheet className="h-3.5 w-3.5 mr-1" /> Export Cohort 2 Bio
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setSelectedCohort("Cohort 2");
+                      downloadCSV();
+                    }}
+                    size="sm"
+                    variant="outline"
+                    className="text-xs"
+                  >
+                    Raw Cohort 2 CSV
+                  </Button>
+                </div>
+              </div>
+
+              {/* Cohort 2 Stat Cards */}
+              <div className="grid gap-3 sm:grid-cols-3">
+                <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3.5">
+                  <div className="text-xl font-extrabold text-emerald-400">{cohort2Apps.length}</div>
+                  <div className="text-xs text-muted-foreground mt-0.5 font-medium">Total Cohort 2 Enrolled</div>
+                </div>
+                <div className="rounded-xl border border-primary/30 bg-primary/10 p-3.5">
+                  <div className="text-xl font-extrabold text-primary">{fmt(cohort2TotalRevenue)}</div>
+                  <div className="text-xs text-muted-foreground mt-0.5 font-medium">Total Fees Collected</div>
+                </div>
+                <div className="rounded-xl border border-blue-500/30 bg-blue-500/10 p-3.5">
+                  <div className="text-xl font-extrabold text-blue-400">₦3,000</div>
+                  <div className="text-xs text-muted-foreground mt-0.5 font-medium">Standard Flat Fee</div>
+                </div>
+              </div>
+            </div>
+
+            {renderApplicationsTable(filteredAndSortedApplications.filter((a) => a.cohort === "Cohort 2"))}
+          </TabsContent>
 
           {/* ── PAYMENTS TAB ─────────────────────────────────────────────── */}
           <TabsContent value="payments" className="space-y-6">
@@ -2456,265 +2908,13 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
           </TabsContent>
 
           {/* ── ALL APPLICATIONS TAB ──────────────────────────────────────── */}
-          <TabsContent value="applications" className="border rounded-lg shadow-sm">
-            <div className="overflow-x-auto whitespace-nowrap">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    {renderSortableHeader("created_at", "Date")}
-                    {renderSortableHeader("track", "Track")}
-                    {renderSortableHeader("full_name", "Full Name")}
-                    {renderSortableHeader("email", "Email")}
-                    {renderSortableHeader("phone", "Phone")}
-                    {renderSortableHeader("gender", "Gender")}
-                    {renderSortableHeader("date_of_birth", "DOB")}
-                    {renderSortableHeader("state_region", "State/Region")}
-                    {renderSortableHeader("country", "Country")}
-                    {renderSortableHeader("highest_qualification", "Highest Qual.")}
-                    {renderSortableHeader("institution", "Institution")}
-                    {renderSortableHeader("course_of_study", "Course of Study")}
-                    {renderSortableHeader("current_status", "Current Status")}
-                    {renderSortableHeader("studied_before", "Studied Before")}
-                    {renderSortableHeader("experience_level", "Exp. Level")}
-                    {renderSortableHeader("has_computer", "Has Computer")}
-                    {renderSortableHeader("has_internet", "Has Internet")}
-                    {renderSortableHeader("can_commit", "Can Commit")}
-                    {renderSortableHeader("heard_from", "Heard From")}
-                    {renderSortableHeader("referral_code", "Referral Code")}
-                    {renderSortableHeader("signature", "Signature")}
-                    {renderSortableHeader("agreed_to_terms", "Agreed to Terms")}
-                    {renderSortableHeader("notified", "Notified")}
-                    {renderSortableHeader("payment_status", "Payment Status")}
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {loading ? (
-                    <TableRow>
-                      <TableCell colSpan={24} className="text-center py-4">
-                        Loading...
-                      </TableCell>
-                    </TableRow>
-                  ) : filteredAndSortedApplications.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={24} className="text-center py-4">
-                        No applications found.
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    filteredAndSortedApplications.map((app, i) => (
-                      <Fragment key={app.id || i}>
-                        <TableRow
-                          onClick={() => toggleRow(app.id)}
-                          className="cursor-pointer hover:bg-muted/40 transition-colors"
-                        >
-                          <TableCell>
-                            {new Date(app.created_at).toLocaleDateString()}
-                          </TableCell>
-                          <TableCell>{app.track}</TableCell>
-                          <TableCell className="font-medium flex items-center gap-1">
-                            {expandedRows[app.id] ? (
-                              <ChevronUp className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                            ) : (
-                              <ChevronDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                            )}
-                            {app.full_name}
-                          </TableCell>
-                          <TableCell>{app.email}</TableCell>
-                          <TableCell>{app.phone}</TableCell>
-                          <TableCell>{app.gender}</TableCell>
-                          <TableCell>{app.date_of_birth || "—"}</TableCell>
-                          <TableCell>{app.state_region}</TableCell>
-                          <TableCell>{app.country}</TableCell>
-                          <TableCell>{app.highest_qualification}</TableCell>
-                          <TableCell>{app.institution || "—"}</TableCell>
-                          <TableCell>{app.course_of_study || "—"}</TableCell>
-                          <TableCell>{app.current_status}</TableCell>
-                          <TableCell>{app.studied_before ? "Yes" : "No"}</TableCell>
-                          <TableCell>{app.experience_level}</TableCell>
-                          <TableCell>{app.has_computer ? "Yes" : "No"}</TableCell>
-                          <TableCell>{app.has_internet ? "Yes" : "No"}</TableCell>
-                          <TableCell>{app.can_commit ? "Yes" : "No"}</TableCell>
-                          <TableCell>{app.heard_from}</TableCell>
-                          <TableCell>{app.referral_code || "—"}</TableCell>
-                          <TableCell>{app.signature}</TableCell>
-                          <TableCell>{app.agreed_to_terms ? "Yes" : "No"}</TableCell>
-                          <TableCell onClick={(e) => e.stopPropagation()}>
-                            <button
-                              onClick={() => toggleNotified(app.id)}
-                              className="focus:outline-none select-none text-left"
-                              title="Click to toggle notification status"
-                            >
-                              {notifiedApps[app.id] ? (
-                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-green-500/15 text-green-400 border border-green-500/20">
-                                  ✅ Notified
-                                </span>
-                              ) : (
-                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-zinc-500/10 text-muted-foreground border border-zinc-500/15">
-                                  ⏳ Not Sent
-                                </span>
-                              )}
-                            </button>
-                          </TableCell>
-                          <TableCell>
-                            <PaymentBadge status={app.payment_status} />
-                          </TableCell>
-                          <TableCell onClick={(e) => e.stopPropagation()}>
-                            <div className="flex gap-1.5 items-center flex-wrap">
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="text-xs border-primary/40 text-primary hover:bg-primary/10 whitespace-nowrap"
-                                title="Extract and view complete student bio for Uget Academy"
-                                onClick={() => setSelectedBioApp(app)}
-                              >
-                                🎓 Bio
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="text-xs whitespace-nowrap"
-                                onClick={() => setNotifyApp(app)}
-                              >
-                                Notify
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => toggleRow(app.id)}
-                                className="text-xs text-muted-foreground p-1 h-8 w-8"
-                              >
-                                {expandedRows[app.id] ? (
-                                  <ChevronUp className="h-4 w-4" />
-                                ) : (
-                                  <ChevronDown className="h-4 w-4" />
-                                )}
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="destructive"
-                                className="text-xs font-semibold bg-red-600/90 hover:bg-red-700 text-white"
-                                onClick={() => deleteApplication(app.id)}
-                              >
-                                Delete
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-
-                        {expandedRows[app.id] && (
-                          <TableRow className="bg-muted/10 border-b border-border/80" onClick={(e) => e.stopPropagation()}>
-                            <TableCell colSpan={24} className="p-4">
-                              <div className="max-w-3xl rounded-xl border border-border bg-card/65 p-4 space-y-4 shadow-inner">
-                                <h4 className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
-                                  Payment Verification Details
-                                </h4>
-                                <div className="grid gap-4 sm:grid-cols-4">
-                                  <div>
-                                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-0.5">Sender Name</div>
-                                    <div className="text-sm font-semibold">{app.payment_sender ?? "—"}</div>
-                                  </div>
-                                  <div>
-                                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-0.5">Reference / Receipt</div>
-                                    {(() => {
-                                      if (!app.payment_ref) return <div className="text-sm font-semibold">—</div>;
-                                      const hasReceipt = app.payment_ref.includes("data:");
-                                      const parts = app.payment_ref.split(" | ");
-                                      const refText = parts.length > 1 ? parts[0] : (hasReceipt ? "" : app.payment_ref);
-                                      const receiptData = hasReceipt ? (parts.length > 1 ? parts[1] : app.payment_ref) : null;
-                                      const isPdf = hasReceipt && receiptData && receiptData.startsWith("data:application/pdf");
-                                      return (
-                                        <div className="space-y-2">
-                                          {refText && <div className="text-sm font-semibold font-mono text-primary/95">{refText}</div>}
-                                          {receiptData && (
-                                            <div className="mt-1">
-                                              <a
-                                                href={receiptData}
-                                                target="_blank"
-                                                rel="noreferrer noopener"
-                                                className="inline-flex items-center gap-1 text-primary hover:underline text-xs font-semibold"
-                                              >
-                                                {isPdf ? "👁️ View PDF Receipt" : "👁️ View Full Receipt"}
-                                              </a>
-                                              <div className="mt-1.5 rounded-lg overflow-hidden border border-border/40 max-w-[200px] bg-card/50 p-1 flex items-center justify-center">
-                                                {isPdf ? (
-                                                  <div className="p-4 flex flex-col items-center gap-1.5 text-muted-foreground select-none">
-                                                    <span className="text-2xl">📄</span>
-                                                    <span className="text-[10px] font-medium">PDF Document</span>
-                                                  </div>
-                                                ) : (
-                                                  <img
-                                                    src={receiptData}
-                                                    alt="Receipt Proof"
-                                                    className="max-h-36 object-contain rounded"
-                                                  />
-                                                )}
-                                              </div>
-                                            </div>
-                                          )}
-                                        </div>
-                                      );
-                                    })()}
-                                  </div>
-                                  <div>
-                                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-0.5">Date Paid</div>
-                                    <div className="text-sm font-semibold">{app.payment_date ?? "—"}</div>
-                                  </div>
-                                  <div>
-                                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-0.5">Amount Paid</div>
-                                    <div className="text-sm font-bold text-primary">
-                                      {app.payment_amount ? fmt(app.payment_amount) : "—"}
-                                    </div>
-                                  </div>
-                                </div>
-
-                                <div className="flex gap-2 pt-2">
-                                  {app.payment_status !== "Paid" && (
-                                    <Button
-                                      size="sm"
-                                      className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-xs px-4"
-                                      onClick={() => updatePaymentStatus(app.id, "Paid")}
-                                    >
-                                      ✓ Mark as Paid
-                                    </Button>
-                                  )}
-                                  {app.payment_status !== "Unpaid" && app.payment_status !== null && (
-                                    <Button
-                                      size="sm"
-                                      variant="destructive"
-                                      className="font-semibold text-xs px-4"
-                                      onClick={() => updatePaymentStatus(app.id, "Unpaid")}
-                                    >
-                                      ✕ Mark as Unpaid
-                                    </Button>
-                                  )}
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    className="text-xs px-4"
-                                    onClick={() => setNotifyApp(app)}
-                                  >
-                                    Notify Student
-                                  </Button>
-                                  <Button
-                                    size="sm"
-                                    variant="destructive"
-                                    className="text-xs font-semibold px-4 bg-red-600/90 hover:bg-red-700 text-white"
-                                    onClick={() => deleteApplication(app.id)}
-                                  >
-                                    Delete
-                                  </Button>
-                                </div>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        )}
-                      </Fragment>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
+          <TabsContent value="applications" className="space-y-4">
+            <div className="flex justify-between items-center px-1">
+              <span className="text-xs font-semibold text-muted-foreground">
+                Showing all scholarship candidates across Cohort 1 and Cohort 2 ({filteredAndSortedApplications.length} total)
+              </span>
             </div>
+            {renderApplicationsTable(filteredAndSortedApplications)}
           </TabsContent>
 
           {/* ── REFERRERS TAB ────────────────────────────────────────────── */}
