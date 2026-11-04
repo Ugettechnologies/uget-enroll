@@ -1708,7 +1708,7 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
         setLoading(false);
         return;
       }
-      const [appsRes, refsRes] = await Promise.all([
+      const [appsRes, refsRes, paymentsRes] = await Promise.all([
         supabase
           .from("scholarship_applications")
           .select("*")
@@ -1717,18 +1717,31 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
           .from("referral_codes")
           .select("*")
           .order("created_at", { ascending: false }),
+        supabase
+          .from("payments")
+          .select("*")
+          .order("created_at", { ascending: false }),
       ]);
+
+      const paymentsMap = new Map();
+      if (paymentsRes.data) {
+        for (const p of paymentsRes.data) {
+          paymentsMap.set(p.application_id, p);
+        }
+      }
+
       if (appsRes.data) {
         const mapped = appsRes.data.map((app: any) => {
-          const p = Array.isArray(app.payments) ? app.payments[0] : app.payments;
+          const p = paymentsMap.get(app.id) || (Array.isArray(app.payments) ? app.payments[0] : app.payments);
           return {
             ...app,
+            payment_id: p?.id || null,
             cohort: app.cohort || "Cohort 1",
-            payment_status: app.payment_status || p?.payment_status || "Unpaid",
-            payment_sender: app.payment_sender || p?.payment_sender || null,
-            payment_amount: app.payment_amount ?? p?.payment_amount ?? null,
-            payment_date: app.payment_date || p?.payment_date || null,
-            payment_ref: app.payment_ref || p?.payment_ref || null,
+            payment_status: p?.payment_status || app.payment_status || "Unpaid",
+            payment_sender: p?.payment_sender || app.payment_sender || null,
+            payment_amount: p?.payment_amount ?? app.payment_amount ?? null,
+            payment_date: p?.payment_date || app.payment_date || null,
+            payment_ref: p?.payment_ref || app.payment_ref || null,
           };
         });
         setApplications(mapped);
@@ -1864,56 +1877,78 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
 
   const purgeUnpaidApplications = async () => {
     if (!supabase) return;
-    const unpaidList = applications.filter((a) => !a.payment_status || a.payment_status !== "Paid");
+    const unpaidList = applications.filter((a) => {
+      const s = a.payment_status;
+      return !s || s === "Unpaid";
+    });
     if (unpaidList.length === 0) {
-      alert("No unpaid applications found. All students in the database have paid!");
+      alert("No unpaid applications found. All candidates in the database have paid or are verified!");
       return;
     }
+    const paidCount = applications.length - unpaidList.length;
     const confirmed = confirm(
-      `⚠️ WARNING: You are about to permanently delete all ${unpaidList.length} unpaid applicants from the database.\n\nOnly students who paid in Cohort 1 (or paid in Cohort 2) will remain.\n\nAre you sure you want to proceed?`
+      `⚠️ PERMANENT DELETE CONFIRMATION:\n\n` +
+      `You are about to delete ${unpaidList.length} UNPAID applicants from the database.\n\n` +
+      `🛡️ SAFETY GUARANTEE: All ${paidCount} students who PAID will be strictly PRESERVED.\n\n` +
+      `Are you sure you want to proceed?`
     );
     if (!confirmed) return;
 
     try {
       const ids = unpaidList.map((a) => a.id);
-      const { error } = await supabase
-        .from("scholarship_applications")
-        .delete()
-        .in("id", ids);
-
-      if (error) {
-        alert("Error purging unpaid applications: " + error.message);
-      } else {
-        setApplications((prev) => prev.filter((a) => a.payment_status === "Paid"));
-        alert(`✅ Successfully purged ${unpaidList.length} unpaid applications. Only paid students remain.`);
+      const batchSize = 40;
+      for (let i = 0; i < ids.length; i += batchSize) {
+        const batch = ids.slice(i, i + batchSize);
+        try {
+          await supabase.from("payments").delete().in("application_id", batch);
+        } catch (_) {}
+        const { error } = await supabase
+          .from("scholarship_applications")
+          .delete()
+          .in("id", batch);
+        if (error) throw error;
       }
+
+      setApplications((prev) => prev.filter((a) => a.payment_status === "Paid" || a.payment_status === "Pending Verification"));
+      alert(`✅ Successfully purged ${unpaidList.length} unpaid applications!\n\nAll ${paidCount} paid students remain safe and intact in the database.`);
     } catch (err: any) {
-      alert("Failed to delete unpaid records: " + (err.message || err));
+      alert("Error purging unpaid applications: " + (err.message || err));
     }
   };
 
   async function updatePaymentStatus(id: string, status: string) {
     if (!supabase) return;
-    // Update scholarship_applications directly (matches new database table schema)
-    const { error } = await supabase
-      .from("scholarship_applications")
-      .update({ payment_status: status })
-      .eq("id", id);
-
-    if (!error) {
-      setApplications((prev) =>
-        prev.map((a) => (a.id === id ? { ...a, payment_status: status } : a)),
-      );
-    } else {
-      alert("Error updating payment status: " + error.message);
-    }
-
-    // Also attempt updating legacy payments table if it exists
     try {
-      await supabase
+      const { data: existing } = await supabase
         .from("payments")
-        .upsert({ application_id: id, payment_status: status }, { onConflict: "application_id" });
-    } catch (_) {}
+        .select("id")
+        .eq("application_id", id)
+        .maybeSingle();
+
+      let err = null;
+      if (existing) {
+        const res = await supabase
+          .from("payments")
+          .update({ payment_status: status })
+          .eq("application_id", id);
+        err = res.error;
+      } else {
+        const res = await supabase
+          .from("payments")
+          .insert({ application_id: id, payment_status: status });
+        err = res.error;
+      }
+
+      if (!err) {
+        setApplications((prev) =>
+          prev.map((a) => (a.id === id ? { ...a, payment_status: status } : a)),
+        );
+      } else {
+        alert("Error updating payment status: " + err.message);
+      }
+    } catch (e: any) {
+      alert("Error: " + (e.message || e));
+    }
   }
 
   const paid = applications.filter((a) => a.payment_status === "Paid");
@@ -2534,16 +2569,19 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
           </div>
         </div>
 
-        <Tabs defaultValue="cohort1" className="w-full">
+        <Tabs defaultValue="paid_students" className="w-full">
           <TabsList className="mb-4 flex flex-wrap h-auto gap-1 w-full">
+            <TabsTrigger value="paid_students" className="text-xs sm:text-sm flex-1 min-w-[135px] font-bold text-emerald-400">
+              🌟 Paid Students ({paid.length + pending.length})
+            </TabsTrigger>
+            <TabsTrigger value="unpaid_students" className="text-xs sm:text-sm flex-1 min-w-[135px] font-bold text-rose-400">
+              🗑️ Unpaid Applicants ({unpaid.length})
+            </TabsTrigger>
             <TabsTrigger value="cohort1" className="text-xs sm:text-sm flex-1 min-w-[125px] font-bold">
               📂 Cohort 1 ({cohort1Apps.length})
             </TabsTrigger>
             <TabsTrigger value="cohort2" className="text-xs sm:text-sm flex-1 min-w-[125px] font-bold">
               ⚡ Cohort 2 ({cohort2Apps.length})
-            </TabsTrigger>
-            <TabsTrigger value="payments" className="text-xs sm:text-sm flex-1 min-w-[110px]">
-              💳 Payments ({paid.length + pending.length}/{applications.length})
             </TabsTrigger>
             <TabsTrigger value="applications" className="text-xs sm:text-sm flex-1 min-w-[110px]">
               👥 All Records ({applications.length})
@@ -2552,6 +2590,112 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
               🔗 Referrers ({referrals.length})
             </TabsTrigger>
           </TabsList>
+
+          {/* ── PAID STUDENTS SHEET (REGISTRATION + PAYMENT DATA) ─────────── */}
+          <TabsContent value="paid_students" className="space-y-6">
+            <div className="rounded-2xl border border-emerald-500/40 bg-emerald-500/10 p-4 sm:p-5 shadow-sm space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-emerald-500/20 pb-4">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg font-bold text-foreground">Verified Paid Students</span>
+                    <span className="rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 px-2.5 py-0.5 text-xs font-bold">
+                      {paid.length + pending.length} Total Enrolled
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Complete student registration profiles linked with their verified payment records. Safe from any deletion.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Button
+                    onClick={() => exportAcademyBioCsv(true)}
+                    size="sm"
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs shadow-sm flex items-center gap-1.5"
+                  >
+                    <FileSpreadsheet className="h-3.5 w-3.5" />
+                    <span>Export Paid Students Sheet (CSV)</span>
+                  </Button>
+                  <Button
+                    onClick={() => exportAcademyBioJson(true)}
+                    size="sm"
+                    variant="outline"
+                    className="border-emerald-500/50 text-emerald-400 hover:bg-emerald-500/10 text-xs flex items-center gap-1.5"
+                  >
+                    <FileJson className="h-3.5 w-3.5" />
+                    <span>Export Paid JSON</span>
+                  </Button>
+                </div>
+              </div>
+
+              {/* Paid Stats */}
+              <div className="grid gap-3 sm:grid-cols-3">
+                <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/15 p-3.5">
+                  <div className="text-xl font-extrabold text-emerald-400">{paid.length}</div>
+                  <div className="text-xs text-muted-foreground mt-0.5 font-medium">Fully Confirmed Paid</div>
+                </div>
+                <div className="rounded-xl border border-yellow-500/30 bg-yellow-500/15 p-3.5">
+                  <div className="text-xl font-extrabold text-yellow-400">{pending.length}</div>
+                  <div className="text-xs text-muted-foreground mt-0.5 font-medium">Pending Verification</div>
+                </div>
+                <div className="rounded-xl border border-primary/30 bg-primary/15 p-3.5">
+                  <div className="text-xl font-extrabold text-primary">
+                    {fmt(paid.reduce((sum, a) => sum + (Number(a.payment_amount) || 0), 0))}
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-0.5 font-medium">Total Revenue Collected</div>
+                </div>
+              </div>
+            </div>
+
+            {renderApplicationsTable(
+              filteredAndSortedApplications.filter(
+                (a) => a.payment_status === "Paid" || a.payment_status === "Pending Verification",
+              ),
+            )}
+          </TabsContent>
+
+          {/* ── UNPAID APPLICANTS TAB (EASY TO DELETE THOSE WHO DID NOT PAY) ─── */}
+          <TabsContent value="unpaid_students" className="space-y-6">
+            <div className="rounded-2xl border border-destructive/40 bg-destructive/10 p-4 sm:p-5 shadow-sm space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-destructive/20 pb-4">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg font-bold text-foreground">Unpaid Applicants</span>
+                    <span className="rounded-full bg-destructive/20 text-destructive border border-destructive/40 px-2.5 py-0.5 text-xs font-bold">
+                      {unpaid.length} Records
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Applicants who filled the scholarship registration form but have NOT paid. You can safely purge them all below.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2 flex-wrap">
+                  {unpaid.length > 0 && (
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={purgeUnpaidApplications}
+                      className="font-bold text-xs shadow-md hover:scale-[1.02] transition-transform flex items-center gap-1.5"
+                    >
+                      <span>🗑️</span>
+                      <span>Delete All {unpaid.length} Unpaid Applicants</span>
+                    </Button>
+                  )}
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-border/60 bg-card/60 p-3.5 text-xs text-muted-foreground">
+                <span className="text-emerald-400 font-semibold">🛡️ Protected:</span> Deleting unpaid applicants will <strong className="text-foreground">never</strong> affect the {paid.length + pending.length} paid students. They are kept 100% safe.
+              </div>
+            </div>
+
+            {renderApplicationsTable(
+              filteredAndSortedApplications.filter(
+                (a) => !a.payment_status || a.payment_status === "Unpaid",
+              ),
+            )}
+          </TabsContent>
 
           {/* ── COHORT 1 TAB (ARCHIVE & 180 STUDENTS) ────────────────────── */}
           <TabsContent value="cohort1" className="space-y-6">
