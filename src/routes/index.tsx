@@ -183,7 +183,7 @@ function RegistrationPage() {
         payment_date: new Date().toISOString().split("T")[0],
         payment_ref: paymentDetails.ref,
       }]);
-    } catch (_) {}
+    } catch (_) { }
 
     const completed = {
       ...insertedApp,
@@ -357,7 +357,7 @@ function RegistrationPage() {
           }}
         />
 
-        <div className="relative mx-auto max-w-5xl px-6 py-16 sm:py-24 text-center">
+        <div className="relative mx-auto max-w-5xl px-4 sm:px-6 py-12 sm:py-20 text-center">
           <div className="animate-fade-in">
             <div className="relative inline-block">
               <div
@@ -377,7 +377,7 @@ function RegistrationPage() {
               : "Uget Academy · Cohort Registration Closed"}
           </p>
           <h1
-            className="mt-4 text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight animate-fade-in"
+            className="mt-4 text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight animate-fade-in leading-tight"
             style={{ animationDelay: "160ms", animationFillMode: "backwards" }}
           >
             Tech Scholarship{" "}
@@ -441,9 +441,9 @@ function RegistrationPage() {
 
       {/* Stepper + Form / Registration Closed Notice / Success Screen */}
       {REGISTRATION_OPEN ? (
-        <main id="apply" className="mx-auto max-w-3xl px-6 py-16 scroll-mt-8">
+        <main id="apply" className="mx-auto max-w-3xl px-3.5 sm:px-6 py-8 sm:py-16 scroll-mt-8">
           {status === "success" && enrolledStudent ? (
-            <div className="rounded-2xl border border-primary/40 bg-card/70 p-6 sm:p-10 text-center backdrop-blur-md shadow-2xl animate-scale-in">
+            <div className="rounded-2xl border border-primary/40 bg-card/70 p-4 sm:p-10 text-center backdrop-blur-md shadow-2xl animate-scale-in">
               <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
                 <svg className="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
@@ -954,7 +954,7 @@ function RegistrationPage() {
                                   <button
                                     type="button"
                                     onClick={copyAccountNumber}
-                                    className="px-2 py-0.5 rounded text-[11px] font-semibold bg-primary/20 text-primary border border-primary/30 hover:bg-primary/30 transition-colors cursor-pointer"
+                                    className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-primary/20 text-primary border border-primary/30 hover:bg-primary/30 active:scale-95 transition-all cursor-pointer min-h-[36px]"
                                     title="Click to copy account number"
                                   >
                                     {copiedBank ? "Copied! ✅" : "Copy 📋"}
@@ -973,11 +973,10 @@ function RegistrationPage() {
                               <button
                                 type="button"
                                 onClick={() => setPaymentMethod("paystack")}
-                                className={`p-4 rounded-xl border text-left transition-all cursor-pointer ${
-                                  paymentMethod === "paystack"
+                                className={`p-4 rounded-xl border text-left transition-all cursor-pointer ${paymentMethod === "paystack"
                                     ? "border-primary bg-primary/15 shadow-sm ring-1 ring-primary"
                                     : "border-border/80 bg-card/50 hover:bg-card"
-                                }`}
+                                  }`}
                               >
                                 <div className="flex items-center justify-between">
                                   <span className="text-sm font-bold text-foreground flex items-center gap-2">
@@ -993,11 +992,10 @@ function RegistrationPage() {
                               <button
                                 type="button"
                                 onClick={() => setPaymentMethod("direct_transfer")}
-                                className={`p-4 rounded-xl border text-left transition-all cursor-pointer ${
-                                  paymentMethod === "direct_transfer"
+                                className={`p-4 rounded-xl border text-left transition-all cursor-pointer ${paymentMethod === "direct_transfer"
                                     ? "border-primary bg-primary/15 shadow-sm ring-1 ring-primary"
                                     : "border-border/80 bg-card/50 hover:bg-card"
-                                }`}
+                                  }`}
                               >
                                 <div className="flex items-center justify-between">
                                   <span className="text-sm font-bold text-foreground flex items-center gap-2">
@@ -1064,14 +1062,14 @@ function RegistrationPage() {
                           <li>All information provided is authentic and accurate.</li>
                         </ul>
                       </div>
-                      <label className="flex items-start gap-3 text-sm cursor-pointer group">
+                      <label className="flex items-start gap-3 text-xs sm:text-sm cursor-pointer group py-1 select-none">
                         <input
                           type="checkbox"
                           name="agreed_to_terms"
                           required
-                          className="mt-1 h-4 w-4 accent-primary"
+                          className="mt-0.5 h-4 w-4 sm:h-5 sm:w-5 accent-primary shrink-0 cursor-pointer"
                         />
-                        <span className="transition-colors group-hover:text-foreground">
+                        <span className="transition-colors group-hover:text-foreground leading-relaxed">
                           I agree to the terms and conditions of the Uget Academy Cohort 2 Tech Scholarship.
                         </span>
                       </label>
@@ -1176,19 +1174,18 @@ function Stepper({ currentStep }: { currentStep: number }) {
             <div key={s.id} className="flex flex-1 items-center gap-3">
               <div className="flex flex-col items-center text-center flex-1">
                 <div
-                  className={`relative flex h-11 w-11 items-center justify-center rounded-full border-2 font-semibold text-sm transition-all duration-500 ${
-                    isCurrent
+                  className={`relative flex h-9 w-9 sm:h-11 sm:w-11 items-center justify-center rounded-full border-2 font-semibold text-xs sm:text-sm transition-all duration-500 ${isCurrent
                       ? "border-primary text-primary-foreground scale-110"
                       : isDone
                         ? "border-primary/70 text-primary-foreground"
                         : "border-border text-muted-foreground"
-                  }`}
+                    }`}
                   style={
                     isCurrent || isDone
                       ? {
-                          background: "var(--gradient-brand)",
-                          boxShadow: isCurrent ? "var(--shadow-glow)" : undefined,
-                        }
+                        background: "var(--gradient-brand)",
+                        boxShadow: isCurrent ? "var(--shadow-glow)" : undefined,
+                      }
                       : undefined
                   }
                 >
@@ -1222,7 +1219,7 @@ function Stepper({ currentStep }: { currentStep: number }) {
                 </div>
               </div>
               {i < STEPS.length - 1 && (
-                <div className="relative h-0.5 flex-1 -mt-7 sm:-mt-12 overflow-hidden rounded-full bg-border">
+                <div className="relative h-0.5 flex-1 -mt-5 sm:-mt-12 overflow-hidden rounded-full bg-border">
                   <div
                     className="absolute inset-y-0 left-0 transition-all duration-700"
                     style={{
@@ -1411,7 +1408,7 @@ function Footer() {
 }
 
 const inputCls =
-  "w-full rounded-lg border border-border bg-input px-3.5 py-2.5 text-sm text-foreground outline-none transition-all duration-200 focus:border-ring focus:ring-2 focus:ring-ring/30 focus:bg-input/80 placeholder:text-muted-foreground hover:border-border/80";
+  "w-full rounded-lg border border-border bg-input px-3.5 py-2.5 text-base sm:text-sm text-foreground outline-none transition-all duration-200 focus:border-ring focus:ring-2 focus:ring-ring/30 focus:bg-input/80 placeholder:text-muted-foreground hover:border-border/80 min-h-[44px]";
 const selectCls = inputCls + " appearance-none cursor-pointer";
 
 function Section({
@@ -1424,7 +1421,7 @@ function Section({
   children: ReactNode;
 }) {
   return (
-    <section className="rounded-2xl border border-border bg-card/60 p-6 sm:p-8 shadow-sm backdrop-blur-sm transition-all duration-300 hover:border-border/80 hover:shadow-lg">
+    <section className="rounded-2xl border border-border bg-card/60 p-4 sm:p-7 shadow-sm backdrop-blur-sm transition-all duration-300 hover:border-border/80 hover:shadow-lg">
       <h2 className="text-lg sm:text-xl font-semibold tracking-tight">{title}</h2>
       {subtitle && <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>}
       <div className="mt-5 space-y-4">{children}</div>

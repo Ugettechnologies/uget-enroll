@@ -88,7 +88,7 @@ interface Applicant extends StudentBioRecord {
 }
 
 const inputCls =
-  "w-full rounded-lg border border-border bg-input px-3.5 py-2.5 text-sm text-foreground outline-none transition-all duration-200 focus:border-ring focus:ring-2 focus:ring-ring/30 focus:bg-input/80 placeholder:text-muted-foreground hover:border-border/80";
+  "w-full rounded-lg border border-border bg-input px-3.5 py-2.5 text-base sm:text-sm text-foreground outline-none transition-all duration-200 focus:border-ring focus:ring-2 focus:ring-ring/30 focus:bg-input/80 placeholder:text-muted-foreground hover:border-border/80 min-h-[44px]";
 
 function PaymentPage() {
   const [email, setEmail] = useState("");
@@ -490,7 +490,7 @@ function PaymentPage() {
   }
 
   const selectCls =
-    "w-full rounded-lg border border-border bg-input px-3.5 py-2.5 text-sm text-foreground outline-none transition-all duration-200 focus:border-ring focus:ring-2 focus:ring-ring/30 focus:bg-input/80 hover:border-border/80 appearance-none cursor-pointer";
+    "w-full rounded-lg border border-border bg-input px-3.5 py-2.5 text-base sm:text-sm text-foreground outline-none transition-all duration-200 focus:border-ring focus:ring-2 focus:ring-ring/30 focus:bg-input/80 hover:border-border/80 appearance-none cursor-pointer min-h-[44px]";
 
   return (
     <div className="min-h-screen overflow-x-hidden" style={{ background: "var(--gradient-hero)" }}>
@@ -525,7 +525,7 @@ function PaymentPage() {
         </div>
       </header>
 
-      <main className="relative mx-auto max-w-2xl px-6 py-14">
+      <main className="relative mx-auto max-w-2xl px-3.5 sm:px-6 py-8 sm:py-14">
         {/* Title */}
         <div className="mb-10 text-center animate-fade-in">
           <p className="text-xs font-semibold uppercase tracking-[0.35em] text-primary mb-3">
@@ -548,7 +548,7 @@ function PaymentPage() {
         {/* Step 1 — Email Lookup */}
         {lookupStatus !== "found" && submitStatus !== "success" && (
           <div
-            className="rounded-2xl border border-border/60 p-6 sm:p-8 mb-6 animate-fade-in"
+            className="rounded-2xl border border-border/60 p-4 sm:p-8 mb-6 animate-fade-in"
             style={{ background: "oklch(0.21 0.06 280 / 0.7)", backdropFilter: "blur(12px)" }}
           >
             <h2 className="text-lg font-semibold mb-1">Find Your Enrollment</h2>
@@ -594,7 +594,7 @@ function PaymentPage() {
         {lookupStatus === "found" && applicant && submitStatus !== "success" && (
           <div className="space-y-6">
             <div
-              className="rounded-2xl border border-border/60 p-6 sm:p-8 animate-fade-in shadow-xl"
+              className="rounded-2xl border border-border/60 p-4 sm:p-8 animate-fade-in shadow-xl"
               style={{ background: "oklch(0.21 0.06 280 / 0.7)", backdropFilter: "blur(12px)" }}
             >
               <div className="flex items-center justify-between border-b border-border/40 pb-4 mb-6">
@@ -733,7 +733,7 @@ function PaymentPage() {
                     <div className="pt-4 border-t border-border/40 space-y-6">
                       {/* Paystack Instant Checkout */}
                       <div
-                        className="rounded-2xl border-2 border-primary/50 p-6 space-y-3 shadow-lg"
+                        className="rounded-2xl border-2 border-primary/50 p-4 sm:p-6 space-y-3 shadow-lg"
                         style={{
                           background:
                             "linear-gradient(135deg, oklch(0.74 0.16 285 / 0.12) 0%, oklch(0.62 0.22 295 / 0.05) 100%)",
