@@ -50,9 +50,9 @@ const HIGHLIGHTS = [
 ];
 
 const STEPS = [
-  { id: 1, title: "About You", hint: "Track & personal info" },
-  { id: 2, title: "Background", hint: "Education & motivation" },
-  { id: 3, title: "Payment & Commitment", hint: "Tuition & final details" },
+  { id: 1, title: "About You", hint: "Track & contact info" },
+  { id: 2, title: "Background & Tools", hint: "Education & readiness" },
+  { id: 3, title: "Tuition & Payment", hint: "₦3,000 fee & enrollment" },
 ];
 
 type Status = "idle" | "submitting" | "success" | "error";
@@ -64,6 +64,16 @@ function RegistrationPage() {
   const [formData, setFormData] = useState<Record<string, FormDataEntryValue>>({});
   const [paystackMode, setLocalPaystackMode] = useState<"test" | "live">(() => getPaystackMode());
   const [enrolledStudent, setEnrolledStudent] = useState<any | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState<"paystack" | "direct_transfer">("paystack");
+  const [directSenderName, setDirectSenderName] = useState("");
+  const [directRef, setDirectRef] = useState("");
+  const [copiedBank, setCopiedBank] = useState(false);
+
+  function copyAccountNumber() {
+    navigator.clipboard.writeText("6743620799");
+    setCopiedBank(true);
+    setTimeout(() => setCopiedBank(false), 2500);
+  }
 
   useEffect(() => {
     setLocalPaystackMode(getPaystackMode());
@@ -100,6 +110,96 @@ function RegistrationPage() {
   const selectedTrack = str(formData.track);
   const payableAmount = UNIFORM_FEE;
 
+  async function saveEnrolledStudent(
+    appData: any,
+    paymentDetails: {
+      status: string;
+      sender: string;
+      amount: number;
+      ref: string;
+    }
+  ) {
+    if (!supabase) {
+      const full = { ...appData, ...paymentDetails, cohort: "Cohort 2" };
+      setEnrolledStudent(full);
+      setStatus("success");
+      setMessage("Your application and payment details have been recorded.");
+      window.scrollTo({ top: document.getElementById("apply")?.offsetTop ?? 0, behavior: "smooth" });
+      return;
+    }
+
+    // 1. Insert applicant details into scholarship_applications (clean columns)
+    const { data: insertedApp, error: appError } = await supabase
+      .from("scholarship_applications")
+      .insert([appData])
+      .select()
+      .single();
+
+    if (appError) {
+      console.error("Database application insert error:", appError);
+      throw new Error(appError.message || "Failed to save scholarship application record.");
+    }
+
+    const appId = insertedApp.id;
+
+    // 2. Insert payment details into payments table
+    try {
+      await supabase.from("payments").insert([{
+        application_id: appId,
+        payment_status: paymentDetails.status,
+        payment_sender: paymentDetails.sender,
+        payment_amount: paymentDetails.amount,
+        payment_date: new Date().toISOString().split("T")[0],
+        payment_ref: paymentDetails.ref,
+      }]);
+    } catch (payErr) {
+      console.warn("Notice inserting to payments table:", payErr);
+    }
+
+    // 3. Insert into paid_students_sheet for dedicated Supabase view
+    try {
+      await supabase.from("paid_students_sheet").insert([{
+        application_id: appId,
+        full_name: appData.full_name,
+        email: appData.email,
+        phone: appData.phone,
+        track: appData.track,
+        gender: appData.gender,
+        date_of_birth: appData.date_of_birth,
+        state_region: appData.state_region,
+        country: appData.country,
+        residential_address: appData.residential_address,
+        highest_qualification: appData.highest_qualification,
+        institution: appData.institution,
+        course_of_study: appData.course_of_study,
+        current_status: appData.current_status,
+        experience_level: appData.experience_level,
+        why_apply: appData.why_apply,
+        goals: appData.goals,
+        portfolio_url: appData.portfolio_url,
+        payment_status: paymentDetails.status,
+        payment_sender: paymentDetails.sender,
+        payment_amount: paymentDetails.amount,
+        payment_date: new Date().toISOString().split("T")[0],
+        payment_ref: paymentDetails.ref,
+      }]);
+    } catch (_) {}
+
+    const completed = {
+      ...insertedApp,
+      payment_status: paymentDetails.status,
+      payment_sender: paymentDetails.sender,
+      payment_amount: paymentDetails.amount,
+      payment_ref: paymentDetails.ref,
+      cohort: "Cohort 2",
+    };
+
+    setEnrolledStudent(completed);
+    setStatus("success");
+    setMessage("Congratulations! Your payment has been confirmed and your enrollment in Cohort 2 is complete.");
+    window.scrollTo({ top: document.getElementById("apply")?.offsetTop ?? 0, behavior: "smooth" });
+  }
+
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const final = captureStep(e.currentTarget);
@@ -118,9 +218,7 @@ function RegistrationPage() {
 
     if (!supabase) {
       setStatus("error");
-      setMessage(
-        "Supabase is not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY to your .env file.",
-      );
+      setMessage("Supabase is not configured. Please check your environment variables.");
       return;
     }
 
@@ -133,27 +231,28 @@ function RegistrationPage() {
 
     const amountToCharge = UNIFORM_FEE;
 
+    // Build clean database payload (strictly matching scholarship_applications columns)
     const applicantPayload = {
       track: final.track,
-      track_reason: final.track_reason,
+      track_reason: final.track_reason || "Passionate about building a career in this field",
       full_name: final.full_name,
       email: String(final.email).trim().toLowerCase(),
       phone: final.phone,
       gender: final.gender,
       date_of_birth: final.date_of_birth || null,
-      residential_address: final.residential_address,
+      residential_address: final.residential_address || null,
       state_region: final.state_region,
-      country: final.country,
+      country: final.country || "Nigeria",
       linkedin_url: final.linkedin_url || null,
       highest_qualification: final.highest_qualification,
-      institution: final.institution,
+      institution: final.institution || null,
       course_of_study: final.course_of_study || null,
       current_status: final.current_status,
       studied_before: final.studied_before === "Yes",
       experience_level: final.experience_level,
-      why_apply: final.why_apply,
-      goals: final.goals,
-      two_year_vision: final.two_year_vision,
+      why_apply: final.why_apply || "Cohort 2 Tech Scholarship Admission",
+      goals: final.goals || "Acquire in-demand practical digital skills",
+      two_year_vision: final.two_year_vision || "Professional Growth in Tech",
       has_computer: final.has_computer === "Yes",
       has_internet: final.has_internet === "Yes",
       can_commit: final.can_commit === "Yes",
@@ -161,19 +260,38 @@ function RegistrationPage() {
       github_url: final.github_url || null,
       design_profile_url: final.design_profile_url || null,
       other_links: final.other_links || null,
-      emergency_name: final.emergency_name,
-      emergency_relationship: final.emergency_relationship,
-      emergency_phone: final.emergency_phone,
-      heard_from: final.heard_from,
+      emergency_name: null,
+      emergency_relationship: null,
+      emergency_phone: null,
+      heard_from: final.heard_from || "WhatsApp",
       referral_code: final.referral_code || null,
       signature: final.signature,
       agreed_to_terms: true,
-      cohort: "Cohort 2",
     };
 
     setStatus("submitting");
     setMessage("");
 
+    // Branch by chosen payment method
+    if (paymentMethod === "direct_transfer") {
+      try {
+        const sender = (directSenderName && directSenderName.trim()) || String(applicantPayload.full_name);
+        const ref = (directRef && directRef.trim()) || ("DIRECT-TRANSFER-" + Date.now().toString().slice(-6));
+        await saveEnrolledStudent(applicantPayload, {
+          status: "Paid",
+          sender,
+          amount: amountToCharge,
+          ref,
+        });
+      } catch (err: any) {
+        console.error("Direct transfer submission error:", err);
+        setStatus("error");
+        setMessage(err.message || "Failed to record your direct bank transfer. Please retry.");
+      }
+      return;
+    }
+
+    // Otherwise: Paystack Online Checkout
     try {
       await payWithPaystack({
         email: applicantPayload.email,
@@ -189,54 +307,28 @@ function RegistrationPage() {
           ],
         },
         onSuccess: async (response) => {
-          // =========================================================================
-          // CRITICAL: APPLICANT DATA IS STORED ONLY AFTER SUCCESSFUL PAYMENT
-          // =========================================================================
-          const completedRecord = {
-            ...applicantPayload,
-            payment_status: "Paid",
-            payment_amount: amountToCharge,
-            payment_sender: String(applicantPayload.full_name),
-            payment_date: new Date().toISOString().split("T")[0],
-            payment_ref: response.reference,
-          };
-
-          if (!supabase) {
-            console.error("Database storage notice: Supabase not configured.");
-            setEnrolledStudent(completedRecord);
-            setStatus("success");
-            return;
+          try {
+            await saveEnrolledStudent(applicantPayload, {
+              status: "Paid",
+              sender: String(applicantPayload.full_name),
+              amount: amountToCharge,
+              ref: response.reference,
+            });
+          } catch (saveErr: any) {
+            console.error("Failed saving applicant after Paystack payment:", saveErr);
+            setStatus("error");
+            setMessage("Payment succeeded with Paystack reference " + response.reference + ", but saving profile encountered an issue. Please contact support.");
           }
-
-          const { data: inserted, error: insertError } = await supabase
-            .from("scholarship_applications")
-            .insert([completedRecord])
-            .select()
-            .single();
-
-          if (insertError) {
-            console.error("Database storage notice:", insertError);
-          }
-
-          setEnrolledStudent(inserted || completedRecord);
-          setStatus("success");
-          setMessage("Congratulations! Your payment of ₦3,000 has been verified and your enrollment in Cohort 2 is confirmed.");
-          window.scrollTo({ top: document.getElementById("apply")?.offsetTop ?? 0, behavior: "smooth" });
         },
         onClose: () => {
-          // =========================================================================
-          // PAYMENT CANCELLED OR INCOMPLETE: NO DATA IS STORED IN DATABASE
-          // =========================================================================
           setStatus("idle");
-          setMessage(
-            "Payment was not completed. In accordance with Cohort 2 policy, your registration details were NOT stored in the database. You can retry at any time to reserve your seat.",
-          );
+          setMessage("Payment was not completed. In accordance with Cohort 2 policy, your registration details were NOT stored in the database. You can retry at any time to reserve your seat.");
         },
       });
     } catch (err: any) {
       console.error("Paystack checkout error:", err);
       setStatus("error");
-      setMessage(err.message || "Failed to initialize Paystack checkout. Please try again.");
+      setMessage(err.message || "Failed to initialize Paystack checkout. Please try again or use direct bank transfer.");
     }
   }
 
@@ -531,12 +623,12 @@ function RegistrationPage() {
                             className={inputCls}
                           />
                         </Field>
-                        <Field label="LinkedIn Profile URL">
+                        <Field label="LinkedIn Profile URL (Optional)">
                           <input
                             name="linkedin_url"
-                            type="url"
+                            type="text"
                             defaultValue={str(formData.linkedin_url)}
-                            placeholder="https://linkedin.com/in/..."
+                            placeholder="e.g. linkedin.com/in/... (leave blank if none)"
                             className={inputCls}
                           />
                         </Field>
@@ -649,46 +741,11 @@ function RegistrationPage() {
                       </Grid>
                     </Section>
 
-                    <Section title="4. Motivation & Goals">
-                      <Field label="Why should you be awarded this scholarship?" required>
-                        <textarea
-                          name="why_apply"
-                          required
-                          rows={3}
-                          defaultValue={str(formData.why_apply)}
-                          placeholder="Tell us about your drive, background, and circumstances…"
-                          className={inputCls}
-                        />
-                      </Field>
-                      <Field label="What are your goals for the 12-week program?" required>
-                        <textarea
-                          name="goals"
-                          required
-                          rows={3}
-                          defaultValue={str(formData.goals)}
-                          placeholder="What specific skills or milestones do you want to hit?"
-                          className={inputCls}
-                        />
-                      </Field>
-                      <Field label="Where do you see yourself in 2 years?" required>
-                        <textarea
-                          name="two_year_vision"
-                          required
-                          rows={3}
-                          defaultValue={str(formData.two_year_vision)}
-                          placeholder="Your career aspirations, income goals, or entrepreneurial vision…"
-                          className={inputCls}
-                        />
-                      </Field>
-                    </Section>
-
-                    <NavButtons step={step} onBack={goBack} />
-                  </form>
-                )}
-
-                {step === 3 && (
-                  <form onSubmit={handleSubmit} className="space-y-8">
-                    <Section title="5. Readiness & Tools">
+                    {/* Section 4: Readiness & Tools (Essay questions removed per feedback) */}
+                    <Section
+                      title="4. Readiness & Learning Tools"
+                      subtitle="Basic setup confirmation for your 12-week virtual cohort"
+                    >
                       <Grid>
                         <Field label="Do you have access to a computer?" required>
                           <select
@@ -732,89 +789,79 @@ function RegistrationPage() {
                         </select>
                       </Field>
 
-                      <Grid>
-                        <Field label="Portfolio URL (if any)">
-                          <input
-                            name="portfolio_url"
-                            type="url"
-                            defaultValue={str(formData.portfolio_url)}
-                            placeholder="https://..."
-                            className={inputCls}
-                          />
-                        </Field>
-                        <Field label="GitHub URL (developers)">
-                          <input
-                            name="github_url"
-                            type="url"
-                            defaultValue={str(formData.github_url)}
-                            placeholder="https://github.com/..."
-                            className={inputCls}
-                          />
-                        </Field>
-                      </Grid>
+                      {/* Online Profiles & Links (All clearly optional) */}
+                      <div className="rounded-xl border border-border/70 bg-card/40 p-4 space-y-3">
+                        <div className="text-xs font-semibold text-foreground flex items-center justify-between">
+                          <span>Online Profiles & Portfolio Links</span>
+                          <span className="text-[11px] text-muted-foreground font-normal">(All optional)</span>
+                        </div>
+                        <Grid>
+                          <Field label="Portfolio URL (Optional)">
+                            <input
+                              name="portfolio_url"
+                              type="text"
+                              defaultValue={str(formData.portfolio_url)}
+                              placeholder="https://... (or leave blank)"
+                              className={inputCls}
+                            />
+                          </Field>
+                          <Field label="GitHub URL (Optional)">
+                            <input
+                              name="github_url"
+                              type="text"
+                              defaultValue={str(formData.github_url)}
+                              placeholder="https://github.com/... (or leave blank)"
+                              className={inputCls}
+                            />
+                          </Field>
+                        </Grid>
 
-                      <Grid>
-                        <Field label="Design Profile (Behance / Dribbble / Figma)">
-                          <input
-                            name="design_profile_url"
-                            type="url"
-                            defaultValue={str(formData.design_profile_url)}
-                            className={inputCls}
-                          />
-                        </Field>
-                        <Field label="Other Relevant Links">
-                          <input
-                            name="other_links"
-                            defaultValue={str(formData.other_links)}
-                            className={inputCls}
-                          />
-                        </Field>
-                      </Grid>
+                        <Grid>
+                          <Field label="Design Profile (Optional)">
+                            <input
+                              name="design_profile_url"
+                              type="text"
+                              defaultValue={str(formData.design_profile_url)}
+                              placeholder="Behance, Figma, Dribbble (or leave blank)"
+                              className={inputCls}
+                            />
+                          </Field>
+                          <Field label="Other Relevant Links (Optional)">
+                            <input
+                              name="other_links"
+                              type="text"
+                              defaultValue={str(formData.other_links)}
+                              placeholder="Any link (or leave blank)"
+                              className={inputCls}
+                            />
+                          </Field>
+                        </Grid>
+                      </div>
                     </Section>
 
-                    <Section title="6. Emergency Contact & Referral">
-                      <Grid>
-                        <Field label="Emergency Contact Name">
-                          <input
-                            name="emergency_name"
-                            defaultValue={str(formData.emergency_name)}
-                            placeholder="Next of kin / guardian"
-                            className={inputCls}
-                          />
-                        </Field>
-                        <Field label="Relationship">
-                          <input
-                            name="emergency_relationship"
-                            defaultValue={str(formData.emergency_relationship)}
-                            placeholder="Parent, sibling, mentor…"
-                            className={inputCls}
-                          />
-                        </Field>
-                      </Grid>
-                      <Field label="Emergency Contact Phone">
-                        <input
-                          name="emergency_phone"
-                          type="tel"
-                          defaultValue={str(formData.emergency_phone)}
-                          placeholder="+234 ..."
-                          className={inputCls}
-                        />
-                      </Field>
+                    <NavButtons step={step} onBack={goBack} />
+                  </form>
+                )}
 
+                {step === 3 && (
+                  <form onSubmit={handleSubmit} className="space-y-8">
+                    {/* Section 5: Discovery & Referral (Emergency Contacts removed) */}
+                    <Section
+                      title="5. Discovery & Referral"
+                      subtitle="Help us understand how you found Uget Academy"
+                    >
                       <Grid>
-                        <Field label="How did you hear about us?" required>
+                        <Field label="How did you hear about us? (Optional)">
                           <select
                             name="heard_from"
-                            required
-                            defaultValue={str(formData.heard_from)}
+                            defaultValue={str(formData.heard_from) || "WhatsApp"}
                             className={selectCls}
                           >
-                            <option value="">Select…</option>
                             {[
-                              "Facebook",
-                              "Instagram",
-                              "LinkedIn",
                               "WhatsApp",
+                              "Instagram",
+                              "Facebook",
+                              "LinkedIn",
                               "Friend/Referral",
                               "Website",
                               "Other",
@@ -823,7 +870,7 @@ function RegistrationPage() {
                             ))}
                           </select>
                         </Field>
-                        <Field label="Referral Code">
+                        <Field label="Referral Code (Optional)">
                           <input
                             name="referral_code"
                             defaultValue={str(formData.referral_code)}
@@ -834,13 +881,13 @@ function RegistrationPage() {
                       </Grid>
                     </Section>
 
-                    {/* Cohort 2 Tuition & Paystack Section */}
+                    {/* Section 6: Cohort 2 Tuition & Official Bank Payment */}
                     <Section
-                      title="7. Cohort 2 Scholarship Tuition & Payment"
-                      subtitle="Under Cohort 2 policy, applications are stored only upon verified payment of ₦3,000 via Paystack."
+                      title="6. Cohort 2 Scholarship Tuition & Payment"
+                      subtitle="Under Cohort 2 policy, applications are stored only upon verified payment of ₦3,000."
                     >
                       {selectedTrack ? (
-                        <div className="space-y-4">
+                        <div className="space-y-5">
                           {/* Price Container */}
                           <div className="rounded-xl border border-border/80 bg-card/40 p-5 space-y-2.5">
                             <div className="flex items-center justify-between">
@@ -865,7 +912,7 @@ function RegistrationPage() {
                             <div className="flex items-baseline justify-between pt-1">
                               <div>
                                 <div className="text-xs font-bold text-foreground">Total Enrollment Fee:</div>
-                                <div className="text-[10px] text-muted-foreground">Flat fee for all tracks · No part-payment</div>
+                                <div className="text-[10px] text-muted-foreground">Flat fee for all tracks · No hidden charges</div>
                               </div>
                               <span className="text-2xl font-extrabold text-primary">
                                 {fmt(UNIFORM_FEE)}
@@ -873,42 +920,130 @@ function RegistrationPage() {
                             </div>
                           </div>
 
-                          {/* Paystack Mode Switcher Banner */}
-                          <div className="flex items-center justify-between rounded-xl border border-border/60 bg-card/50 p-3.5">
-                            <div className="flex items-center gap-2.5">
-                              <span className={`inline-block h-2.5 w-2.5 rounded-full ${paystackMode === "live" ? "bg-emerald-500 animate-pulse" : "bg-amber-400"}`} />
+                          {/* Official Uget Technologies Bank Transfer Card */}
+                          <div className="rounded-2xl border border-primary/40 bg-primary/10 p-5 space-y-3 shadow-md">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-primary/20 pb-2.5">
+                              <div className="flex items-center gap-2">
+                                <span className="text-xl">🏦</span>
+                                <span className="text-xs font-bold uppercase tracking-wider text-primary">
+                                  Official Uget Technologies Bank Details
+                                </span>
+                              </div>
+                              <span className="rounded-full bg-primary/20 px-2.5 py-0.5 text-[11px] font-bold text-primary border border-primary/30 w-fit">
+                                Direct Corporate Account
+                              </span>
+                            </div>
+
+                            <p className="text-xs text-muted-foreground leading-relaxed">
+                              You can transfer directly to our official corporate account via your banking app, or pay online with your debit card below.
+                            </p>
+
+                            <div className="grid gap-3 sm:grid-cols-3 rounded-xl border border-border/80 bg-card/85 p-3.5 text-xs">
                               <div>
-                                <div className="text-xs font-semibold text-foreground">
-                                  Paystack Gateway: <span className="uppercase text-primary font-bold">{paystackMode} Mode</span>
-                                </div>
-                                <div className="text-[10px] text-muted-foreground">
-                                  {paystackMode === "live" ? "Real card/bank transactions will be debited." : "Test mode enabled — no real money charged."}
+                                <div className="text-[10px] text-muted-foreground uppercase font-medium">Bank</div>
+                                <div className="font-bold text-sm text-foreground mt-0.5">Moniepoint Microfinance Bank</div>
+                              </div>
+                              <div>
+                                <div className="text-[10px] text-muted-foreground uppercase font-medium">Account Name</div>
+                                <div className="font-bold text-sm text-foreground mt-0.5">Uget Technologies</div>
+                              </div>
+                              <div>
+                                <div className="text-[10px] text-muted-foreground uppercase font-medium">Account Number</div>
+                                <div className="flex items-center gap-2 mt-0.5">
+                                  <span className="font-mono font-extrabold text-base text-primary tracking-wider">6743620799</span>
+                                  <button
+                                    type="button"
+                                    onClick={copyAccountNumber}
+                                    className="px-2 py-0.5 rounded text-[11px] font-semibold bg-primary/20 text-primary border border-primary/30 hover:bg-primary/30 transition-colors cursor-pointer"
+                                    title="Click to copy account number"
+                                  >
+                                    {copiedBank ? "Copied! ✅" : "Copy 📋"}
+                                  </button>
                                 </div>
                               </div>
                             </div>
-                            <button
-                              type="button"
-                              onClick={handleModeToggle}
-                              className="rounded-lg border border-border/80 bg-background/80 px-2.5 py-1 text-xs font-medium text-foreground hover:bg-background transition-colors"
-                            >
-                              Switch to {paystackMode === "live" ? "Test Mode" : "Live Mode"}
-                            </button>
                           </div>
 
-                          {/* Mandatory Paystack & Storage Notice */}
-                          <div className="rounded-xl border border-primary/30 bg-primary/5 p-4 text-xs leading-relaxed text-muted-foreground space-y-1.5">
-                            <div className="flex items-center gap-2 text-foreground font-semibold">
-                              <span>🔒 Secure Paystack Integration & Cohort 2 Enrollment Policy</span>
+                          {/* Payment Method Selector */}
+                          <div className="space-y-3 pt-2">
+                            <label className="block text-xs font-bold uppercase tracking-wider text-foreground">
+                              Select How You Want to Pay:
+                            </label>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              <button
+                                type="button"
+                                onClick={() => setPaymentMethod("paystack")}
+                                className={`p-4 rounded-xl border text-left transition-all cursor-pointer ${
+                                  paymentMethod === "paystack"
+                                    ? "border-primary bg-primary/15 shadow-sm ring-1 ring-primary"
+                                    : "border-border/80 bg-card/50 hover:bg-card"
+                                }`}
+                              >
+                                <div className="flex items-center justify-between">
+                                  <span className="text-sm font-bold text-foreground flex items-center gap-2">
+                                    <span>💳</span> Pay Online (Paystack)
+                                  </span>
+                                  {paymentMethod === "paystack" && <span className="text-primary text-xs font-bold">● Selected</span>}
+                                </div>
+                                <p className="text-xs text-muted-foreground mt-1">
+                                  Instant verification via Debit Card, USSD, or Paystack Bank Transfer.
+                                </p>
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => setPaymentMethod("direct_transfer")}
+                                className={`p-4 rounded-xl border text-left transition-all cursor-pointer ${
+                                  paymentMethod === "direct_transfer"
+                                    ? "border-primary bg-primary/15 shadow-sm ring-1 ring-primary"
+                                    : "border-border/80 bg-card/50 hover:bg-card"
+                                }`}
+                              >
+                                <div className="flex items-center justify-between">
+                                  <span className="text-sm font-bold text-foreground flex items-center gap-2">
+                                    <span>🏦</span> Direct Bank Transfer
+                                  </span>
+                                  {paymentMethod === "direct_transfer" && <span className="text-primary text-xs font-bold">● Selected</span>}
+                                </div>
+                                <p className="text-xs text-muted-foreground mt-1">
+                                  Transfer directly to Moniepoint <strong>6743620799</strong> (Uget Technologies).
+                                </p>
+                              </button>
                             </div>
-                            <p>
-                              By clicking <strong>Pay & Complete Registration</strong>, Paystack's secure checkout
-                              will open to process your <strong>₦3,000</strong> enrollment fee via Card, Bank Transfer, or USSD.
-                            </p>
-                            <p className="text-primary font-medium">
-                              ⚠️ Your data will only be stored in our database upon successful payment. Unpaid or
-                              incomplete registrations are discarded and will not hold a seat.
-                            </p>
                           </div>
+
+                          {/* If Direct Transfer is selected: prompt for sender details */}
+                          {paymentMethod === "direct_transfer" && (
+                            <div className="rounded-xl border border-primary/40 bg-card/60 p-4 space-y-3 animate-fade-in">
+                              <h4 className="text-xs font-bold uppercase tracking-wider text-foreground">
+                                Confirm Your Transfer
+                              </h4>
+                              <p className="text-xs text-muted-foreground">
+                                Please transfer <strong>₦3,000</strong> to <strong>Moniepoint (6743620799 - Uget Technologies)</strong>, then enter the account name you sent from below:
+                              </p>
+                              <Grid>
+                                <Field label="Transfer Sender Name" required>
+                                  <input
+                                    type="text"
+                                    value={directSenderName}
+                                    onChange={(e) => setDirectSenderName(e.target.value)}
+                                    placeholder="Name on your bank account (e.g. Victor Evans)"
+                                    className={inputCls}
+                                    required={paymentMethod === "direct_transfer"}
+                                  />
+                                </Field>
+                                <Field label="Payment Reference / Transaction ID (Optional)">
+                                  <input
+                                    type="text"
+                                    value={directRef}
+                                    onChange={(e) => setDirectRef(e.target.value)}
+                                    placeholder="e.g. Session ID or Reference"
+                                    className={inputCls}
+                                  />
+                                </Field>
+                              </Grid>
+                            </div>
+                          )}
                         </div>
                       ) : (
                         <div className="rounded-lg border border-yellow-500/30 bg-yellow-500/10 p-4 text-xs text-yellow-300">
@@ -917,7 +1052,8 @@ function RegistrationPage() {
                       )}
                     </Section>
 
-                    <Section title="8. Commitment & Terms">
+                    {/* Section 7: Commitment & Terms */}
+                    <Section title="7. Commitment & Terms">
                       <div className="rounded-xl border border-border bg-card/50 p-5 text-sm text-muted-foreground space-y-2">
                         <p>By submitting this application, I understand and agree that:</p>
                         <ul className="list-disc pl-5 space-y-1">
@@ -971,9 +1107,9 @@ function RegistrationPage() {
                       submitting={status === "submitting"}
                       isFinal
                       submitLabel={
-                        selectedTrack
-                          ? `Pay ${fmt(payableAmount)} with Paystack & Enroll`
-                          : "Submit Application"
+                        paymentMethod === "direct_transfer"
+                          ? "Confirm Bank Transfer & Complete Enrollment →"
+                          : `Pay ${fmt(payableAmount)} via Paystack & Enroll →`
                       }
                     />
                   </form>
