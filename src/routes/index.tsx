@@ -3,8 +3,7 @@ import { useState, useEffect, type FormEvent, type ReactNode } from "react";
 import logo from "@/assets/uget-logo.png";
 import { supabase, supabaseConfigured } from "@/lib/supabase";
 import { fmt } from "./payment";
-import { payWithPaystack, getPaystackMode, setPaystackMode, getActivePaystackPublicKey } from "@/lib/paystack";
-import { StudentBioExtractor } from "@/components/StudentBioExtractor";
+import { payWithPaystack } from "@/lib/paystack";
 
 // Toggle registration status (set to true to reopen, false to close)
 const REGISTRATION_OPEN = true;
@@ -62,7 +61,6 @@ function RegistrationPage() {
   const [status, setStatus] = useState<Status>("idle");
   const [message, setMessage] = useState("");
   const [formData, setFormData] = useState<Record<string, FormDataEntryValue>>({});
-  const [paystackMode, setLocalPaystackMode] = useState<"test" | "live">(() => getPaystackMode());
   const [enrolledStudent, setEnrolledStudent] = useState<any | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<"paystack" | "direct_transfer">("paystack");
   const [directSenderName, setDirectSenderName] = useState("");
@@ -73,16 +71,6 @@ function RegistrationPage() {
     navigator.clipboard.writeText("6743620799");
     setCopiedBank(true);
     setTimeout(() => setCopiedBank(false), 2500);
-  }
-
-  useEffect(() => {
-    setLocalPaystackMode(getPaystackMode());
-  }, []);
-
-  function handleModeToggle() {
-    const next = paystackMode === "test" ? "live" : "test";
-    setPaystackMode(next);
-    setLocalPaystackMode(next);
   }
 
   function captureStep(form: HTMLFormElement) {
@@ -450,8 +438,8 @@ function RegistrationPage() {
                 </svg>
               </div>
 
-              <span className="rounded-full bg-primary/20 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-primary border border-primary/30">
-                Cohort 2 Officially Enrolled
+              <span className="rounded-full bg-emerald-500/20 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-emerald-400 border border-emerald-500/30">
+                Payment Verified & Enrolled
               </span>
 
               <h2 className="mt-4 text-2xl sm:text-3xl font-extrabold tracking-tight">
@@ -459,18 +447,22 @@ function RegistrationPage() {
               </h2>
 
               <p className="mt-2 text-sm text-muted-foreground max-w-lg mx-auto">
-                Your scholarship admission and payment for <strong className="text-foreground">{enrolledStudent.track}</strong> have been verified.
+                Your enrollment payment for <strong className="text-foreground">{enrolledStudent.track}</strong> has been received and verified. Your seat in Cohort 2 is officially secured!
               </p>
 
               {/* Receipt Summary Card */}
               <div className="mt-6 mx-auto max-w-md rounded-xl border border-border/80 bg-input/40 p-4 text-left text-xs space-y-2.5">
                 <div className="flex justify-between border-b border-border/40 pb-2">
-                  <span className="text-muted-foreground">Payment Reference:</span>
-                  <span className="font-mono font-bold text-primary">{enrolledStudent.payment_ref}</span>
+                  <span className="text-muted-foreground">Payment Status:</span>
+                  <span className="font-bold text-emerald-400">Paid ✅</span>
                 </div>
                 <div className="flex justify-between border-b border-border/40 pb-2">
                   <span className="text-muted-foreground">Amount Paid:</span>
                   <span className="font-bold text-foreground">{fmt(enrolledStudent.payment_amount)}</span>
+                </div>
+                <div className="flex justify-between border-b border-border/40 pb-2">
+                  <span className="text-muted-foreground">Payment Reference:</span>
+                  <span className="font-mono font-bold text-primary">{enrolledStudent.payment_ref}</span>
                 </div>
                 <div className="flex justify-between border-b border-border/40 pb-2">
                   <span className="text-muted-foreground">Enrolled Track:</span>
@@ -478,28 +470,12 @@ function RegistrationPage() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Cohort:</span>
-                  <span className="font-semibold text-primary">Cohort 2 (Starting This Month)</span>
+                  <span className="font-semibold text-primary">Cohort 2</span>
                 </div>
               </div>
 
-              {/* Next Steps: WhatsApp Community */}
-              <div className="mt-8 space-y-3">
-                <a
-                  href="https://chat.whatsapp.com/HRy8MCg1l42EMH6hvOtzOf"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 rounded-full px-8 py-3.5 text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-500 shadow-lg hover:scale-105 transition-all"
-                >
-                  <span>💬 Join Cohort 2 WhatsApp Group</span>
-                </a>
-                <p className="text-[11px] text-muted-foreground">
-                  Connect with fellow learners, coordinators, and mentors for your track.
-                </p>
-              </div>
-
-              {/* Bio Extractor */}
-              <div className="mt-8 pt-6 border-t border-border/50 text-left">
-                <StudentBioExtractor student={enrolledStudent} title="Your Enrollment Bio & Admission Record" />
+              <div className="mt-6 p-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-xs text-emerald-300 max-w-md mx-auto">
+                ✅ Your enrollment is officially confirmed. Further orientation details will be sent directly to your registered email address.
               </div>
             </div>
           ) : (
@@ -883,38 +859,23 @@ function RegistrationPage() {
 
                     {/* Section 6: Cohort 2 Tuition & Official Bank Payment */}
                     <Section
-                      title="6. Cohort 2 Scholarship Tuition & Payment"
+                      title="6. Cohort 2 Tuition & Payment"
                       subtitle="Under Cohort 2 policy, applications are stored only upon verified payment."
                     >
                       {selectedTrack ? (
                         <div className="space-y-5">
                           {/* Price Container */}
-                          <div className="rounded-xl border border-border/80 bg-card/40 p-5 space-y-2.5">
+                          <div className="rounded-xl border border-border/80 bg-card/40 p-5">
                             <div className="flex items-center justify-between">
-                              <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                                {selectedTrack} · 12-Week Bootcamp
-                              </span>
-                              <span className="rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-bold text-emerald-400 border border-emerald-500/20">
-                                90% Scholarship Applied
-                              </span>
-                            </div>
-
-                            <div className="flex items-baseline justify-between text-xs text-muted-foreground">
-                              <span>Full Program Tuition (100%):</span>
-                              <span className="line-through">₦30,000.00</span>
-                            </div>
-
-                            <div className="flex items-baseline justify-between text-xs text-emerald-400 border-b border-border/40 pb-2">
-                              <span>Scholarship Grant:</span>
-                              <span>-{fmt(30000 - UNIFORM_FEE)}</span>
-                            </div>
-
-                            <div className="flex items-baseline justify-between pt-1">
                               <div>
-                                <div className="text-xs font-bold text-foreground">Total Enrollment Fee:</div>
-                                <div className="text-[10px] text-muted-foreground">Flat fee for all tracks · No hidden charges</div>
+                                <div className="text-sm font-bold text-foreground">
+                                  {selectedTrack} · Enrollment Fee
+                                </div>
+                                <div className="text-xs text-muted-foreground mt-0.5">
+                                  Flat commitment fee for 12-week program · Cohort 2
+                                </div>
                               </div>
-                              <span className="text-2xl font-extrabold text-primary">
+                              <span className="text-2xl sm:text-3xl font-extrabold text-primary">
                                 {fmt(UNIFORM_FEE)}
                               </span>
                             </div>

@@ -2,9 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect, type FormEvent } from "react";
 import logo from "@/assets/uget-logo.png";
 import { supabase } from "@/lib/supabase";
-import { StudentBioExtractor } from "@/components/StudentBioExtractor";
 import type { StudentBioRecord } from "@/lib/bio-export";
-import { payWithPaystack, getPaystackMode, setPaystackMode } from "@/lib/paystack";
+import { payWithPaystack } from "@/lib/paystack";
 
 export const Route = createFileRoute("/payment")({
   head: () => ({
@@ -101,7 +100,6 @@ function PaymentPage() {
   const [receiptBase64, setReceiptBase64] = useState("");
   const [fileError, setFileError] = useState("");
   const [paystackLoading, setPaystackLoading] = useState(false);
-  const [paystackMode, setPaystackState] = useState<"test" | "live">(getPaystackMode);
 
   useEffect(() => {
     if (applicant) {
@@ -625,8 +623,6 @@ function PaymentPage() {
                       : "⏳ Payment details received — our admissions team is verifying your payment."}
                   </div>
 
-                  <StudentBioExtractor student={applicant} className="mt-4" />
-
                   <div className="text-center pt-2">
                     <button 
                       onClick={() => {
@@ -696,32 +692,17 @@ function PaymentPage() {
 
                   {/* Price Container */}
                   {feeDetails && (
-                    <div className="rounded-xl border border-border bg-card/30 p-5 mt-6 space-y-2">
+                    <div className="rounded-xl border border-border bg-card/30 p-5 mt-6">
                       <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                          Cohort 2 Tuition (General {fmt(UNIFORM_COURSE_FEE)} for All Tracks)
-                        </span>
-                        <span className="rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-[10px] font-bold text-emerald-400 border border-emerald-500/20">
-                          Scholarship Applied
-                        </span>
-                      </div>
-                      
-                      <div className="flex items-baseline justify-between text-xs text-muted-foreground">
-                        <span>Original Tuition (100%):</span>
-                        <span className="line-through">{fmt(30000)}</span>
-                      </div>
-
-                      <div className="flex items-baseline justify-between text-xs text-emerald-400 border-b border-border/30 pb-2">
-                        <span>Scholarship Grant:</span>
-                        <span>-{fmt(30000 - UNIFORM_COURSE_FEE)}</span>
-                      </div>
-
-                      <div className="flex items-baseline justify-between pt-1">
                         <div>
-                          <div className="text-xs font-bold text-foreground">Flat Commitment Fee:</div>
-                          <div className="text-[10px] text-muted-foreground">General for all candidates</div>
+                          <div className="text-sm font-bold text-foreground">
+                            {applicant.track} · Enrollment Fee
+                          </div>
+                          <div className="text-xs text-muted-foreground mt-0.5">
+                            Cohort 2 Flat Commitment Fee
+                          </div>
                         </div>
-                        <div className="text-2xl font-extrabold text-primary tracking-tight">
+                        <div className="text-2xl sm:text-3xl font-extrabold text-primary tracking-tight">
                           {fmt(UNIFORM_COURSE_FEE)}
                         </div>
                       </div>
@@ -746,27 +727,9 @@ function PaymentPage() {
                               Pay Online with Paystack
                             </h3>
                           </div>
-                          <div className="flex items-center gap-1.5">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const next = paystackMode === "live" ? "test" : "live";
-                                setPaystackState(next);
-                                setPaystackMode(next);
-                              }}
-                              className={`text-[10px] font-bold px-2 py-0.5 rounded-full border transition-all ${
-                                paystackMode === "live"
-                                  ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30"
-                                  : "bg-amber-500/20 text-amber-300 border-amber-500/30"
-                              }`}
-                              title="Click to toggle between Test and Live Paystack environment"
-                            >
-                              Mode: {paystackMode.toUpperCase()}
-                            </button>
-                            <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-400 border border-emerald-500/30">
-                              Instant Activation
-                            </span>
-                          </div>
+                          <span className="rounded-full bg-emerald-500/20 px-2.5 py-0.5 text-[10px] font-bold text-emerald-400 border border-emerald-500/30">
+                            Instant Live Activation
+                          </span>
                         </div>
                         <p className="text-xs text-muted-foreground leading-relaxed">
                           Pay securely with Debit Card, Bank Transfer, USSD, or Apple Pay. Your enrollment is
@@ -944,16 +907,9 @@ function PaymentPage() {
               Thank you, <strong className="text-foreground">{applicant.full_name}</strong>! Your {fmt(UNIFORM_COURSE_FEE)} payment for <strong className="text-foreground">{applicant.track}</strong> has been received.
             </p>
 
-            <a
-              href="https://chat.whatsapp.com/HRy8MCg1l42EMH6hvOtzOf"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 rounded-full px-8 py-3 text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-500 shadow-lg hover:scale-105 transition-all mb-6"
-            >
-              <span>💬 Join Cohort 2 WhatsApp Group</span>
-            </a>
-
-            <StudentBioExtractor student={applicant} />
+            <div className="p-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-xs text-emerald-300 max-w-md mx-auto">
+              ✅ Your enrollment is officially confirmed. Further orientation details will be sent directly to your registered email address.
+            </div>
           </div>
         )}
       </main>

@@ -25,17 +25,14 @@ declare global {
 
 export type PaystackEnvironment = "test" | "live";
 
+export const LIVE_PAYSTACK_PUBLIC_KEY = "pk_live_ae39a7954cab295dc2f08831435a4ceaec14863b";
+
 /**
  * Gets currently active Paystack environment ("test" | "live")
+ * Always defaults to "live" for real production transactions.
  */
 export function getPaystackMode(): PaystackEnvironment {
-  if (typeof window !== "undefined") {
-    const stored = localStorage.getItem("uget_paystack_mode");
-    if (stored === "test" || stored === "live") return stored;
-  }
-  const envMode = import.meta.env.VITE_PAYSTACK_MODE as string | undefined;
-  if (envMode === "live") return "live";
-  return "test";
+  return "live";
 }
 
 /**
@@ -43,37 +40,26 @@ export function getPaystackMode(): PaystackEnvironment {
  */
 export function setPaystackMode(mode: PaystackEnvironment): void {
   if (typeof window !== "undefined") {
-    localStorage.setItem("uget_paystack_mode", mode);
-    window.dispatchEvent(new CustomEvent("paystack_mode_changed", { detail: mode }));
+    localStorage.setItem("uget_paystack_mode", "live");
+    window.dispatchEvent(new CustomEvent("paystack_mode_changed", { detail: "live" }));
   }
 }
 
 /**
  * Gets currently active public key based on selected environment mode
+ * Strictly falls back to official Uget live public key for real transactions.
  */
 export function getActivePaystackPublicKey(): string {
-  const mode = getPaystackMode();
-  if (mode === "live") {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("uget_paystack_live_pk");
-      if (stored) return stored;
-    }
-    return (
-      (import.meta.env.VITE_PAYSTACK_LIVE_PUBLIC_KEY as string | undefined) ||
-      (import.meta.env.VITE_PAYSTACK_PUBLIC_KEY as string | undefined) ||
-      ""
-    );
-  }
-
-  // Test mode
   if (typeof window !== "undefined") {
-    const stored = localStorage.getItem("uget_paystack_test_pk");
-    if (stored) return stored;
+    try {
+      localStorage.removeItem("uget_paystack_test_pk");
+      localStorage.setItem("uget_paystack_mode", "live");
+    } catch (_) {}
   }
   return (
-    (import.meta.env.VITE_PAYSTACK_TEST_PUBLIC_KEY as string | undefined) ||
+    (import.meta.env.VITE_PAYSTACK_LIVE_PUBLIC_KEY as string | undefined) ||
     (import.meta.env.VITE_PAYSTACK_PUBLIC_KEY as string | undefined) ||
-    ""
+    LIVE_PAYSTACK_PUBLIC_KEY
   );
 }
 
