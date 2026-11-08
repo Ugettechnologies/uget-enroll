@@ -370,11 +370,10 @@ function AdminWrapper() {
                   setLoginTab("admin");
                   setError("");
                 }}
-                className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg transition-all ${
-                  loginTab === "admin"
+                className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg transition-all ${loginTab === "admin"
                     ? "bg-primary text-primary-foreground shadow-sm"
                     : "text-muted-foreground hover:text-foreground"
-                }`}
+                  }`}
               >
                 <ShieldCheck className="h-3.5 w-3.5" />
                 <span>Admin Login</span>
@@ -385,11 +384,10 @@ function AdminWrapper() {
                   setLoginTab("student");
                   setError("");
                 }}
-                className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg transition-all ${
-                  loginTab === "student"
+                className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg transition-all ${loginTab === "student"
                     ? "bg-primary text-primary-foreground shadow-sm"
                     : "text-muted-foreground hover:text-foreground"
-                }`}
+                  }`}
               >
                 <GraduationCap className="h-3.5 w-3.5" />
                 <span>Student Portal</span>
@@ -848,7 +846,7 @@ function BulkEmailModal({
     if (!activeKey) return;
     setRunning(true);
     setDone(false);
-    
+
     const limitNum = sendLimit ? parseInt(sendLimit, 10) : 0;
     const activeTargets = limitNum > 0 ? targets.slice(0, limitNum) : targets;
 
@@ -991,11 +989,10 @@ function BulkEmailModal({
               <button
                 type="button"
                 onClick={() => handleTargetChange("unpaid")}
-                className={`rounded-xl border p-2.5 text-left text-sm transition-all ${
-                  target === "unpaid"
+                className={`rounded-xl border p-2.5 text-left text-sm transition-all ${target === "unpaid"
                     ? "border-primary bg-primary/10 text-foreground"
                     : "border-border bg-card/45 text-muted-foreground hover:border-border/80"
-                }`}
+                  }`}
               >
                 <div className="font-semibold text-xs">Unpaid only</div>
                 <div className="text-[10px] mt-0.5 text-muted-foreground">{unpaid.length} students</div>
@@ -1003,11 +1000,10 @@ function BulkEmailModal({
               <button
                 type="button"
                 onClick={() => handleTargetChange("paid")}
-                className={`rounded-xl border p-2.5 text-left text-sm transition-all ${
-                  target === "paid"
+                className={`rounded-xl border p-2.5 text-left text-sm transition-all ${target === "paid"
                     ? "border-primary bg-primary/10 text-foreground"
                     : "border-border bg-card/45 text-muted-foreground hover:border-border/80"
-                }`}
+                  }`}
               >
                 <div className="font-semibold text-xs">Paid only</div>
                 <div className="text-[10px] mt-0.5 text-muted-foreground">{paid.length} students</div>
@@ -1015,11 +1011,10 @@ function BulkEmailModal({
               <button
                 type="button"
                 onClick={() => handleTargetChange("all")}
-                className={`rounded-xl border p-2.5 text-left text-sm transition-all ${
-                  target === "all"
+                className={`rounded-xl border p-2.5 text-left text-sm transition-all ${target === "all"
                     ? "border-primary bg-primary/10 text-foreground"
                     : "border-border bg-card/45 text-muted-foreground hover:border-border/80"
-                }`}
+                  }`}
               >
                 <div className="font-semibold text-xs">All</div>
                 <div className="text-[10px] mt-0.5 text-muted-foreground">{applications.length} students</div>
@@ -1055,33 +1050,30 @@ function BulkEmailModal({
               <button
                 type="button"
                 onClick={() => setMethod("resend")}
-                className={`flex-1 pb-2.5 text-sm font-semibold border-b-2 transition-colors ${
-                  method === "resend"
+                className={`flex-1 pb-2.5 text-sm font-semibold border-b-2 transition-colors ${method === "resend"
                     ? "border-primary text-primary"
                     : "border-transparent text-muted-foreground hover:text-foreground"
-                }`}
+                  }`}
               >
                 {emailProvider === "brevo" ? "Brevo API (Auto)" : "Resend API (Auto)"}
               </button>
               <button
                 type="button"
                 onClick={() => setMethod("mailto")}
-                className={`flex-1 pb-2.5 text-sm font-semibold border-b-2 transition-colors ${
-                  method === "mailto"
+                className={`flex-1 pb-2.5 text-sm font-semibold border-b-2 transition-colors ${method === "mailto"
                     ? "border-primary text-primary"
                     : "border-transparent text-muted-foreground hover:text-foreground"
-                }`}
+                  }`}
               >
                 Mail Client (mailto)
               </button>
               <button
                 type="button"
                 onClick={() => setMethod("whatsapp")}
-                className={`flex-1 pb-2.5 text-sm font-semibold border-b-2 transition-colors ${
-                  method === "whatsapp"
+                className={`flex-1 pb-2.5 text-sm font-semibold border-b-2 transition-colors ${method === "whatsapp"
                     ? "border-primary text-primary"
                     : "border-transparent text-muted-foreground hover:text-foreground"
-                }`}
+                  }`}
               >
                 WhatsApp Blast
               </button>
@@ -1782,8 +1774,8 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
   const exportAcademyBioJson = (onlyPaid = true) => {
     const list = onlyPaid
       ? applications.filter(
-          (a) => a.payment_status === "Paid" || a.payment_status === "Pending Verification",
-        )
+        (a) => a.payment_status === "Paid" || a.payment_status === "Pending Verification",
+      )
       : applications;
 
     if (!list.length) {
@@ -1810,8 +1802,8 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
   const exportAcademyBioCsv = (onlyPaid = true) => {
     const list = onlyPaid
       ? applications.filter(
-          (a) => a.payment_status === "Paid" || a.payment_status === "Pending Verification",
-        )
+        (a) => a.payment_status === "Paid" || a.payment_status === "Pending Verification",
+      )
       : applications;
 
     if (!list.length) {
@@ -1865,7 +1857,7 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
 
     try {
       await supabase.from("payments").delete().eq("application_id", id);
-    } catch (_) {}
+    } catch (_) { }
 
     const { error } = await supabase.from("scholarship_applications").delete().eq("id", id);
     if (!error) {
@@ -1901,7 +1893,7 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
         const batch = ids.slice(i, i + batchSize);
         try {
           await supabase.from("payments").delete().in("application_id", batch);
-        } catch (_) {}
+        } catch (_) { }
         const { error } = await supabase
           .from("scholarship_applications")
           .delete()
@@ -1994,263 +1986,263 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
   const renderApplicationsTable = (appsList: any[]) => {
     return (
       <div className="overflow-x-auto whitespace-nowrap">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    {renderSortableHeader("created_at", "Date")}
-                    {renderSortableHeader("track", "Track")}
-                    {renderSortableHeader("full_name", "Full Name")}
-                    {renderSortableHeader("email", "Email")}
-                    {renderSortableHeader("phone", "Phone")}
-                    {renderSortableHeader("gender", "Gender")}
-                    {renderSortableHeader("date_of_birth", "DOB")}
-                    {renderSortableHeader("state_region", "State/Region")}
-                    {renderSortableHeader("country", "Country")}
-                    {renderSortableHeader("highest_qualification", "Highest Qual.")}
-                    {renderSortableHeader("institution", "Institution")}
-                    {renderSortableHeader("course_of_study", "Course of Study")}
-                    {renderSortableHeader("current_status", "Current Status")}
-                    {renderSortableHeader("studied_before", "Studied Before")}
-                    {renderSortableHeader("experience_level", "Exp. Level")}
-                    {renderSortableHeader("has_computer", "Has Computer")}
-                    {renderSortableHeader("has_internet", "Has Internet")}
-                    {renderSortableHeader("can_commit", "Can Commit")}
-                    {renderSortableHeader("heard_from", "Heard From")}
-                    {renderSortableHeader("referral_code", "Referral Code")}
-                    {renderSortableHeader("signature", "Signature")}
-                    {renderSortableHeader("agreed_to_terms", "Agreed to Terms")}
-                    {renderSortableHeader("notified", "Notified")}
-                    {renderSortableHeader("payment_status", "Payment Status")}
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {loading ? (
-                    <TableRow>
-                      <TableCell colSpan={24} className="text-center py-4">
-                        Loading...
-                      </TableCell>
-                    </TableRow>
-                  ) : appsList.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={24} className="text-center py-4">
-                        No applications found.
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    appsList.map((app, i) => (
-                      <Fragment key={app.id || i}>
-                        <TableRow
-                          onClick={() => toggleRow(app.id)}
-                          className="cursor-pointer hover:bg-muted/40 transition-colors"
+        <Table>
+          <TableHeader>
+            <TableRow>
+              {renderSortableHeader("created_at", "Date")}
+              {renderSortableHeader("track", "Track")}
+              {renderSortableHeader("full_name", "Full Name")}
+              {renderSortableHeader("email", "Email")}
+              {renderSortableHeader("phone", "Phone")}
+              {renderSortableHeader("gender", "Gender")}
+              {renderSortableHeader("date_of_birth", "DOB")}
+              {renderSortableHeader("state_region", "State/Region")}
+              {renderSortableHeader("country", "Country")}
+              {renderSortableHeader("highest_qualification", "Highest Qual.")}
+              {renderSortableHeader("institution", "Institution")}
+              {renderSortableHeader("course_of_study", "Course of Study")}
+              {renderSortableHeader("current_status", "Current Status")}
+              {renderSortableHeader("studied_before", "Studied Before")}
+              {renderSortableHeader("experience_level", "Exp. Level")}
+              {renderSortableHeader("has_computer", "Has Computer")}
+              {renderSortableHeader("has_internet", "Has Internet")}
+              {renderSortableHeader("can_commit", "Can Commit")}
+              {renderSortableHeader("heard_from", "Heard From")}
+              {renderSortableHeader("referral_code", "Referral Code")}
+              {renderSortableHeader("signature", "Signature")}
+              {renderSortableHeader("agreed_to_terms", "Agreed to Terms")}
+              {renderSortableHeader("notified", "Notified")}
+              {renderSortableHeader("payment_status", "Payment Status")}
+              <TableHead>Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={24} className="text-center py-4">
+                  Loading...
+                </TableCell>
+              </TableRow>
+            ) : appsList.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={24} className="text-center py-4">
+                  No applications found.
+                </TableCell>
+              </TableRow>
+            ) : (
+              appsList.map((app, i) => (
+                <Fragment key={app.id || i}>
+                  <TableRow
+                    onClick={() => toggleRow(app.id)}
+                    className="cursor-pointer hover:bg-muted/40 transition-colors"
+                  >
+                    <TableCell>
+                      {new Date(app.created_at).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell>{app.track}</TableCell>
+                    <TableCell className="font-medium flex items-center gap-1">
+                      {expandedRows[app.id] ? (
+                        <ChevronUp className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                      ) : (
+                        <ChevronDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                      )}
+                      {app.full_name}
+                    </TableCell>
+                    <TableCell>{app.email}</TableCell>
+                    <TableCell>{app.phone}</TableCell>
+                    <TableCell>{app.gender}</TableCell>
+                    <TableCell>{app.date_of_birth || "—"}</TableCell>
+                    <TableCell>{app.state_region}</TableCell>
+                    <TableCell>{app.country}</TableCell>
+                    <TableCell>{app.highest_qualification}</TableCell>
+                    <TableCell>{app.institution || "—"}</TableCell>
+                    <TableCell>{app.course_of_study || "—"}</TableCell>
+                    <TableCell>{app.current_status}</TableCell>
+                    <TableCell>{app.studied_before ? "Yes" : "No"}</TableCell>
+                    <TableCell>{app.experience_level}</TableCell>
+                    <TableCell>{app.has_computer ? "Yes" : "No"}</TableCell>
+                    <TableCell>{app.has_internet ? "Yes" : "No"}</TableCell>
+                    <TableCell>{app.can_commit ? "Yes" : "No"}</TableCell>
+                    <TableCell>{app.heard_from}</TableCell>
+                    <TableCell>{app.referral_code || "—"}</TableCell>
+                    <TableCell>{app.signature}</TableCell>
+                    <TableCell>{app.agreed_to_terms ? "Yes" : "No"}</TableCell>
+                    <TableCell onClick={(e) => e.stopPropagation()}>
+                      <button
+                        onClick={() => toggleNotified(app.id)}
+                        className="focus:outline-none select-none text-left"
+                        title="Click to toggle notification status"
+                      >
+                        {notifiedApps[app.id] ? (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-green-500/15 text-green-400 border border-green-500/20">
+                            ✅ Notified
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-zinc-500/10 text-muted-foreground border border-zinc-500/15">
+                            ⏳ Not Sent
+                          </span>
+                        )}
+                      </button>
+                    </TableCell>
+                    <TableCell>
+                      <PaymentBadge status={app.payment_status} />
+                    </TableCell>
+                    <TableCell onClick={(e) => e.stopPropagation()}>
+                      <div className="flex gap-1.5 items-center flex-wrap">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="text-xs border-primary/40 text-primary hover:bg-primary/10 whitespace-nowrap"
+                          title="Extract and view complete student bio for Uget Academy"
+                          onClick={() => setSelectedBioApp(app)}
                         >
-                          <TableCell>
-                            {new Date(app.created_at).toLocaleDateString()}
-                          </TableCell>
-                          <TableCell>{app.track}</TableCell>
-                          <TableCell className="font-medium flex items-center gap-1">
-                            {expandedRows[app.id] ? (
-                              <ChevronUp className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                            ) : (
-                              <ChevronDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                          🎓 Bio
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="text-xs whitespace-nowrap"
+                          onClick={() => setNotifyApp(app)}
+                        >
+                          Notify
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => toggleRow(app.id)}
+                          className="text-xs text-muted-foreground p-1 h-8 w-8"
+                        >
+                          {expandedRows[app.id] ? (
+                            <ChevronUp className="h-4 w-4" />
+                          ) : (
+                            <ChevronDown className="h-4 w-4" />
+                          )}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          className="text-xs font-semibold bg-red-600/90 hover:bg-red-700 text-white"
+                          onClick={() => deleteApplication(app.id)}
+                        >
+                          Delete
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+
+                  {expandedRows[app.id] && (
+                    <TableRow className="bg-muted/10 border-b border-border/80" onClick={(e) => e.stopPropagation()}>
+                      <TableCell colSpan={24} className="p-4">
+                        <div className="max-w-3xl rounded-xl border border-border bg-card/65 p-4 space-y-4 shadow-inner">
+                          <h4 className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+                            Payment Verification Details
+                          </h4>
+                          <div className="grid gap-4 sm:grid-cols-4">
+                            <div>
+                              <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-0.5">Sender Name</div>
+                              <div className="text-sm font-semibold">{app.payment_sender ?? "—"}</div>
+                            </div>
+                            <div>
+                              <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-0.5">Reference / Receipt</div>
+                              {(() => {
+                                if (!app.payment_ref) return <div className="text-sm font-semibold">—</div>;
+                                const hasReceipt = app.payment_ref.includes("data:");
+                                const parts = app.payment_ref.split(" | ");
+                                const refText = parts.length > 1 ? parts[0] : (hasReceipt ? "" : app.payment_ref);
+                                const receiptData = hasReceipt ? (parts.length > 1 ? parts[1] : app.payment_ref) : null;
+                                const isPdf = hasReceipt && receiptData && receiptData.startsWith("data:application/pdf");
+                                return (
+                                  <div className="space-y-2">
+                                    {refText && <div className="text-sm font-semibold font-mono text-primary/95">{refText}</div>}
+                                    {receiptData && (
+                                      <div className="mt-1">
+                                        <a
+                                          href={receiptData}
+                                          target="_blank"
+                                          rel="noreferrer noopener"
+                                          className="inline-flex items-center gap-1 text-primary hover:underline text-xs font-semibold"
+                                        >
+                                          {isPdf ? "👁️ View PDF Receipt" : "👁️ View Full Receipt"}
+                                        </a>
+                                        <div className="mt-1.5 rounded-lg overflow-hidden border border-border/40 max-w-[200px] bg-card/50 p-1 flex items-center justify-center">
+                                          {isPdf ? (
+                                            <div className="p-4 flex flex-col items-center gap-1.5 text-muted-foreground select-none">
+                                              <span className="text-2xl">📄</span>
+                                              <span className="text-[10px] font-medium">PDF Document</span>
+                                            </div>
+                                          ) : (
+                                            <img
+                                              src={receiptData}
+                                              alt="Receipt Proof"
+                                              className="max-h-36 object-contain rounded"
+                                            />
+                                          )}
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              })()}
+                            </div>
+                            <div>
+                              <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-0.5">Date Paid</div>
+                              <div className="text-sm font-semibold">{app.payment_date ?? "—"}</div>
+                            </div>
+                            <div>
+                              <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-0.5">Amount Paid</div>
+                              <div className="text-sm font-bold text-primary">
+                                {app.payment_amount ? fmt(app.payment_amount) : "—"}
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="flex gap-2 pt-2">
+                            {app.payment_status !== "Paid" && (
+                              <Button
+                                size="sm"
+                                className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-xs px-4"
+                                onClick={() => updatePaymentStatus(app.id, "Paid")}
+                              >
+                                ✓ Mark as Paid
+                              </Button>
                             )}
-                            {app.full_name}
-                          </TableCell>
-                          <TableCell>{app.email}</TableCell>
-                          <TableCell>{app.phone}</TableCell>
-                          <TableCell>{app.gender}</TableCell>
-                          <TableCell>{app.date_of_birth || "—"}</TableCell>
-                          <TableCell>{app.state_region}</TableCell>
-                          <TableCell>{app.country}</TableCell>
-                          <TableCell>{app.highest_qualification}</TableCell>
-                          <TableCell>{app.institution || "—"}</TableCell>
-                          <TableCell>{app.course_of_study || "—"}</TableCell>
-                          <TableCell>{app.current_status}</TableCell>
-                          <TableCell>{app.studied_before ? "Yes" : "No"}</TableCell>
-                          <TableCell>{app.experience_level}</TableCell>
-                          <TableCell>{app.has_computer ? "Yes" : "No"}</TableCell>
-                          <TableCell>{app.has_internet ? "Yes" : "No"}</TableCell>
-                          <TableCell>{app.can_commit ? "Yes" : "No"}</TableCell>
-                          <TableCell>{app.heard_from}</TableCell>
-                          <TableCell>{app.referral_code || "—"}</TableCell>
-                          <TableCell>{app.signature}</TableCell>
-                          <TableCell>{app.agreed_to_terms ? "Yes" : "No"}</TableCell>
-                          <TableCell onClick={(e) => e.stopPropagation()}>
-                            <button
-                              onClick={() => toggleNotified(app.id)}
-                              className="focus:outline-none select-none text-left"
-                              title="Click to toggle notification status"
-                            >
-                              {notifiedApps[app.id] ? (
-                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-green-500/15 text-green-400 border border-green-500/20">
-                                  ✅ Notified
-                                </span>
-                              ) : (
-                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-zinc-500/10 text-muted-foreground border border-zinc-500/15">
-                                  ⏳ Not Sent
-                                </span>
-                              )}
-                            </button>
-                          </TableCell>
-                          <TableCell>
-                            <PaymentBadge status={app.payment_status} />
-                          </TableCell>
-                          <TableCell onClick={(e) => e.stopPropagation()}>
-                            <div className="flex gap-1.5 items-center flex-wrap">
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="text-xs border-primary/40 text-primary hover:bg-primary/10 whitespace-nowrap"
-                                title="Extract and view complete student bio for Uget Academy"
-                                onClick={() => setSelectedBioApp(app)}
-                              >
-                                🎓 Bio
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="text-xs whitespace-nowrap"
-                                onClick={() => setNotifyApp(app)}
-                              >
-                                Notify
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => toggleRow(app.id)}
-                                className="text-xs text-muted-foreground p-1 h-8 w-8"
-                              >
-                                {expandedRows[app.id] ? (
-                                  <ChevronUp className="h-4 w-4" />
-                                ) : (
-                                  <ChevronDown className="h-4 w-4" />
-                                )}
-                              </Button>
+                            {app.payment_status !== "Unpaid" && app.payment_status !== null && (
                               <Button
                                 size="sm"
                                 variant="destructive"
-                                className="text-xs font-semibold bg-red-600/90 hover:bg-red-700 text-white"
-                                onClick={() => deleteApplication(app.id)}
+                                className="font-semibold text-xs px-4"
+                                onClick={() => updatePaymentStatus(app.id, "Unpaid")}
                               >
-                                Delete
+                                ✕ Mark as Unpaid
                               </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-
-                        {expandedRows[app.id] && (
-                          <TableRow className="bg-muted/10 border-b border-border/80" onClick={(e) => e.stopPropagation()}>
-                            <TableCell colSpan={24} className="p-4">
-                              <div className="max-w-3xl rounded-xl border border-border bg-card/65 p-4 space-y-4 shadow-inner">
-                                <h4 className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
-                                  Payment Verification Details
-                                </h4>
-                                <div className="grid gap-4 sm:grid-cols-4">
-                                  <div>
-                                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-0.5">Sender Name</div>
-                                    <div className="text-sm font-semibold">{app.payment_sender ?? "—"}</div>
-                                  </div>
-                                  <div>
-                                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-0.5">Reference / Receipt</div>
-                                    {(() => {
-                                      if (!app.payment_ref) return <div className="text-sm font-semibold">—</div>;
-                                      const hasReceipt = app.payment_ref.includes("data:");
-                                      const parts = app.payment_ref.split(" | ");
-                                      const refText = parts.length > 1 ? parts[0] : (hasReceipt ? "" : app.payment_ref);
-                                      const receiptData = hasReceipt ? (parts.length > 1 ? parts[1] : app.payment_ref) : null;
-                                      const isPdf = hasReceipt && receiptData && receiptData.startsWith("data:application/pdf");
-                                      return (
-                                        <div className="space-y-2">
-                                          {refText && <div className="text-sm font-semibold font-mono text-primary/95">{refText}</div>}
-                                          {receiptData && (
-                                            <div className="mt-1">
-                                              <a
-                                                href={receiptData}
-                                                target="_blank"
-                                                rel="noreferrer noopener"
-                                                className="inline-flex items-center gap-1 text-primary hover:underline text-xs font-semibold"
-                                              >
-                                                {isPdf ? "👁️ View PDF Receipt" : "👁️ View Full Receipt"}
-                                              </a>
-                                              <div className="mt-1.5 rounded-lg overflow-hidden border border-border/40 max-w-[200px] bg-card/50 p-1 flex items-center justify-center">
-                                                {isPdf ? (
-                                                  <div className="p-4 flex flex-col items-center gap-1.5 text-muted-foreground select-none">
-                                                    <span className="text-2xl">📄</span>
-                                                    <span className="text-[10px] font-medium">PDF Document</span>
-                                                  </div>
-                                                ) : (
-                                                  <img
-                                                    src={receiptData}
-                                                    alt="Receipt Proof"
-                                                    className="max-h-36 object-contain rounded"
-                                                  />
-                                                )}
-                                              </div>
-                                            </div>
-                                          )}
-                                        </div>
-                                      );
-                                    })()}
-                                  </div>
-                                  <div>
-                                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-0.5">Date Paid</div>
-                                    <div className="text-sm font-semibold">{app.payment_date ?? "—"}</div>
-                                  </div>
-                                  <div>
-                                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-0.5">Amount Paid</div>
-                                    <div className="text-sm font-bold text-primary">
-                                      {app.payment_amount ? fmt(app.payment_amount) : "—"}
-                                    </div>
-                                  </div>
-                                </div>
-
-                                <div className="flex gap-2 pt-2">
-                                  {app.payment_status !== "Paid" && (
-                                    <Button
-                                      size="sm"
-                                      className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-xs px-4"
-                                      onClick={() => updatePaymentStatus(app.id, "Paid")}
-                                    >
-                                      ✓ Mark as Paid
-                                    </Button>
-                                  )}
-                                  {app.payment_status !== "Unpaid" && app.payment_status !== null && (
-                                    <Button
-                                      size="sm"
-                                      variant="destructive"
-                                      className="font-semibold text-xs px-4"
-                                      onClick={() => updatePaymentStatus(app.id, "Unpaid")}
-                                    >
-                                      ✕ Mark as Unpaid
-                                    </Button>
-                                  )}
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    className="text-xs px-4"
-                                    onClick={() => setNotifyApp(app)}
-                                  >
-                                    Notify Student
-                                  </Button>
-                                  <Button
-                                    size="sm"
-                                    variant="destructive"
-                                    className="text-xs font-semibold px-4 bg-red-600/90 hover:bg-red-700 text-white"
-                                    onClick={() => deleteApplication(app.id)}
-                                  >
-                                    Delete
-                                  </Button>
-                                </div>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        )}
-                      </Fragment>
-                    ))
+                            )}
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="text-xs px-4"
+                              onClick={() => setNotifyApp(app)}
+                            >
+                              Notify Student
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              className="text-xs font-semibold px-4 bg-red-600/90 hover:bg-red-700 text-white"
+                              onClick={() => deleteApplication(app.id)}
+                            >
+                              Delete
+                            </Button>
+                          </div>
+                        </div>
+                      </TableCell>
+                    </TableRow>
                   )}
-                </TableBody>
-              </Table>
-            </div>
+                </Fragment>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
     );
   };
 
