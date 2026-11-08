@@ -20,37 +20,37 @@ export const Route = createFileRoute("/payment")({
   component: PaymentPage,
 });
 
-export const UNIFORM_COURSE_FEE = 3000;
+export const UNIFORM_COURSE_FEE = 5;
 
 export const COURSE_FEES: Record<string, number> = {
   // New courses
-  "Customer Representative": 3000,
-  "User-Generated Content (UGC)": 3000,
-  "User Generated Content": 3000,
-  "Project Management": 3000,
-  "AI Automation": 3000,
+  "Customer Representative": 5,
+  "User-Generated Content (UGC)": 5,
+  "User Generated Content": 5,
+  "Project Management": 5,
+  "AI Automation": 5,
 
   // Existing tracks
-  "Full-Stack Development": 3000,
-  "Cybersecurity": 3000,
-  "Virtual Assistance": 3000,
-  "AI Automation & Data Annotation": 3000,
-  "Frontend Development": 3000,
-  "Backend Development": 3000,
-  "UI/UX Design": 3000,
-  "Graphic Design": 3000,
-  "Data Analysis": 3000,
-  "Content & Technical Writing": 3000,
-  "Professional Video Editing": 3000,
-  "Printing Technology": 3000,
+  "Full-Stack Development": 5,
+  "Cybersecurity": 5,
+  "Virtual Assistance": 5,
+  "AI Automation & Data Annotation": 5,
+  "Frontend Development": 5,
+  "Backend Development": 5,
+  "UI/UX Design": 5,
+  "Graphic Design": 5,
+  "Data Analysis": 5,
+  "Content & Technical Writing": 5,
+  "Professional Video Editing": 5,
+  "Printing Technology": 5,
 
   // Table aliases / spelling variations
-  "Full Stack Development": 3000,
-  "Virtual Assistant": 3000,
-  "AI Automation/Annotation": 3000,
-  "Graphics Design": 3000,
-  "Content/Technical Writing": 3000,
-  "Graphics Printing": 3000,
+  "Full Stack Development": 5,
+  "Virtual Assistant": 5,
+  "AI Automation/Annotation": 5,
+  "Graphics Design": 5,
+  "Content/Technical Writing": 5,
+  "Graphics Printing": 5,
 };
 
 export function fmt(n: number) {
@@ -66,16 +66,16 @@ export function getFeeDetails(track?: string) {
     ngn: {
       base: 30000,
       full: 30000,
-      scholarship: 27000,
+      scholarship: 29995,
       tax: 0,
-      total: 3000, // Uniform ₦3,000 for all courses
+      total: 5, // Testing ₦5 for all courses
     },
     usd: {
       base: 30,
       full: 30,
-      scholarship: 27,
+      scholarship: 29,
       tax: 0,
-      total: 3,
+      total: 1,
     },
   };
 }
@@ -336,7 +336,7 @@ function PaymentPage() {
       application_id: applicationId,
       payment_status: "Pending Verification",
       payment_sender: (fd.get("sender_name") as string) || applicant.full_name,
-      payment_amount: 3000,
+      payment_amount: UNIFORM_COURSE_FEE,
       payment_date: (fd.get("payment_date") as string) || new Date().toISOString().split("T")[0],
       payment_ref: receiptBase64 
         ? (refText ? `${refText} | ${receiptBase64}` : receiptBase64)
@@ -376,7 +376,7 @@ function PaymentPage() {
     setPaystackLoading(true);
     setSubmitError("");
 
-    const payableAmount = 3000;
+    const payableAmount = UNIFORM_COURSE_FEE;
     let applicationId = applicant.id;
 
     try {
@@ -541,7 +541,7 @@ function PaymentPage() {
             </span>
           </h1>
           <p className="mt-3 text-sm text-muted-foreground max-w-sm mx-auto">
-            Flat ₦3,000 commitment fee for all tracks. Automated Paystack verification.
+            Flat {fmt(UNIFORM_COURSE_FEE)} commitment fee for all tracks. Automated Paystack verification.
           </p>
         </div>
 
@@ -699,10 +699,10 @@ function PaymentPage() {
                     <div className="rounded-xl border border-border bg-card/30 p-5 mt-6 space-y-2">
                       <div className="flex items-center justify-between">
                         <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                          Cohort 2 Tuition (General ₦3,000 for All Tracks)
+                          Cohort 2 Tuition (General {fmt(UNIFORM_COURSE_FEE)} for All Tracks)
                         </span>
                         <span className="rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-[10px] font-bold text-emerald-400 border border-emerald-500/20">
-                          90% Scholarship Applied
+                          Scholarship Applied
                         </span>
                       </div>
                       
@@ -712,8 +712,8 @@ function PaymentPage() {
                       </div>
 
                       <div className="flex items-baseline justify-between text-xs text-emerald-400 border-b border-border/30 pb-2">
-                        <span>Scholarship (90% off):</span>
-                        <span>-{fmt(27000)}</span>
+                        <span>Scholarship Grant:</span>
+                        <span>-{fmt(30000 - UNIFORM_COURSE_FEE)}</span>
                       </div>
 
                       <div className="flex items-baseline justify-between pt-1">
@@ -722,7 +722,7 @@ function PaymentPage() {
                           <div className="text-[10px] text-muted-foreground">General for all candidates</div>
                         </div>
                         <div className="text-2xl font-extrabold text-primary tracking-tight">
-                          {fmt(3000)}
+                          {fmt(UNIFORM_COURSE_FEE)}
                         </div>
                       </div>
                     </div>
@@ -781,7 +781,7 @@ function PaymentPage() {
                           style={{ background: "var(--gradient-brand)", boxShadow: "var(--shadow-glow)" }}
                         >
                           <span>
-                            {paystackLoading ? "Opening Paystack Checkout…" : `Pay ₦3,000 via Paystack`}
+                            {paystackLoading ? "Opening Paystack Checkout…" : `Pay ${fmt(UNIFORM_COURSE_FEE)} via Paystack`}
                           </span>
                           <span>→</span>
                         </button>
@@ -859,7 +859,7 @@ function PaymentPage() {
                                 name="amount_paid"
                                 type="number"
                                 required
-                                defaultValue={3000}
+                                defaultValue={UNIFORM_COURSE_FEE}
                                 readOnly
                                 className={inputCls + " opacity-80 cursor-not-allowed font-semibold"}
                               />
@@ -918,7 +918,7 @@ function PaymentPage() {
                             className="w-full rounded-full py-3 text-sm font-semibold text-primary-foreground shadow-lg transition-all hover:scale-[1.01] hover:shadow-[var(--shadow-glow)] disabled:opacity-60"
                             style={{ background: "var(--gradient-brand)", boxShadow: "var(--shadow-glow)" }}
                           >
-                            {submitStatus === "submitting" ? "Submitting Proof…" : "Confirm ₦3,000 Transfer"}
+                            {submitStatus === "submitting" ? "Submitting Proof…" : `Confirm ${fmt(UNIFORM_COURSE_FEE)} Transfer`}
                           </button>
                         </form>
                       </div>
@@ -941,7 +941,7 @@ function PaymentPage() {
             </div>
             <h2 className="text-xl sm:text-2xl font-bold mb-2">Enrollment Verified!</h2>
             <p className="text-sm text-muted-foreground max-w-md mx-auto mb-6">
-              Thank you, <strong className="text-foreground">{applicant.full_name}</strong>! Your ₦3,000 payment for <strong className="text-foreground">{applicant.track}</strong> has been received.
+              Thank you, <strong className="text-foreground">{applicant.full_name}</strong>! Your {fmt(UNIFORM_COURSE_FEE)} payment for <strong className="text-foreground">{applicant.track}</strong> has been received.
             </p>
 
             <a

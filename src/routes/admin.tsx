@@ -98,7 +98,7 @@ export function buildWelcomeCohort2EmailHtml(name: string | null, track?: string
         </p>
 
         <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d0c8f0;">
-          Congratulations! Your registration and enrollment payment of <strong style="color:#ffffff;">₦3,000</strong> ${displayTrack} have been verified and confirmed.
+          Congratulations! Your registration and enrollment payment ${displayTrack} have been verified and confirmed.
         </p>
 
         <p style="margin:0 0 20px;font-size:15px;line-height:1.7;color:#d0c8f0;">
@@ -2574,9 +2574,6 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
             <TabsTrigger value="paid_students" className="text-xs sm:text-sm flex-1 min-w-[135px] font-bold text-emerald-400">
               🌟 Paid Students ({paid.length + pending.length})
             </TabsTrigger>
-            <TabsTrigger value="unpaid_students" className="text-xs sm:text-sm flex-1 min-w-[135px] font-bold text-rose-400">
-              🗑️ Unpaid Applicants ({unpaid.length})
-            </TabsTrigger>
             <TabsTrigger value="cohort1" className="text-xs sm:text-sm flex-1 min-w-[125px] font-bold">
               📂 Cohort 1 ({cohort1Apps.length})
             </TabsTrigger>
@@ -2654,48 +2651,6 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
             )}
           </TabsContent>
 
-          {/* ── UNPAID APPLICANTS TAB (EASY TO DELETE THOSE WHO DID NOT PAY) ─── */}
-          <TabsContent value="unpaid_students" className="space-y-6">
-            <div className="rounded-2xl border border-destructive/40 bg-destructive/10 p-4 sm:p-5 shadow-sm space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-destructive/20 pb-4">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg font-bold text-foreground">Unpaid Applicants</span>
-                    <span className="rounded-full bg-destructive/20 text-destructive border border-destructive/40 px-2.5 py-0.5 text-xs font-bold">
-                      {unpaid.length} Records
-                    </span>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Applicants who filled the scholarship registration form but have NOT paid. You can safely purge them all below.
-                  </p>
-                </div>
-
-                <div className="flex items-center gap-2 flex-wrap">
-                  {unpaid.length > 0 && (
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={purgeUnpaidApplications}
-                      className="font-bold text-xs shadow-md hover:scale-[1.02] transition-transform flex items-center gap-1.5"
-                    >
-                      <span>🗑️</span>
-                      <span>Delete All {unpaid.length} Unpaid Applicants</span>
-                    </Button>
-                  )}
-                </div>
-              </div>
-
-              <div className="rounded-xl border border-border/60 bg-card/60 p-3.5 text-xs text-muted-foreground">
-                <span className="text-emerald-400 font-semibold">🛡️ Protected:</span> Deleting unpaid applicants will <strong className="text-foreground">never</strong> affect the {paid.length + pending.length} paid students. They are kept 100% safe.
-              </div>
-            </div>
-
-            {renderApplicationsTable(
-              filteredAndSortedApplications.filter(
-                (a) => !a.payment_status || a.payment_status === "Unpaid",
-              ),
-            )}
-          </TabsContent>
 
           {/* ── COHORT 1 TAB (ARCHIVE & 180 STUDENTS) ────────────────────── */}
           <TabsContent value="cohort1" className="space-y-6">
@@ -2740,7 +2695,7 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
               </div>
 
               {/* Cohort 1 Stat Cards */}
-              <div className="grid gap-3 sm:grid-cols-3">
+              <div className="grid gap-3 sm:grid-cols-2">
                 <div className="rounded-xl border border-primary/30 bg-primary/10 p-3.5">
                   <div className="text-xl font-extrabold text-primary">{cohort1Paid.length}</div>
                   <div className="text-xs text-muted-foreground mt-0.5 font-medium">Paid Students</div>
@@ -2749,33 +2704,7 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
                   <div className="text-xl font-extrabold text-yellow-400">{cohort1Pending.length}</div>
                   <div className="text-xs text-muted-foreground mt-0.5 font-medium">Pending Verification</div>
                 </div>
-                <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-3.5">
-                  <div className="text-xl font-extrabold text-destructive">{cohort1Unpaid.length}</div>
-                  <div className="text-xs text-muted-foreground mt-0.5 font-medium">Unpaid Applicants</div>
-                </div>
               </div>
-
-              {/* Purge Cohort 1 Unpaid Button */}
-              {cohort1Unpaid.length > 0 && (
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-destructive/40 bg-destructive/10 p-3.5">
-                  <div>
-                    <h5 className="text-xs font-bold text-destructive flex items-center gap-1.5">
-                      <span>🗑️</span> Purge Unpaid Cohort 1 Students
-                    </h5>
-                    <p className="text-[11px] text-muted-foreground mt-0.5">
-                      Delete all {cohort1Unpaid.length} unpaid applicants from Cohort 1 so only verified paid students remain.
-                    </p>
-                  </div>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={purgeUnpaidApplications}
-                    className="shrink-0 font-bold text-xs shadow-sm hover:scale-[1.02] transition-transform"
-                  >
-                    Purge {cohort1Unpaid.length} Unpaid
-                  </Button>
-                </div>
-              )}
             </div>
 
             {renderApplicationsTable(filteredAndSortedApplications.filter((a) => !a.cohort || a.cohort === "Cohort 1"))}
@@ -2793,7 +2722,7 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
                     </span>
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">
-                    New scholarship students. Requires upfront ₦3,000 Paystack payment. Unpaid submissions are blocked.
+                    New scholarship students. Requires upfront Paystack payment. Unpaid submissions are blocked.
                   </p>
                 </div>
 
@@ -2834,7 +2763,7 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
                   <div className="text-xs text-muted-foreground mt-0.5 font-medium">Total Fees Collected</div>
                 </div>
                 <div className="rounded-xl border border-blue-500/30 bg-blue-500/10 p-3.5">
-                  <div className="text-xl font-extrabold text-blue-400">₦3,000</div>
+                  <div className="text-xl font-extrabold text-blue-400">{fmt(COURSE_FEES["Cybersecurity"] || 5)}</div>
                   <div className="text-xs text-muted-foreground mt-0.5 font-medium">Standard Flat Fee</div>
                 </div>
               </div>
@@ -2846,11 +2775,10 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
           {/* ── PAYMENTS TAB ─────────────────────────────────────────────── */}
           <TabsContent value="payments" className="space-y-6">
             {/* Summary cards */}
-            <div className="grid gap-4 sm:grid-cols-3">
+            <div className="grid gap-4 sm:grid-cols-2">
               {[
                 { label: "Paid", count: paid.length, color: "text-primary", bg: "bg-primary/10 border-primary/30" },
                 { label: "Pending Verification", count: pending.length, color: "text-yellow-400", bg: "bg-yellow-500/10 border-yellow-500/30" },
-                { label: "Unpaid", count: unpaid.length, color: "text-destructive", bg: "bg-destructive/10 border-destructive/30" },
               ].map((s) => (
                 <div key={s.label} className={`rounded-xl border p-4 ${s.bg}`}>
                   <div className={`text-2xl font-bold ${s.color}`}>{s.count}</div>
@@ -2859,29 +2787,7 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
               ))}
             </div>
 
-            {/* Cohort 2 Purge Unpaid Banner */}
-            {unpaid.length > 0 && (
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-destructive/40 bg-destructive/10 p-4 animate-fade-in">
-                <div>
-                  <h4 className="text-sm font-bold text-destructive flex items-center gap-2">
-                    <span>🗑️</span> Purge Unpaid Applications for Cohort 2
-                  </h4>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    Clean database before Cohort 2 starts: delete all {unpaid.length} unpaid applicants so only students who paid in Cohort 1 remain.
-                  </p>
-                </div>
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={purgeUnpaidApplications}
-                  className="shrink-0 font-bold shadow-md hover:scale-[1.02] transition-transform"
-                >
-                  Purge {unpaid.length} Unpaid Applicants
-                </Button>
-              </div>
-            )}
-
-            {/* Paid / Pending & Unpaid lists */}
+            {/* Paid / Pending Verification list */}
             {[
               {
                 id: "paid-pending",
@@ -2890,14 +2796,6 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
                   (a) => a.payment_status === "Paid" || a.payment_status === "Pending Verification"
                 ),
                 showDetails: true,
-              },
-              {
-                id: "unpaid",
-                title: "❌ Unpaid",
-                rows: filteredAndSortedApplications.filter(
-                  (a) => !a.payment_status || a.payment_status === "Unpaid"
-                ),
-                showDetails: false,
               },
             ].map((group) => {
               if (group.rows.length === 0) return null;

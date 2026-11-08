@@ -8,7 +8,7 @@ import { StudentBioExtractor } from "@/components/StudentBioExtractor";
 
 // Toggle registration status (set to true to reopen, false to close)
 const REGISTRATION_OPEN = true;
-const UNIFORM_FEE = 3000;
+const UNIFORM_FEE = 5;
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -52,7 +52,7 @@ const HIGHLIGHTS = [
 const STEPS = [
   { id: 1, title: "About You", hint: "Track & contact info" },
   { id: 2, title: "Background & Tools", hint: "Education & readiness" },
-  { id: 3, title: "Tuition & Payment", hint: "₦3,000 fee & enrollment" },
+  { id: 3, title: "Tuition & Payment", hint: "" },
 ];
 
 type Status = "idle" | "submitting" | "success" | "error";
@@ -302,7 +302,7 @@ function RegistrationPage() {
             { display_name: "Full Name", variable_name: "full_name", value: applicantPayload.full_name },
             { display_name: "Track", variable_name: "track", value: applicantPayload.track },
             { display_name: "Cohort", variable_name: "cohort", value: "Cohort 2" },
-            { display_name: "Payment Plan", variable_name: "payment_plan", value: "Full Payment (₦3,000)" },
+            { display_name: "Payment Plan", variable_name: "payment_plan", value: `Full Payment (${fmt(amountToCharge)})` },
             { display_name: "Phone", variable_name: "phone", value: applicantPayload.phone },
           ],
         },
@@ -884,7 +884,7 @@ function RegistrationPage() {
                     {/* Section 6: Cohort 2 Tuition & Official Bank Payment */}
                     <Section
                       title="6. Cohort 2 Scholarship Tuition & Payment"
-                      subtitle="Under Cohort 2 policy, applications are stored only upon verified payment of ₦3,000."
+                      subtitle="Under Cohort 2 policy, applications are stored only upon verified payment."
                     >
                       {selectedTrack ? (
                         <div className="space-y-5">
@@ -905,8 +905,8 @@ function RegistrationPage() {
                             </div>
 
                             <div className="flex items-baseline justify-between text-xs text-emerald-400 border-b border-border/40 pb-2">
-                              <span>Scholarship Grant (90% off):</span>
-                              <span>-₦27,000.00</span>
+                              <span>Scholarship Grant:</span>
+                              <span>-{fmt(30000 - UNIFORM_FEE)}</span>
                             </div>
 
                             <div className="flex items-baseline justify-between pt-1">
@@ -1017,7 +1017,7 @@ function RegistrationPage() {
                                 Confirm Your Transfer
                               </h4>
                               <p className="text-xs text-muted-foreground">
-                                Please transfer <strong>₦3,000</strong> to <strong>Moniepoint (6743620799 - Uget Technologies)</strong>, then enter the account name you sent from below:
+                                Please transfer <strong>{fmt(UNIFORM_FEE)}</strong> to <strong>Moniepoint (6743620799 - Uget Technologies)</strong>, then enter the account name you sent from below:
                               </p>
                               <Grid>
                                 <Field label="Transfer Sender Name" required>
@@ -1106,7 +1106,7 @@ function RegistrationPage() {
                       isFinal
                       submitLabel={
                         paymentMethod === "direct_transfer"
-                          ? "Confirm Bank Transfer & Complete Enrollment →"
+                          ? `Confirm Bank Transfer (${fmt(payableAmount)}) & Complete Enrollment →`
                           : `Pay ${fmt(payableAmount)} via Paystack & Enroll →`
                       }
                     />
@@ -1215,7 +1215,7 @@ function Stepper({ currentStep }: { currentStep: number }) {
                   >
                     {s.title}
                   </div>
-                  <div className="text-[10px] text-muted-foreground">{s.hint}</div>
+                  {s.hint ? <div className="text-[10px] text-muted-foreground">{s.hint}</div> : null}
                 </div>
               </div>
               {i < STEPS.length - 1 && (
