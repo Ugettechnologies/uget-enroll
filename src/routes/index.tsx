@@ -7,7 +7,7 @@ import { payWithPaystack } from "@/lib/paystack";
 
 // Toggle registration status (set to true to reopen, false to close)
 const REGISTRATION_OPEN = true;
-const UNIFORM_FEE = 5;
+const UNIFORM_FEE = 3000;
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -62,16 +62,6 @@ function RegistrationPage() {
   const [message, setMessage] = useState("");
   const [formData, setFormData] = useState<Record<string, FormDataEntryValue>>({});
   const [enrolledStudent, setEnrolledStudent] = useState<any | null>(null);
-  const [paymentMethod, setPaymentMethod] = useState<"paystack" | "direct_transfer">("paystack");
-  const [directSenderName, setDirectSenderName] = useState("");
-  const [directRef, setDirectRef] = useState("");
-  const [copiedBank, setCopiedBank] = useState(false);
-
-  function copyAccountNumber() {
-    navigator.clipboard.writeText("6743620799");
-    setCopiedBank(true);
-    setTimeout(() => setCopiedBank(false), 2500);
-  }
 
   function captureStep(form: HTMLFormElement) {
     const fd = new FormData(form);
@@ -260,26 +250,7 @@ function RegistrationPage() {
     setStatus("submitting");
     setMessage("");
 
-    // Branch by chosen payment method
-    if (paymentMethod === "direct_transfer") {
-      try {
-        const sender = (directSenderName && directSenderName.trim()) || String(applicantPayload.full_name);
-        const ref = (directRef && directRef.trim()) || ("DIRECT-TRANSFER-" + Date.now().toString().slice(-6));
-        await saveEnrolledStudent(applicantPayload, {
-          status: "Paid",
-          sender,
-          amount: amountToCharge,
-          ref,
-        });
-      } catch (err: any) {
-        console.error("Direct transfer submission error:", err);
-        setStatus("error");
-        setMessage(err.message || "Failed to record your direct bank transfer. Please retry.");
-      }
-      return;
-    }
-
-    // Otherwise: Paystack Online Checkout
+    // Paystack Online Checkout (Card, Bank Transfer, USSD, OPay)
     try {
       await payWithPaystack({
         email: applicantPayload.email,
@@ -316,7 +287,7 @@ function RegistrationPage() {
     } catch (err: any) {
       console.error("Paystack checkout error:", err);
       setStatus("error");
-      setMessage(err.message || "Failed to initialize Paystack checkout. Please try again or use direct bank transfer.");
+      setMessage(err.message || "Failed to initialize Paystack checkout. Please try again.");
     }
   }
 
@@ -881,128 +852,18 @@ function RegistrationPage() {
                             </div>
                           </div>
 
-                          {/* Official Uget Technologies Bank Transfer Card */}
-                          <div className="rounded-2xl border border-primary/40 bg-primary/10 p-5 space-y-3 shadow-md">
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-primary/20 pb-2.5">
-                              <div className="flex items-center gap-2">
-                                <span className="text-xl">🏦</span>
-                                <span className="text-xs font-bold uppercase tracking-wider text-primary">
-                                  Official Uget Technologies Bank Details
-                                </span>
-                              </div>
-                              <span className="rounded-full bg-primary/20 px-2.5 py-0.5 text-[11px] font-bold text-primary border border-primary/30 w-fit">
-                                Direct Corporate Account
+                          {/* Paystack Integration Note */}
+                          <div className="rounded-2xl border border-primary/40 bg-primary/10 p-4 text-xs text-muted-foreground flex items-start gap-3 shadow-sm">
+                            <span className="text-2xl">💳</span>
+                            <div className="space-y-1">
+                              <span className="font-bold text-foreground text-sm block">
+                                Secure Paystack Gateway
                               </span>
-                            </div>
-
-                            <p className="text-xs text-muted-foreground leading-relaxed">
-                              You can transfer directly to our official corporate account via your banking app, or pay online with your debit card below.
-                            </p>
-
-                            <div className="grid gap-3 sm:grid-cols-3 rounded-xl border border-border/80 bg-card/85 p-3.5 text-xs">
-                              <div>
-                                <div className="text-[10px] text-muted-foreground uppercase font-medium">Bank</div>
-                                <div className="font-bold text-sm text-foreground mt-0.5">Moniepoint Microfinance Bank</div>
-                              </div>
-                              <div>
-                                <div className="text-[10px] text-muted-foreground uppercase font-medium">Account Name</div>
-                                <div className="font-bold text-sm text-foreground mt-0.5">Uget Technologies</div>
-                              </div>
-                              <div>
-                                <div className="text-[10px] text-muted-foreground uppercase font-medium">Account Number</div>
-                                <div className="flex items-center gap-2 mt-0.5">
-                                  <span className="font-mono font-extrabold text-base text-primary tracking-wider">6743620799</span>
-                                  <button
-                                    type="button"
-                                    onClick={copyAccountNumber}
-                                    className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-primary/20 text-primary border border-primary/30 hover:bg-primary/30 active:scale-95 transition-all cursor-pointer min-h-[36px]"
-                                    title="Click to copy account number"
-                                  >
-                                    {copiedBank ? "Copied! ✅" : "Copy 📋"}
-                                  </button>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Payment Method Selector */}
-                          <div className="space-y-3 pt-2">
-                            <label className="block text-xs font-bold uppercase tracking-wider text-foreground">
-                              Select How You Want to Pay:
-                            </label>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                              <button
-                                type="button"
-                                onClick={() => setPaymentMethod("paystack")}
-                                className={`p-4 rounded-xl border text-left transition-all cursor-pointer ${paymentMethod === "paystack"
-                                    ? "border-primary bg-primary/15 shadow-sm ring-1 ring-primary"
-                                    : "border-border/80 bg-card/50 hover:bg-card"
-                                  }`}
-                              >
-                                <div className="flex items-center justify-between">
-                                  <span className="text-sm font-bold text-foreground flex items-center gap-2">
-                                    <span>💳</span> Pay Online (Paystack)
-                                  </span>
-                                  {paymentMethod === "paystack" && <span className="text-primary text-xs font-bold">● Selected</span>}
-                                </div>
-                                <p className="text-xs text-muted-foreground mt-1">
-                                  Instant verification via Debit Card, USSD, or Paystack Bank Transfer.
-                                </p>
-                              </button>
-
-                              <button
-                                type="button"
-                                onClick={() => setPaymentMethod("direct_transfer")}
-                                className={`p-4 rounded-xl border text-left transition-all cursor-pointer ${paymentMethod === "direct_transfer"
-                                    ? "border-primary bg-primary/15 shadow-sm ring-1 ring-primary"
-                                    : "border-border/80 bg-card/50 hover:bg-card"
-                                  }`}
-                              >
-                                <div className="flex items-center justify-between">
-                                  <span className="text-sm font-bold text-foreground flex items-center gap-2">
-                                    <span>🏦</span> Direct Bank Transfer
-                                  </span>
-                                  {paymentMethod === "direct_transfer" && <span className="text-primary text-xs font-bold">● Selected</span>}
-                                </div>
-                                <p className="text-xs text-muted-foreground mt-1">
-                                  Transfer directly to Moniepoint <strong>6743620799</strong> (Uget Technologies).
-                                </p>
-                              </button>
-                            </div>
-                          </div>
-
-                          {/* If Direct Transfer is selected: prompt for sender details */}
-                          {paymentMethod === "direct_transfer" && (
-                            <div className="rounded-xl border border-primary/40 bg-card/60 p-4 space-y-3 animate-fade-in">
-                              <h4 className="text-xs font-bold uppercase tracking-wider text-foreground">
-                                Confirm Your Transfer
-                              </h4>
-                              <p className="text-xs text-muted-foreground">
-                                Please transfer <strong>{fmt(UNIFORM_FEE)}</strong> to <strong>Moniepoint (6743620799 - Uget Technologies)</strong>, then enter the account name you sent from below:
+                              <p className="leading-relaxed">
+                                Complete your payment securely with <strong>Debit Card</strong>, <strong>Bank Transfer</strong> (instant virtual account), <strong>USSD</strong>, or <strong>OPay / PalmPay</strong>. Your seat is confirmed immediately upon payment.
                               </p>
-                              <Grid>
-                                <Field label="Transfer Sender Name" required>
-                                  <input
-                                    type="text"
-                                    value={directSenderName}
-                                    onChange={(e) => setDirectSenderName(e.target.value)}
-                                    placeholder="Name on your bank account (e.g. Victor Evans)"
-                                    className={inputCls}
-                                    required={paymentMethod === "direct_transfer"}
-                                  />
-                                </Field>
-                                <Field label="Payment Reference / Transaction ID (Optional)">
-                                  <input
-                                    type="text"
-                                    value={directRef}
-                                    onChange={(e) => setDirectRef(e.target.value)}
-                                    placeholder="e.g. Session ID or Reference"
-                                    className={inputCls}
-                                  />
-                                </Field>
-                              </Grid>
                             </div>
-                          )}
+                          </div>
                         </div>
                       ) : (
                         <div className="rounded-lg border border-yellow-500/30 bg-yellow-500/10 p-4 text-xs text-yellow-300">
@@ -1065,11 +926,7 @@ function RegistrationPage() {
                       onBack={goBack}
                       submitting={status === "submitting"}
                       isFinal
-                      submitLabel={
-                        paymentMethod === "direct_transfer"
-                          ? `Confirm Bank Transfer (${fmt(payableAmount)}) & Complete Enrollment →`
-                          : `Pay ${fmt(payableAmount)} via Paystack & Enroll →`
-                      }
+                      submitLabel={`Pay ${fmt(payableAmount)} via Paystack & Enroll →`}
                     />
                   </form>
                 )}

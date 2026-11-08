@@ -13,6 +13,7 @@ declare global {
         amount: number; // in kobo
         currency?: string;
         ref?: string;
+        channels?: string[];
         metadata?: Record<string, any>;
         callback: (response: PaystackSuccessResponse) => void;
         onClose: () => void;
@@ -158,6 +159,7 @@ export async function payWithPaystack({
     amount: amountInKobo,
     currency,
     ref: payRef,
+    channels: ["card", "bank", "ussd", "qr", "mobile_money", "bank_transfer"],
     metadata: enhancedMetadata,
     callback: (response: PaystackSuccessResponse) => {
       onSuccess(response);

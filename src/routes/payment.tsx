@@ -19,37 +19,37 @@ export const Route = createFileRoute("/payment")({
   component: PaymentPage,
 });
 
-export const UNIFORM_COURSE_FEE = 5;
+export const UNIFORM_COURSE_FEE = 3000;
 
 export const COURSE_FEES: Record<string, number> = {
   // New courses
-  "Customer Representative": 5,
-  "User-Generated Content (UGC)": 5,
-  "User Generated Content": 5,
-  "Project Management": 5,
-  "AI Automation": 5,
+  "Customer Representative": 3000,
+  "User-Generated Content (UGC)": 3000,
+  "User Generated Content": 3000,
+  "Project Management": 3000,
+  "AI Automation": 3000,
 
   // Existing tracks
-  "Full-Stack Development": 5,
-  "Cybersecurity": 5,
-  "Virtual Assistance": 5,
-  "AI Automation & Data Annotation": 5,
-  "Frontend Development": 5,
-  "Backend Development": 5,
-  "UI/UX Design": 5,
-  "Graphic Design": 5,
-  "Data Analysis": 5,
-  "Content & Technical Writing": 5,
-  "Professional Video Editing": 5,
-  "Printing Technology": 5,
+  "Full-Stack Development": 3000,
+  "Cybersecurity": 3000,
+  "Virtual Assistance": 3000,
+  "AI Automation & Data Annotation": 3000,
+  "Frontend Development": 3000,
+  "Backend Development": 3000,
+  "UI/UX Design": 3000,
+  "Graphic Design": 3000,
+  "Data Analysis": 3000,
+  "Content & Technical Writing": 3000,
+  "Professional Video Editing": 3000,
+  "Printing Technology": 3000,
 
   // Table aliases / spelling variations
-  "Full Stack Development": 5,
-  "Virtual Assistant": 5,
-  "AI Automation/Annotation": 5,
-  "Graphics Design": 5,
-  "Content/Technical Writing": 5,
-  "Graphics Printing": 5,
+  "Full Stack Development": 3000,
+  "Virtual Assistant": 3000,
+  "AI Automation/Annotation": 3000,
+  "Graphics Design": 3000,
+  "Content/Technical Writing": 3000,
+  "Graphics Printing": 3000,
 };
 
 export function fmt(n: number) {
@@ -65,16 +65,16 @@ export function getFeeDetails(track?: string) {
     ngn: {
       base: 30000,
       full: 30000,
-      scholarship: 29995,
+      scholarship: 27000,
       tax: 0,
-      total: 5, // Testing ₦5 for all courses
+      total: 3000,
     },
     usd: {
       base: 30,
       full: 30,
-      scholarship: 29,
+      scholarship: 27,
       tax: 0,
-      total: 1,
+      total: 3,
     },
   };
 }
@@ -95,10 +95,7 @@ function PaymentPage() {
   const [applicant, setApplicant] = useState<Applicant | null>(null);
   const [submitStatus, setSubmitStatus] = useState<SubmitStatus>("idle");
   const [submitError, setSubmitError] = useState("");
-  const [copied, setCopied] = useState(false);
   const [currency, setCurrency] = useState<"NGN" | "OTHER_AFRICA" | "USD">("NGN");
-  const [receiptBase64, setReceiptBase64] = useState("");
-  const [fileError, setFileError] = useState("");
   const [paystackLoading, setPaystackLoading] = useState(false);
 
   useEffect(() => {
@@ -261,113 +258,6 @@ function PaymentPage() {
     }
   }, []);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    setFileError("");
-    if (file) {
-      if (file.size > 1.5 * 1024 * 1024) {
-        setFileError("File is too large. Please upload an image or PDF under 1.5MB.");
-        e.target.value = "";
-        setReceiptBase64("");
-        return;
-      }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setReceiptBase64(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  async function handleConfirm(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    if (!applicant || !supabase || !feeDetails) return;
-
-    setSubmitStatus("submitting");
-    setSubmitError("");
-
-    let applicationId = applicant.id;
-
-    if (applicationId.startsWith("temp_")) {
-      const pendingStr = sessionStorage.getItem("pending_registration");
-      if (!pendingStr) {
-        setSubmitStatus("error");
-        setSubmitError("Pending registration details not found. Please register again.");
-        return;
-      }
-      try {
-        const pendingPayload = JSON.parse(pendingStr);
-        delete pendingPayload.id;
-
-        const { data: inserted, error: insertError } = await supabase
-          .from("scholarship_applications")
-          .insert({
-            ...pendingPayload,
-            cohort: "Cohort 2",
-          })
-          .select("id")
-          .single();
-
-        if (insertError) {
-          setSubmitStatus("error");
-          setSubmitError("Failed to save registration: " + insertError.message);
-          return;
-        }
-
-        if (inserted && inserted.id) {
-          applicationId = inserted.id;
-        } else {
-          setSubmitStatus("error");
-          setSubmitError("Failed to retrieve generated application ID.");
-          return;
-        }
-      } catch (err: any) {
-        setSubmitStatus("error");
-        setSubmitError("Failed to process registration: " + (err.message || err));
-        return;
-      }
-    }
-
-    const fd = new FormData(e.currentTarget);
-    const refText = (fd.get("transaction_ref") as string) || "";
-    const payload = {
-      application_id: applicationId,
-      payment_status: "Pending Verification",
-      payment_sender: (fd.get("sender_name") as string) || applicant.full_name,
-      payment_amount: UNIFORM_COURSE_FEE,
-      payment_date: (fd.get("payment_date") as string) || new Date().toISOString().split("T")[0],
-      payment_ref: receiptBase64 
-        ? (refText ? `${refText} | ${receiptBase64}` : receiptBase64)
-        : refText,
-    };
-
-    const { error: paymentError } = await supabase
-      .from("scholarship_applications")
-      .update({
-        payment_status: "Pending Verification",
-        payment_sender: payload.payment_sender,
-        payment_amount: payload.payment_amount,
-        payment_date: payload.payment_date,
-        payment_ref: payload.payment_ref,
-      })
-      .eq("id", applicationId);
-
-    if (paymentError) {
-      setSubmitStatus("error");
-      setSubmitError(paymentError.message);
-      return;
-    }
-
-    try {
-      await supabase
-        .from("payments")
-        .upsert(payload, { onConflict: "application_id" });
-    } catch (_) {}
-
-    sessionStorage.removeItem("pending_registration");
-    setSubmitStatus("success");
-    setApplicant((a) => a && { ...a, id: applicationId, ...payload });
-  }
 
   async function handlePaystackPayment() {
     if (!applicant || !supabase || !feeDetails) return;
@@ -478,13 +368,6 @@ function PaymentPage() {
       setSubmitError(err.message || "Could not launch Paystack checkout.");
       setPaystackLoading(false);
     }
-  }
-
-  function copyAccountNumber() {
-    navigator.clipboard.writeText("6743620799").then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    });
   }
 
   const selectCls =
@@ -732,9 +615,15 @@ function PaymentPage() {
                           </span>
                         </div>
                         <p className="text-xs text-muted-foreground leading-relaxed">
-                          Pay securely with Debit Card, Bank Transfer, USSD, or Apple Pay. Your enrollment is
+                          Pay securely with Debit Card, Bank Transfer (instant virtual account), USSD, or OPay. Your enrollment is
                           instantly confirmed upon completion.
                         </p>
+
+                        {submitError && (
+                          <div className="rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+                            {submitError}
+                          </div>
+                        )}
 
                         <button
                           type="button"
@@ -748,142 +637,6 @@ function PaymentPage() {
                           </span>
                           <span>→</span>
                         </button>
-                      </div>
-
-                      {/* Divider */}
-                      <div className="relative flex py-1 items-center">
-                        <div className="flex-grow border-t border-border/50"></div>
-                        <span className="flex-shrink mx-4 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                          OR PAY VIA MANUAL BANK TRANSFER
-                        </span>
-                        <div className="flex-grow border-t border-border/50"></div>
-                      </div>
-
-                      <div
-                        className="rounded-xl border border-primary/30 p-5 space-y-3"
-                        style={{ background: "oklch(0.74 0.16 285 / 0.05)" }}
-                      >
-                        <h3 className="text-xs font-semibold uppercase tracking-wider text-primary">
-                          🏦 Bank Transfer Details
-                        </h3>
-                        <div className="grid gap-4 grid-cols-1 sm:grid-cols-3 text-sm">
-                          <div>
-                            <div className="text-[10px] text-muted-foreground uppercase">Bank</div>
-                            <div className="font-semibold">Moniepoint</div>
-                          </div>
-                          <div>
-                            <div className="text-[10px] text-muted-foreground uppercase">Account Name</div>
-                            <div className="font-semibold">Uget Technologies</div>
-                          </div>
-                          <div>
-                            <div className="text-[10px] text-muted-foreground uppercase">Account Number</div>
-                            <div className="flex items-center gap-1.5">
-                              <span className="font-mono font-bold text-base text-primary tracking-wide">6743620799</span>
-                              <button
-                                type="button"
-                                onClick={copyAccountNumber}
-                                className="p-1 rounded hover:bg-card border border-border"
-                                title="Copy account number"
-                              >
-                                {copied ? "✅" : "📋"}
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="space-y-4">
-                        <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                          Confirm Transfer Details
-                        </h3>
-                        <form onSubmit={handleConfirm} className="space-y-4">
-                          <div>
-                            <label className="block text-xs font-medium text-foreground mb-1">
-                              Sender Name <span className="text-accent">*</span>
-                              <span className="text-muted-foreground font-normal text-[10px] ml-1">
-                                (Name on the transfer account)
-                              </span>
-                            </label>
-                            <input
-                              name="sender_name"
-                              required
-                              placeholder="e.g. Favour Okafor"
-                              defaultValue={applicant.full_name}
-                              className={inputCls}
-                            />
-                          </div>
-
-                          <div className="grid gap-4 sm:grid-cols-2">
-                            <div>
-                              <label className="block text-xs font-medium text-foreground mb-1">
-                                Amount Paid (₦) <span className="text-accent">*</span>
-                              </label>
-                              <input
-                                name="amount_paid"
-                                type="number"
-                                required
-                                defaultValue={UNIFORM_COURSE_FEE}
-                                readOnly
-                                className={inputCls + " opacity-80 cursor-not-allowed font-semibold"}
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-xs font-medium text-foreground mb-1">
-                                Payment Date <span className="text-accent">*</span>
-                              </label>
-                              <input
-                                name="payment_date"
-                                type="date"
-                                required
-                                defaultValue={new Date().toISOString().split("T")[0]}
-                                className={inputCls}
-                              />
-                            </div>
-                          </div>
-
-                          <div>
-                            <label className="block text-xs font-medium text-foreground mb-1">
-                              Transaction Reference / Description
-                              <span className="text-muted-foreground font-normal text-[10px] ml-1">
-                                (Optional)
-                              </span>
-                            </label>
-                            <input
-                              name="transaction_ref"
-                              placeholder="Narration or Reference number"
-                              className={inputCls}
-                            />
-                          </div>
-
-                          <div>
-                            <label className="block text-xs font-medium text-foreground mb-1">
-                              Upload Proof of Payment (Image or PDF) <span className="text-accent">*</span>
-                            </label>
-                            <input
-                              type="file"
-                              accept="image/*,application/pdf"
-                              required
-                              onChange={handleFileChange}
-                              className="w-full text-xs text-muted-foreground file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer"
-                            />
-                            {fileError && <p className="text-red-400 text-xs mt-1">{fileError}</p>}
-                          </div>
-
-                          {submitError && (
-                            <div className="rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-                              {submitError}
-                            </div>
-                          )}
-
-                          <button
-                            type="submit"
-                            disabled={submitStatus === "submitting"}
-                            className="w-full rounded-full py-3 text-sm font-semibold text-primary-foreground shadow-lg transition-all hover:scale-[1.01] hover:shadow-[var(--shadow-glow)] disabled:opacity-60"
-                            style={{ background: "var(--gradient-brand)", boxShadow: "var(--shadow-glow)" }}
-                          >
-                            {submitStatus === "submitting" ? "Submitting Proof…" : `Confirm ${fmt(UNIFORM_COURSE_FEE)} Transfer`}
-                          </button>
-                        </form>
                       </div>
                     </div>
                   )}
