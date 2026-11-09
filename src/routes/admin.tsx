@@ -175,7 +175,7 @@ export function buildWelcomeCohort2EmailText(name: string | null, track?: string
 
 Hello ${displayName},
 
-Congratulations! Your registration and enrollment payment of ₦3,000${trackLine} have been verified and confirmed.
+Congratulations! Your registration and enrollment payment of ₦3,148${trackLine} have been verified and confirmed.
 
 Your seat in Cohort 2 is officially secured. We are excited to support you on your 12-week learning journey!
 
@@ -195,7 +195,7 @@ Uget Technologies`.trim();
 }
 
 export function getWelcomeCohort2WhatsAppMessage(app: any) {
-  return `Hello ${app.full_name},\n\n🎉 Congratulations and welcome to Uget Academy Cohort 2!\n\nYour registration and ₦3,000 enrollment fee for ${app.track} has been verified and confirmed.\n\nPlease join our official Cohort 2 WhatsApp community group using the link below. All class schedules, learning resources, and orientation details are shared there:\n\n👉 ${COHORT_2_WA_LINK}\n\nOnce you join, you will be directed into your track. See you inside!\n\nWarm regards,\nThe Uget Academy Team`;
+  return `Hello ${app.full_name},\n\n🎉 Congratulations and welcome to Uget Academy Cohort 2!\n\nYour registration and ₦3,148 enrollment fee for ${app.track} has been verified and confirmed.\n\nPlease join our official Cohort 2 WhatsApp community group using the link below. All class schedules, learning resources, and orientation details are shared there:\n\n👉 ${COHORT_2_WA_LINK}\n\nOnce you join, you will be directed into your track. See you inside!\n\nWarm regards,\nThe Uget Academy Team`;
 }
 
 // Aliases for compatibility
@@ -371,8 +371,8 @@ function AdminWrapper() {
                   setError("");
                 }}
                 className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg transition-all ${loginTab === "admin"
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
                   }`}
               >
                 <ShieldCheck className="h-3.5 w-3.5" />
@@ -385,8 +385,8 @@ function AdminWrapper() {
                   setError("");
                 }}
                 className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg transition-all ${loginTab === "student"
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
                   }`}
               >
                 <GraduationCap className="h-3.5 w-3.5" />
@@ -603,7 +603,7 @@ function NotifyModal({
 }) {
   const [templateType, setTemplateType] = useState<"welcome_cohort2">("welcome_cohort2");
 
-  const fee = COURSE_FEES[app.track] ?? 3000;
+  const fee = COURSE_FEES[app.track] ?? 3148;
   const personalizedPaymentUrl = paymentUrl.includes("?")
     ? `${paymentUrl}&id=${app.id}`
     : `${paymentUrl}?id=${app.id}`;
@@ -718,7 +718,7 @@ function NotifyModal({
           </p>
           <p>
             <span className="text-muted-foreground">Enrolled Status:</span>{" "}
-            <strong className="text-emerald-400">Verified Paid (₦3,000)</strong>
+            <strong className="text-emerald-400">Verified Paid (₦3,148)</strong>
           </p>
           <p>
             <span className="text-muted-foreground">WhatsApp Group:</span>{" "}
@@ -990,8 +990,8 @@ function BulkEmailModal({
                 type="button"
                 onClick={() => handleTargetChange("unpaid")}
                 className={`rounded-xl border p-2.5 text-left text-sm transition-all ${target === "unpaid"
-                    ? "border-primary bg-primary/10 text-foreground"
-                    : "border-border bg-card/45 text-muted-foreground hover:border-border/80"
+                  ? "border-primary bg-primary/10 text-foreground"
+                  : "border-border bg-card/45 text-muted-foreground hover:border-border/80"
                   }`}
               >
                 <div className="font-semibold text-xs">Unpaid only</div>
@@ -1001,8 +1001,8 @@ function BulkEmailModal({
                 type="button"
                 onClick={() => handleTargetChange("paid")}
                 className={`rounded-xl border p-2.5 text-left text-sm transition-all ${target === "paid"
-                    ? "border-primary bg-primary/10 text-foreground"
-                    : "border-border bg-card/45 text-muted-foreground hover:border-border/80"
+                  ? "border-primary bg-primary/10 text-foreground"
+                  : "border-border bg-card/45 text-muted-foreground hover:border-border/80"
                   }`}
               >
                 <div className="font-semibold text-xs">Paid only</div>
@@ -1012,8 +1012,8 @@ function BulkEmailModal({
                 type="button"
                 onClick={() => handleTargetChange("all")}
                 className={`rounded-xl border p-2.5 text-left text-sm transition-all ${target === "all"
-                    ? "border-primary bg-primary/10 text-foreground"
-                    : "border-border bg-card/45 text-muted-foreground hover:border-border/80"
+                  ? "border-primary bg-primary/10 text-foreground"
+                  : "border-border bg-card/45 text-muted-foreground hover:border-border/80"
                   }`}
               >
                 <div className="font-semibold text-xs">All</div>
@@ -1051,8 +1051,8 @@ function BulkEmailModal({
                 type="button"
                 onClick={() => setMethod("resend")}
                 className={`flex-1 pb-2.5 text-sm font-semibold border-b-2 transition-colors ${method === "resend"
-                    ? "border-primary text-primary"
-                    : "border-transparent text-muted-foreground hover:text-foreground"
+                  ? "border-primary text-primary"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
                   }`}
               >
                 {emailProvider === "brevo" ? "Brevo API (Auto)" : "Resend API (Auto)"}
@@ -1061,8 +1061,8 @@ function BulkEmailModal({
                 type="button"
                 onClick={() => setMethod("mailto")}
                 className={`flex-1 pb-2.5 text-sm font-semibold border-b-2 transition-colors ${method === "mailto"
-                    ? "border-primary text-primary"
-                    : "border-transparent text-muted-foreground hover:text-foreground"
+                  ? "border-primary text-primary"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
                   }`}
               >
                 Mail Client (mailto)
@@ -1071,8 +1071,8 @@ function BulkEmailModal({
                 type="button"
                 onClick={() => setMethod("whatsapp")}
                 className={`flex-1 pb-2.5 text-sm font-semibold border-b-2 transition-colors ${method === "whatsapp"
-                    ? "border-primary text-primary"
-                    : "border-transparent text-muted-foreground hover:text-foreground"
+                  ? "border-primary text-primary"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
                   }`}
               >
                 WhatsApp Blast
@@ -1958,7 +1958,7 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
 
   const cohort2Paid = cohort2Apps.filter((a) => a.payment_status === "Paid");
   const cohort2TotalRevenue = cohort2Paid.reduce(
-    (sum, a) => sum + (Number(a.payment_amount) || 3000),
+    (sum, a) => sum + (Number(a.payment_amount) || 3148),
     0,
   );
 

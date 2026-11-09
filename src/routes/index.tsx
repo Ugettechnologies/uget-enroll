@@ -7,7 +7,9 @@ import { payWithPaystack } from "@/lib/paystack";
 
 // Toggle registration status (set to true to reopen, false to close)
 const REGISTRATION_OPEN = true;
-const UNIFORM_FEE = 3000;
+const TUITION_FEE = 3000;
+const PROCESSING_FEE = 148;
+const UNIFORM_FEE = 3148;
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -836,16 +838,26 @@ function RegistrationPage() {
                       {selectedTrack ? (
                         <div className="space-y-5">
                           {/* Price Container */}
-                          <div className="rounded-xl border border-border/80 bg-card/40 p-5">
+                          <div className="rounded-xl border border-border/80 bg-card/40 p-5 space-y-3">
                             <div className="flex items-center justify-between">
                               <div>
                                 <div className="text-sm font-bold text-foreground">
                                   {selectedTrack} · Enrollment Fee
                                 </div>
                                 <div className="text-xs text-muted-foreground mt-0.5">
-                                  Flat commitment fee for 12-week program · Cohort 2
+                                  Tuition fee for 12-week program · Cohort 2
                                 </div>
                               </div>
+                              <span className="text-base font-semibold text-foreground">
+                                {fmt(TUITION_FEE)}
+                              </span>
+                            </div>
+                            <div className="flex items-center justify-between text-xs text-muted-foreground pt-1 border-t border-border/40">
+                              <span>Payment Processing Fee</span>
+                              <span>{fmt(PROCESSING_FEE)}</span>
+                            </div>
+                            <div className="flex items-center justify-between pt-2 border-t border-border/60">
+                              <span className="text-sm font-bold text-foreground">Total Payable</span>
                               <span className="text-2xl sm:text-3xl font-extrabold text-primary">
                                 {fmt(UNIFORM_FEE)}
                               </span>
@@ -993,10 +1005,10 @@ function Stepper({ currentStep }: { currentStep: number }) {
               <div className="flex flex-col items-center text-center flex-1">
                 <div
                   className={`relative flex h-9 w-9 sm:h-11 sm:w-11 items-center justify-center rounded-full border-2 font-semibold text-xs sm:text-sm transition-all duration-500 ${isCurrent
-                      ? "border-primary text-primary-foreground scale-110"
-                      : isDone
-                        ? "border-primary/70 text-primary-foreground"
-                        : "border-border text-muted-foreground"
+                    ? "border-primary text-primary-foreground scale-110"
+                    : isDone
+                      ? "border-primary/70 text-primary-foreground"
+                      : "border-border text-muted-foreground"
                     }`}
                   style={
                     isCurrent || isDone

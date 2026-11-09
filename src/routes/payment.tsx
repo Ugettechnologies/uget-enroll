@@ -19,37 +19,39 @@ export const Route = createFileRoute("/payment")({
   component: PaymentPage,
 });
 
-export const UNIFORM_COURSE_FEE = 3000;
+export const TUITION_FEE = 3000;
+export const PROCESSING_FEE = 148;
+export const UNIFORM_COURSE_FEE = 3148;
 
 export const COURSE_FEES: Record<string, number> = {
   // New courses
-  "Customer Representative": 3000,
-  "User-Generated Content (UGC)": 3000,
-  "User Generated Content": 3000,
-  "Project Management": 3000,
-  "AI Automation": 3000,
+  "Customer Representative": 3148,
+  "User-Generated Content (UGC)": 3148,
+  "User Generated Content": 3148,
+  "Project Management": 3148,
+  "AI Automation": 3148,
 
   // Existing tracks
-  "Full-Stack Development": 3000,
-  "Cybersecurity": 3000,
-  "Virtual Assistance": 3000,
-  "AI Automation & Data Annotation": 3000,
-  "Frontend Development": 3000,
-  "Backend Development": 3000,
-  "UI/UX Design": 3000,
-  "Graphic Design": 3000,
-  "Data Analysis": 3000,
-  "Content & Technical Writing": 3000,
-  "Professional Video Editing": 3000,
-  "Printing Technology": 3000,
+  "Full-Stack Development": 3148,
+  "Cybersecurity": 3148,
+  "Virtual Assistance": 3148,
+  "AI Automation & Data Annotation": 3148,
+  "Frontend Development": 3148,
+  "Backend Development": 3148,
+  "UI/UX Design": 3148,
+  "Graphic Design": 3148,
+  "Data Analysis": 3148,
+  "Content & Technical Writing": 3148,
+  "Professional Video Editing": 3148,
+  "Printing Technology": 3148,
 
   // Table aliases / spelling variations
-  "Full Stack Development": 3000,
-  "Virtual Assistant": 3000,
-  "AI Automation/Annotation": 3000,
-  "Graphics Design": 3000,
-  "Content/Technical Writing": 3000,
-  "Graphics Printing": 3000,
+  "Full Stack Development": 3148,
+  "Virtual Assistant": 3148,
+  "AI Automation/Annotation": 3148,
+  "Graphics Design": 3148,
+  "Content/Technical Writing": 3148,
+  "Graphics Printing": 3148,
 };
 
 export function fmt(n: number) {
@@ -63,16 +65,17 @@ export function fmtUsd(n: number) {
 export function getFeeDetails(track?: string) {
   return {
     ngn: {
-      base: 30000,
+      base: 3000,
+      processing: 148,
       full: 30000,
-      scholarship: 27000,
+      // scholarship: 27000,
       tax: 0,
-      total: 3000,
+      total: 3148,
     },
     usd: {
       base: 30,
       full: 30,
-      scholarship: 27,
+      // scholarship: 27,
       tax: 0,
       total: 3,
     },
@@ -575,16 +578,26 @@ function PaymentPage() {
 
                   {/* Price Container */}
                   {feeDetails && (
-                    <div className="rounded-xl border border-border bg-card/30 p-5 mt-6">
+                    <div className="rounded-xl border border-border bg-card/30 p-5 mt-6 space-y-3">
                       <div className="flex items-center justify-between">
                         <div>
                           <div className="text-sm font-bold text-foreground">
-                            {applicant.track} · Enrollment Fee
+                            {applicant.track} · Enrollment Tuition
                           </div>
                           <div className="text-xs text-muted-foreground mt-0.5">
-                            Cohort 2 Flat Commitment Fee
+                            Cohort 2 Flat Tuition Fee
                           </div>
                         </div>
+                        <div className="text-base font-semibold text-foreground">
+                          {fmt(TUITION_FEE)}
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between text-xs text-muted-foreground pt-1 border-t border-border/40">
+                        <span>Payment Processing Fee</span>
+                        <span>{fmt(PROCESSING_FEE)}</span>
+                      </div>
+                      <div className="flex items-center justify-between pt-2 border-t border-border/60">
+                        <span className="text-sm font-bold text-foreground">Total Payable</span>
                         <div className="text-2xl sm:text-3xl font-extrabold text-primary tracking-tight">
                           {fmt(UNIFORM_COURSE_FEE)}
                         </div>
